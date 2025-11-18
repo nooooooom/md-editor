@@ -6,8 +6,8 @@ import type { AttachmentButtonProps } from '../AttachmentButton';
 import { upLoadFileToServer } from '../AttachmentButton';
 import type { AttachmentButtonPopoverProps } from '../AttachmentButton/AttachmentButtonPopover';
 import { SupportedFileFormats } from '../AttachmentButton/AttachmentButtonPopover';
-import { isMobileDevice, isVivoOrOppoDevice } from '../AttachmentButton/utils';
 import type { AttachmentFile } from '../AttachmentButton/types';
+import { isMobileDevice, isVivoOrOppoDevice } from '../AttachmentButton/utils';
 
 /**
  * 移动设备默认的文件类型 accept 值
@@ -103,14 +103,16 @@ export const useFileUploadManager = ({
 
     if (!isVivoOrOppo) {
       // 非 vivo/oppo 设备，直接使用扩展名列表
-      return extensions.length > 0 ? extensions.map((ext) => `.${ext}`).join(',') : 'image/*';
+      return extensions.length > 0
+        ? extensions.map((ext) => `.${ext}`).join(',')
+        : 'image/*';
     }
 
     // vivo/oppo 设备：判断是否只包含图片格式
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-    const isImageOnly = extensions.length > 0 && extensions.every((ext) =>
-      imageExtensions.includes(ext.toLowerCase())
-    );
+    const isImageOnly =
+      extensions.length > 0 &&
+      extensions.every((ext) => imageExtensions.includes(ext.toLowerCase()));
 
     if (isImageOnly) {
       // 只支持图片格式，使用 image/* 打开相册
@@ -118,7 +120,9 @@ export const useFileUploadManager = ({
     }
 
     // 支持其他格式，使用具体扩展名列表打开文件选择器
-    return extensions.length > 0 ? extensions.map((ext) => `.${ext}`).join(',') : 'image/*';
+    return extensions.length > 0
+      ? extensions.map((ext) => `.${ext}`).join(',')
+      : 'image/*';
   };
 
   /**
