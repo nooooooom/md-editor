@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Modal, Tooltip } from 'antd';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
+import { useRefFunction } from '../../Hooks/useRefFunction';
 import { I18nContext } from '../../I18n';
 import { isMobileDevice, isVivoOrOppoDevice, kbToSize } from './utils';
 
@@ -15,7 +16,7 @@ import { isMobileDevice, isVivoOrOppoDevice, kbToSize } from './utils';
  * 移动设备默认的文件类型 accept 值
  */
 const MOBILE_DEFAULT_ACCEPT =
-  'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.csv,image/*,text/plain,application/x-zip-compressed';
+  'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.csv,text/plain,application/x-zip-compressed';
 
 export type SupportedFormat = {
   type: string;
@@ -125,48 +126,42 @@ export const AttachmentButtonPopover: React.FC<
   /**
    * 根据支持的格式获取 accept 属性值
    */
-  const getAcceptValue = useCallback(
-    (forGallery: boolean): string => {
-      // 如果是移动设备，返回默认的 accept 值
-      if (isMobile || forGallery) {
-        return MOBILE_DEFAULT_ACCEPT;
-      }
+  const getAcceptValue = useRefFunction((forGallery: boolean): string => {
+    // 如果是移动设备，返回默认的 accept 值
+    if (isMobile || forGallery) {
+      return MOBILE_DEFAULT_ACCEPT;
+    }
 
-      // 打开文件，使用具体扩展名列表
-      return extensions.length > 0
-        ? extensions.map((ext) => `.${ext}`).join(',')
-        : MOBILE_DEFAULT_ACCEPT;
-    },
-    [extensions, isMobile],
-  );
+    // 打开文件，使用具体扩展名列表
+    return extensions.length > 0
+      ? extensions.map((ext) => `.${ext}`).join(',')
+      : MOBILE_DEFAULT_ACCEPT;
+  });
 
   /**
    * 创建文件输入并触发选择
    */
-  const triggerFileInput = useCallback(
-    (forGallery: boolean) => {
-      const accept = getAcceptValue(forGallery);
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = accept;
-      input.multiple = allowMultiple;
-      input.style.display = 'none';
+  const triggerFileInput = useRefFunction((forGallery: boolean) => {
+    const accept = getAcceptValue(forGallery);
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = accept;
+    input.multiple = allowMultiple;
+    input.style.display = 'none';
 
-      input.onchange = (e: Event) => {
-        const target = e.target as HTMLInputElement;
-        if (target.files && target.files.length > 0 && onFileSelect) {
-          onFileSelect(target.files, accept);
-        }
-        // 清理
-        input.remove();
-      };
+    input.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files && target.files.length > 0 && onFileSelect) {
+        onFileSelect(target.files, accept);
+      }
+      // 清理
+      input.remove();
+    };
 
-      document.body.appendChild(input);
-      input.click();
-      setModalOpen(false);
-    },
-    [getAcceptValue, onFileSelect, allowMultiple],
-  );
+    document.body.appendChild(input);
+    input.click();
+    setModalOpen(false);
+  });
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
