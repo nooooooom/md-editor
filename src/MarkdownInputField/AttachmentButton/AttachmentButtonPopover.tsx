@@ -11,6 +11,12 @@ import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { I18nContext } from '../../I18n';
 import { isMobileDevice, isVivoOrOppoDevice, kbToSize } from './utils';
 
+/**
+ * 移动设备默认的文件类型 accept 值
+ */
+const MOBILE_DEFAULT_ACCEPT =
+  'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.csv,image/*,text/plain,video/*,audio/*,application/x-zip-compressed';
+
 export type SupportedFormat = {
   type: string;
   maxSize: number;
@@ -121,16 +127,17 @@ export const AttachmentButtonPopover: React.FC<
    */
   const getAcceptValue = useCallback(
     (forGallery: boolean): string => {
-      if (forGallery) {
-        // 打开相册，使用 image/*
-        return 'image/*';
+      // 如果是移动设备，返回默认的 accept 值
+      if (isMobile || forGallery) {
+        return MOBILE_DEFAULT_ACCEPT;
       }
+
       // 打开文件，使用具体扩展名列表
       return extensions.length > 0
         ? extensions.map((ext) => `.${ext}`).join(',')
-        : 'image/*';
+        : MOBILE_DEFAULT_ACCEPT;
     },
-    [extensions],
+    [extensions, isMobile],
   );
 
   /**

@@ -6,8 +6,14 @@ import type { AttachmentButtonProps } from '../AttachmentButton';
 import { upLoadFileToServer } from '../AttachmentButton';
 import type { AttachmentButtonPopoverProps } from '../AttachmentButton/AttachmentButtonPopover';
 import { SupportedFileFormats } from '../AttachmentButton/AttachmentButtonPopover';
-import { isVivoOrOppoDevice } from '../AttachmentButton/utils';
+import { isMobileDevice, isVivoOrOppoDevice } from '../AttachmentButton/utils';
 import type { AttachmentFile } from '../AttachmentButton/types';
+
+/**
+ * 移动设备默认的文件类型 accept 值
+ */
+const MOBILE_DEFAULT_ACCEPT =
+  'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.csv,image/*,text/plain,video/*,audio/*,application/x-zip-compressed';
 
 type SupportedFileFormatsType = AttachmentButtonPopoverProps['supportedFormat'];
 
@@ -82,11 +88,18 @@ export const useFileUploadManager = ({
 
   /**
    * 根据支持的格式获取 accept 属性值
+   * 在移动设备上，使用默认的 accept 值
    * 在 vivo 或 oppo 手机上，如果只支持图片格式，使用 image/* 打开相册；否则使用具体扩展名打开文件选择器
    */
   const getAcceptValue = (): string => {
+    const isMobile = isMobileDevice();
     const isVivoOrOppo = isVivoOrOppoDevice();
     const extensions = supportedFormat?.extensions || [];
+
+    // 如果是移动设备，返回默认的 accept 值
+    if (isMobile) {
+      return MOBILE_DEFAULT_ACCEPT;
+    }
 
     if (!isVivoOrOppo) {
       // 非 vivo/oppo 设备，直接使用扩展名列表
