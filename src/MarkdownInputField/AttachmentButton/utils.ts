@@ -284,3 +284,35 @@ export const isOppoDevice = (ua?: string): boolean => {
 export const isVivoOrOppoDevice = (ua?: string): boolean => {
   return isVivoDevice(ua) || isOppoDevice(ua);
 };
+
+/**
+ * 检测是否为移动设备
+ *
+ * @returns {boolean} 是否为移动设备
+ *
+ * @example
+ * ```ts
+ * isMobileDevice() // true | false
+ * ```
+ */
+export const isMobileDevice = (): boolean => {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
+
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  // 检测常见的移动设备标识
+  const mobileRegex =
+    /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile|mobile safari|micromessenger/i;
+
+  // 检测触摸设备
+  const hasTouchScreen =
+    'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+  // 检测屏幕宽度（移动设备通常小于 768px）
+  const isSmallScreen =
+    typeof window !== 'undefined' && window.innerWidth <= 768;
+
+  return mobileRegex.test(userAgent) || (hasTouchScreen && isSmallScreen);
+};

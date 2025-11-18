@@ -9,7 +9,7 @@ import {
 import { Button, Modal, Tooltip } from 'antd';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { I18nContext } from '../../I18n';
-import { isVivoOrOppoDevice, kbToSize } from './utils';
+import { isMobileDevice, isVivoOrOppoDevice, kbToSize } from './utils';
 
 export type SupportedFormat = {
   type: string;
@@ -104,6 +104,7 @@ export const AttachmentButtonPopover: React.FC<
   const [modalOpen, setModalOpen] = useState(false);
   const { locale } = useContext(I18nContext);
   const isVivoOrOppo = useMemo(() => isVivoOrOppoDevice(), []);
+  const isMobile = useMemo(() => isMobileDevice(), []);
   const trigger = useMemo(
     () =>
       isVivoOrOppo
@@ -239,6 +240,11 @@ export const AttachmentButtonPopover: React.FC<
         </Modal>
       </div>
     );
+  }
+
+  // 如果是移动设备，不显示 Tooltip
+  if (isMobile) {
+    return <span>{children}</span>;
   }
 
   return (
