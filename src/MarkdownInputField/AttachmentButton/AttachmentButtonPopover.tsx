@@ -7,7 +7,8 @@ import {
   VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Button, Modal, Tooltip } from 'antd';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
+import { I18nContext } from '../../I18n';
 import { isVivoOrOppoDevice, kbToSize } from './utils';
 
 export type SupportedFormat = {
@@ -101,6 +102,7 @@ export const AttachmentButtonPopover: React.FC<
   AttachmentButtonPopoverProps
 > = ({ children, supportedFormat, onFileSelect, allowMultiple = true }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const { locale } = useContext(I18nContext);
   const isVivoOrOppo = useMemo(() => isVivoOrOppoDevice(), []);
   const trigger = useMemo(
     () =>
@@ -223,7 +225,7 @@ export const AttachmentButtonPopover: React.FC<
               icon={<PictureOutlined />}
               onClick={handleOpenGallery}
             >
-              打开相册
+              {locale?.['input.openGallery'] || '打开相册'}
             </Button>
             <Button
               color="default"
@@ -231,7 +233,7 @@ export const AttachmentButtonPopover: React.FC<
               icon={<FolderOpenOutlined />}
               onClick={handleOpenFile}
             >
-              打开文件
+              {locale?.['input.openFile'] || '打开文件'}
             </Button>
           </div>
         </Modal>
