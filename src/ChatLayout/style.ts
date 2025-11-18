@@ -140,7 +140,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
           paddingTop: 'var(--padding-2x)',
           paddingLeft: 'var(--padding-2x)',
           paddingRight: 'var(--padding-2x)',
-          paddingBottom: '124px', // 内容底部与输入框操作区域距离24px，不遮挡内容
+          paddingBottom: '144px', // 内容底部与输入框操作区域距离24px，不遮挡内容
           '&::-webkit-scrollbar': {
             width: '6px',
           },
