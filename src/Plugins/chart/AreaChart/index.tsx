@@ -480,6 +480,9 @@ const AreaChart: React.FC<AreaChartProps> = ({
         },
       },
       tooltip: {
+        // 与交互保持一致：不要求点相交，并按 x 索引联动
+        intersect: false,
+        mode: 'index',
         backgroundColor: isLight
           ? 'rgba(255,255,255,0.95)'
           : 'rgba(0,0,0,0.85)',
