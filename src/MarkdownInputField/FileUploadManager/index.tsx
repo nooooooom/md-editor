@@ -13,7 +13,7 @@ import { isMobileDevice, isVivoOrOppoDevice } from '../AttachmentButton/utils';
  * 移动设备默认的文件类型 accept 值
  */
 const MOBILE_DEFAULT_ACCEPT =
-  'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.csv,image/*,text/plain,video/*,audio/*,application/x-zip-compressed';
+  'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.csv,image/*,text/plain,application/x-zip-compressed';
 
 type SupportedFileFormatsType = AttachmentButtonPopoverProps['supportedFormat'];
 
