@@ -151,7 +151,7 @@ export const AttachmentButtonPopover: React.FC<
 
     // 4. 相册模式：设置为空字符串以打开文件浏览器
     if (forGallery) {
-      return '';
+      return 'image/*';
     }
 
     // 5. 默认情况：使用具体扩展名列表
