@@ -9,12 +9,6 @@ import { SupportedFileFormats } from '../AttachmentButton/AttachmentButtonPopove
 import type { AttachmentFile } from '../AttachmentButton/types';
 import { isMobileDevice, isVivoOrOppoDevice } from '../AttachmentButton/utils';
 
-/**
- * 移动设备默认的文件类型 accept 值
- */
-const MOBILE_DEFAULT_ACCEPT =
-  'application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.csv,image/*,text/plain,application/x-zip-compressed';
-
 type SupportedFileFormatsType = AttachmentButtonPopoverProps['supportedFormat'];
 
 export interface FileUploadManagerProps {
@@ -96,18 +90,6 @@ export const useFileUploadManager = ({
     const isVivoOrOppo = isVivoOrOppoDevice();
     const extensions = supportedFormat?.extensions || [];
 
-    // 如果是移动设备，返回默认的 accept 值
-    if (isMobile) {
-      return MOBILE_DEFAULT_ACCEPT;
-    }
-
-    if (!isVivoOrOppo) {
-      // 非 vivo/oppo 设备，直接使用扩展名列表
-      return extensions.length > 0
-        ? extensions.map((ext) => `.${ext}`).join(',')
-        : 'image/*';
-    }
-
     // vivo/oppo 设备：判断是否只包含图片格式
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
     const isImageOnly =
@@ -117,6 +99,18 @@ export const useFileUploadManager = ({
     if (isImageOnly) {
       // 只支持图片格式，使用 image/* 打开相册
       return 'image/*';
+    }
+
+    // 如果是移动设备，返回默认的 accept 值
+    if (isMobile) {
+      return '';
+    }
+
+    if (!isVivoOrOppo) {
+      // 非 vivo/oppo 设备，直接使用扩展名列表
+      return extensions.length > 0
+        ? extensions.map((ext) => `.${ext}`).join(',')
+        : 'image/*';
     }
 
     // 支持其他格式，使用具体扩展名列表打开文件选择器
