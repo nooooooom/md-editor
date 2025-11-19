@@ -103,6 +103,20 @@ export const LanguageSelector = (props: LanguageSelectorProps) => {
       placement={'bottomLeft'}
       onOpenChange={(visible) => {
         setOpen(visible);
+        if (visible) {
+          // 弹层打开时，延时聚焦到搜索框
+          setTimeout(() => {
+            (
+              props?.containerRef?.current?.querySelector(
+                '.lang-select input',
+              ) as HTMLInputElement
+            )?.focus();
+          });
+        } else {
+          // 弹层关闭时清空搜索关键字，并标记用户已手动关闭
+          setKeyword('');
+          hasUserClosedRef.current = true;
+        }
       }}
       content={
         <div
@@ -188,9 +202,7 @@ export const LanguageSelector = (props: LanguageSelectorProps) => {
                 {safeElement.katex ? 'Formula' : safeElement.language}
               </span>
             ) : (
-              <span style={{ color: 'var(--color-gray-text-light)' }}>
-                选择语言
-              </span>
+              <span>{''}</span>
             )}
           </div>
         </>
