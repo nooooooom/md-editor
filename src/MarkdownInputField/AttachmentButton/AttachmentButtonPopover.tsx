@@ -133,14 +133,9 @@ export const AttachmentButtonPopover: React.FC<
    * 根据支持的格式获取 accept 属性值
    */
   const getAcceptValue = useRefFunction((forGallery: boolean): string => {
-    // 如果是微信环境，设置为空字符串以打开文件浏览器
-    if (isWeChatEnv) {
-      return '';
-    }
-
     // 如果是移动设备，返回默认的 accept 值
-    if (isMobile || forGallery) {
-      return MOBILE_DEFAULT_ACCEPT;
+    if (isMobile || forGallery || isWeChatEnv) {
+      return '';
     }
 
     // 打开文件，使用具体扩展名列表
