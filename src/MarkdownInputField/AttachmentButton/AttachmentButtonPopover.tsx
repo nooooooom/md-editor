@@ -10,7 +10,12 @@ import { Button, Modal, Tooltip } from 'antd';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useRefFunction } from '../../Hooks/useRefFunction';
 import { I18nContext } from '../../I18n';
-import { isMobileDevice, isVivoOrOppoDevice, kbToSize } from './utils';
+import {
+  isMobileDevice,
+  isVivoOrOppoDevice,
+  isWeChat,
+  kbToSize,
+} from './utils';
 
 /**
  * 移动设备默认的文件类型 accept 值
@@ -112,6 +117,7 @@ export const AttachmentButtonPopover: React.FC<
   const { locale } = useContext(I18nContext);
   const isVivoOrOppo = useMemo(() => isVivoOrOppoDevice(), []);
   const isMobile = useMemo(() => isMobileDevice(), []);
+  const isWeChatEnv = useMemo(() => isWeChat(), []);
   const trigger = useMemo(
     () =>
       isVivoOrOppo
@@ -127,6 +133,11 @@ export const AttachmentButtonPopover: React.FC<
    * 根据支持的格式获取 accept 属性值
    */
   const getAcceptValue = useRefFunction((forGallery: boolean): string => {
+    // 如果是微信环境，设置为空字符串以打开文件浏览器
+    if (isWeChatEnv) {
+      return '';
+    }
+
     // 如果是移动设备，返回默认的 accept 值
     if (isMobile || forGallery) {
       return MOBILE_DEFAULT_ACCEPT;

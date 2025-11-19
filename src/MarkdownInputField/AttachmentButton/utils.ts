@@ -316,3 +316,23 @@ export const isMobileDevice = (): boolean => {
 
   return mobileRegex.test(userAgent) || (hasTouchScreen && isSmallScreen);
 };
+
+/**
+ * 检测是否为微信环境
+ *
+ * @param {string} [ua] - User Agent 字符串，如果不提供则使用 navigator.userAgent
+ * @returns {boolean} 是否为微信环境
+ *
+ * @example
+ * ```ts
+ * isWeChat() // true | false
+ * ```
+ */
+export const isWeChat = (ua?: string): boolean => {
+  if (typeof navigator === 'undefined' && !ua) {
+    return false;
+  }
+
+  const userAgent = (ua || navigator.userAgent).toLowerCase();
+  return /micromessenger/i.test(userAgent);
+};
