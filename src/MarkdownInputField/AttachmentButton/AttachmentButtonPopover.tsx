@@ -134,24 +134,23 @@ export const AttachmentButtonPopover: React.FC<
    * 优先级：微信 > 手机品牌（oppo/vivo）> 移动设备 > 相册模式 > 默认
    */
   const getAcceptValue = useRefFunction((forGallery: boolean): string => {
+    // 相册模式
+    if (forGallery) {
+      return 'image/*';
+    }
     // 1. 微信环境最优先：设置为空字符串以打开文件浏览器
     if (isWeChatEnv) {
-      return '';
+      return '*';
     }
 
     // 2. 手机品牌其次（oppo/vivo）：设置为空字符串以打开文件浏览器
     if (isVivoOrOppo) {
-      return '';
+      return '*';
     }
 
     // 3. 移动设备其次：设置为空字符串以打开文件浏览器
     if (isMobile) {
-      return '';
-    }
-
-    // 4. 相册模式：设置为空字符串以打开文件浏览器
-    if (forGallery) {
-      return 'image/*';
+      return '*';
     }
 
     // 5. 默认情况：使用具体扩展名列表
