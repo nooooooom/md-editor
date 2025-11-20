@@ -18,6 +18,7 @@ export interface TableNode {
       rowSpan: number;
       colSpan: number;
     }>;
+    config?: any;
     columns?: Array<any>; // 用于定义列属性，如宽度、对齐方式等
   };
 }
