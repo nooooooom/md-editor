@@ -28,6 +28,7 @@ import {
   ChartDataItem,
   extractAndSortXValues,
   findDataPointByXValue,
+  getDataHash,
 } from '../utils';
 import { useStyle } from './style';
 
@@ -138,6 +139,10 @@ const LineChart: React.FC<LineChartProps> = ({
   }, []);
 
   const safeData = Array.isArray(data) ? data : [];
+  
+  // 使用数据哈希来优化依赖项比较
+  const dataHash = useMemo(() => getDataHash(safeData), [safeData]);
+
   // 响应式尺寸计算
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 768,
@@ -177,7 +182,7 @@ const LineChart: React.FC<LineChartProps> = ({
       ...new Set(safeData.map((item) => item.category)),
     ].filter(Boolean);
     return uniqueCategories;
-  }, [safeData]);
+  }, [dataHash]);
 
   // 从数据中提取 filterLabel，过滤掉 undefined 值
   const validFilterLabels = useMemo(() => {
@@ -186,7 +191,7 @@ const LineChart: React.FC<LineChartProps> = ({
       .filter(
         (filterLabel): filterLabel is string => filterLabel !== undefined,
       );
-  }, [safeData]);
+  }, [dataHash]);
 
   const filterLabels = useMemo(() => {
     return validFilterLabels.length > 0
@@ -224,7 +229,7 @@ const LineChart: React.FC<LineChartProps> = ({
     return withFilterLabel.filter(
       (item) => item.x !== null && item.x !== undefined,
     );
-  }, [safeData, selectedFilter, filterLabels, selectedFilterLabel]);
+  }, [dataHash, selectedFilter, filterLabels, selectedFilterLabel]);
 
   // 从数据中提取唯一的类型
   const types = useMemo(() => {

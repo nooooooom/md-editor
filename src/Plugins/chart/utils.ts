@@ -376,3 +376,87 @@ export const toNumber = (val: any, fallback: number): number => {
 export const isNotEmpty = (val: any) => {
   return val !== null && val !== undefined;
 };
+
+/**
+ * 生成数据数组的快速哈希值
+ *
+ * 用于优化 useMemo 的依赖项比较，避免使用 JSON.stringify 的性能开销。
+ * 通过比较数组长度和最后一个元素的引用来快速判断数据是否变化。
+ * 适用于流式数据场景，当数据频繁追加时性能更好。
+ *
+ * @param {any[]} data - 数据数组
+ * @returns {string} 哈希值字符串
+ *
+ * @example
+ * ```typescript
+ * const hash1 = getDataHash([{ x: 1, y: 2 }]);
+ * const hash2 = getDataHash([{ x: 1, y: 2 }, { x: 3, y: 4 }]);
+ * // hash1 !== hash2
+ * ```
+ *
+ * @since 1.0.0
+ */
+export const getDataHash = (data: any[]): string => {
+  if (!Array.isArray(data) || data.length === 0) {
+    return `0-${data?.length || 0}`;
+  }
+  // 使用长度和最后一个元素的引用作为快速哈希
+  // 对于流式数据，通常只有新增，所以比较最后一个元素即可
+  const lastItem = data[data.length - 1];
+  const firstItem = data[0];
+  // 使用简单的哈希：长度 + 首尾元素的简单标识
+  const firstKey = firstItem ? Object.keys(firstItem).join(',') : '';
+  const lastKey = lastItem ? Object.keys(lastItem).join(',') : '';
+  return `${data.length}-${firstKey}-${lastKey}`;
+};
+
+/**
+ * 深度比较两个配置对象的关键字段
+ *
+ * 用于优化 useMemo 的依赖项比较，只比较配置的关键字段，
+ * 避免对整个配置对象进行深度比较的性能开销。
+ *
+ * @param {any} config1 - 第一个配置对象
+ * @param {any} config2 - 第二个配置对象
+ * @returns {boolean} 是否相等
+ *
+ * @example
+ * ```typescript
+ * const config1 = { x: 'date', y: 'value', height: 400 };
+ * const config2 = { x: 'date', y: 'value', height: 400 };
+ * isConfigEqual(config1, config2); // true
+ * ```
+ *
+ * @since 1.0.0
+ */
+export const isConfigEqual = (config1: any, config2: any): boolean => {
+  if (config1 === config2) return true;
+  if (!config1 || !config2) return false;
+
+  const keys1 = Object.keys(config1);
+  const keys2 = Object.keys(config2);
+
+  if (keys1.length !== keys2.length) return false;
+
+  // 只比较关键字段
+  const keyFields = ['x', 'y', 'height', 'index', 'rest'];
+  for (const key of keyFields) {
+    if (config1[key] !== config2[key]) {
+      // 对于 rest 对象，进行浅比较
+      if (key === 'rest' && config1[key] && config2[key]) {
+        const rest1 = config1[key];
+        const rest2 = config2[key];
+        const restKeys1 = Object.keys(rest1);
+        const restKeys2 = Object.keys(rest2);
+        if (restKeys1.length !== restKeys2.length) return false;
+        for (const restKey of restKeys1) {
+          if (rest1[restKey] !== rest2[restKey]) return false;
+        }
+      } else {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};

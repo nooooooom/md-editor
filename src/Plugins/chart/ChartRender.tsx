@@ -8,7 +8,13 @@ import { Loading } from '../../Components/Loading';
 import { useIntersectionOnce } from '../../Hooks/useIntersectionOnce';
 import { I18nContext } from '../../I18n';
 import { loadChartRuntime, type ChartRuntime } from './loadChartRuntime';
-import { isNotEmpty, toNumber } from './utils';
+import {
+  isNotEmpty,
+  toNumber,
+  getDataHash,
+  isConfigEqual,
+  debounce,
+} from './utils';
 
 /**
  * @fileoverview 图表渲染组件文件
@@ -492,6 +498,31 @@ export const ChartRender: React.FC<{
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isIntersecting = useIntersectionOnce(containerRef);
 
+  // 用于缓存上一次的数据和配置，避免不必要的重新计算
+  const prevDataRef = React.useRef<{
+    dataHash: string;
+    config: any;
+    groupBy?: string;
+    colorLegend?: string;
+    filterBy?: string;
+  }>({
+    dataHash: '',
+    config: null,
+  });
+
+  // 计算数据哈希值，用于依赖项比较
+  const dataHash = React.useMemo(
+    () => getDataHash(chartData || []),
+    [chartData],
+  );
+
+  // 防抖更新 renderKey，避免流式数据频繁更新导致的性能问题
+  const debouncedUpdateRenderKeyRef = React.useRef(
+    debounce(() => {
+      setRenderKey((k) => k + 1);
+    }, 300),
+  );
+
   const renderDescriptionsFallback = React.useMemo(() => {
     const columnCount = config?.columns?.length || 0;
     return chartData.length < 2 && columnCount > 8;
@@ -568,8 +599,16 @@ export const ChartRender: React.FC<{
       };
     });
   }, [
-    JSON.stringify(chartData),
-    JSON.stringify(config),
+    // 使用更高效的依赖项比较
+    dataHash,
+    config?.x,
+    config?.y,
+    config?.height,
+    config?.index,
+    // 对于 rest 对象，使用浅比较
+    config?.rest?.stacked,
+    config?.rest?.showLegend,
+    config?.rest?.showGrid,
     title,
     groupBy,
     colorLegend,
@@ -591,8 +630,12 @@ export const ChartRender: React.FC<{
       };
     });
   }, [
-    JSON.stringify(chartData),
-    JSON.stringify(config),
+    // 使用更高效的依赖项比较
+    dataHash,
+    config?.x,
+    config?.y,
+    config?.height,
+    config?.index,
     title,
     groupBy,
     filterBy,
@@ -601,6 +644,40 @@ export const ChartRender: React.FC<{
   React.useEffect(() => {
     setChartType(props.chartType);
   }, [props.chartType]);
+
+  // 监听数据变化，使用防抖更新渲染键
+  React.useEffect(() => {
+    const configChanged = !isConfigEqual(prevDataRef.current.config, config);
+    const groupByChanged = prevDataRef.current.groupBy !== groupBy;
+    const colorLegendChanged = prevDataRef.current.colorLegend !== colorLegend;
+    const filterByChanged = prevDataRef.current.filterBy !== filterBy;
+
+    const hasChanged =
+      prevDataRef.current.dataHash !== dataHash ||
+      configChanged ||
+      groupByChanged ||
+      colorLegendChanged ||
+      filterByChanged;
+
+    if (hasChanged) {
+      // 更新缓存
+      prevDataRef.current = {
+        dataHash,
+        config,
+        groupBy,
+        colorLegend,
+        filterBy,
+      };
+
+      // 对于流式数据，使用防抖更新，避免频繁渲染
+      if (prevDataRef.current.dataHash !== dataHash) {
+        debouncedUpdateRenderKeyRef.current();
+      } else {
+        // 配置变化时立即更新
+        setRenderKey((k) => k + 1);
+      }
+    }
+  }, [dataHash, config, groupBy, colorLegend, filterBy]);
 
   /**
    * 图表配置
@@ -877,8 +954,12 @@ export const ChartRender: React.FC<{
     return null;
   }, [
     chartType,
-    JSON.stringify(chartData),
-    JSON.stringify(config),
+    // 使用更高效的依赖项
+    dataHash,
+    config?.x,
+    config?.y,
+    config?.height,
+    config?.index,
     renderKey,
     toolBar,
     convertDonutData,

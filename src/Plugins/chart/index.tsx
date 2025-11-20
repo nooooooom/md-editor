@@ -6,6 +6,7 @@ import { TableNode } from '../../MarkdownEditor/editor/elements/Table';
 import { useEditorStore } from '../../MarkdownEditor/editor/store';
 import { DragHandle } from '../../MarkdownEditor/editor/tools/DragHandle';
 import { ChartRender } from './ChartRender';
+import { getDataHash } from './utils';
 
 /**
  * @fileoverview 图表插件主入口文件
@@ -198,6 +199,12 @@ export const ChartElement = (props: RenderElementProps) => {
     useEditorStore();
   const editor = useSlate();
   const { element: node, attributes, children } = props;
+  // 使用更高效的依赖项比较，避免 JSON.stringify 的性能开销
+  const dataSourceHash = useMemo(
+    () => getDataHash(node.otherProps?.dataSource || []),
+    [node.otherProps?.dataSource],
+  );
+
   let chartData = useMemo(() => {
     return (node.otherProps?.dataSource?.map((item: any) => {
       return {
@@ -205,7 +212,7 @@ export const ChartElement = (props: RenderElementProps) => {
         column_list: Object.keys(item),
       };
     }) || []) as any[];
-  }, [node.otherProps?.dataSource]);
+  }, [dataSourceHash, node.otherProps?.dataSource]);
 
   const columns = (node as TableNode).otherProps?.columns || [];
 
@@ -435,7 +442,10 @@ export const ChartElement = (props: RenderElementProps) => {
     ),
     [
       attributes,
-      JSON.stringify((node as TableNode).otherProps),
+      // 使用更高效的依赖项比较
+      dataSourceHash,
+      (node as TableNode).otherProps?.config,
+      (node as TableNode).otherProps?.columns?.length,
       editor,
       columnLength,
       readonly,
