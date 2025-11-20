@@ -9,11 +9,11 @@ import { useIntersectionOnce } from '../../Hooks/useIntersectionOnce';
 import { I18nContext } from '../../I18n';
 import { loadChartRuntime, type ChartRuntime } from './loadChartRuntime';
 import {
-  isNotEmpty,
-  toNumber,
+  debounce,
   getDataHash,
   isConfigEqual,
-  debounce,
+  isNotEmpty,
+  toNumber,
 } from './utils';
 
 /**
@@ -840,10 +840,7 @@ export const ChartRender: React.FC<{
           </ConfigProvider>
         }
       >
-        <ActionIconBox
-          title={i18n?.locale?.configChart || '配置图表'}
-          onClick={() => setRenderKey((k) => k + 1)}
-        >
+        <ActionIconBox title={i18n?.locale?.configChart || '配置图表'}>
           <SettingOutlined style={{ color: 'rgba(0, 25, 61, 0.3255)' }} />
         </ActionIconBox>
       </Popover>,
