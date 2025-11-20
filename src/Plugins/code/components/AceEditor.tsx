@@ -12,7 +12,7 @@
  * @see {@link https://ace.c9.io/} Ace Editor 官方文档
  */
 
-import { Ace } from 'ace-builds';
+import type { Ace } from 'ace-builds';
 import isHotkey from 'is-hotkey';
 import {
   startTransition,
@@ -25,7 +25,7 @@ import { Editor, Path, Transforms } from 'slate';
 import { useRefFunction } from '../../../Hooks/useRefFunction';
 import partialParse from '../../../MarkdownEditor/editor/parser/json-parse';
 import { useEditorStore } from '../../../MarkdownEditor/editor/store';
-import { aceLangs, modeMap } from '../../../MarkdownEditor/editor/utils/ace';
+import { getAceLangs, modeMap } from '../../../MarkdownEditor/editor/utils/ace';
 import { EditorUtils } from '../../../MarkdownEditor/editor/utils/editorUtils';
 import { CodeNode } from '../../../MarkdownEditor/el';
 import { loadAceEditor, loadAceTheme } from '../loadAceEditor';
@@ -284,11 +284,12 @@ export function AceEditor({
     codeEditor.setTheme(`ace/theme/${theme}`);
 
     // 设置语法高亮
-    setTimeout(() => {
+    setTimeout(async () => {
       let lang = element.language as string;
       if (modeMap.has(lang)) {
         lang = modeMap.get(lang)!;
       }
+      const aceLangs = await getAceLangs();
       if (aceLangs.has(lang)) {
         codeEditor.session.setMode(`ace/mode/${lang}`);
       }
@@ -351,7 +352,7 @@ export function AceEditor({
 
   // 暴露设置语言的方法
   const setLanguage = useCallback(
-    (changeLang: string) => {
+    async (changeLang: string) => {
       let lang = changeLang.toLowerCase();
       if (element.language?.toLowerCase() === lang) return;
 
@@ -361,6 +362,7 @@ export function AceEditor({
         lang = modeMap.get(lang)!;
       }
 
+      const aceLangs = await getAceLangs();
       if (aceLangs.has(lang)) {
         editorRef.current?.session.setMode(`ace/mode/${lang}`);
       } else {

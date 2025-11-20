@@ -82,9 +82,47 @@ Object.defineProperty(global, 'navigator', {
   },
 });
 
+// Mock requestIdleCallback 和 cancelIdleCallback
+// 在测试环境中立即同步执行，避免异步操作导致测试无法结束
+let idleCallbackIdCounter = 0;
+const idleCallbacks = new Map<number, () => void>();
+
 vi.stubGlobal(
   'requestIdleCallback',
-  vi.fn((cb) => cb()),
+  vi.fn((cb: () => void, options?: { timeout?: number }) => {
+    const id = ++idleCallbackIdCounter;
+    idleCallbacks.set(id, cb);
+    // 在测试环境中立即同步执行，避免异步操作阻塞测试
+    // 使用 process.nextTick 确保在当前执行栈完成后执行
+    if (typeof process !== 'undefined' && process.nextTick) {
+      process.nextTick(() => {
+        if (idleCallbacks.has(id)) {
+          try {
+            cb();
+          } catch (e) {
+            // 忽略执行错误
+          }
+          idleCallbacks.delete(id);
+        }
+      });
+    } else {
+      // 降级到同步执行
+      try {
+        cb();
+      } catch (e) {
+        // 忽略执行错误
+      }
+      idleCallbacks.delete(id);
+    }
+    return id;
+  }),
+);
+
+vi.stubGlobal(
+  'cancelIdleCallback',
+  vi.fn((id: number) => {
+    idleCallbacks.delete(id);
+  }),
 );
 
 // 重写 console.error 来过滤 act() 警告和其他测试警告

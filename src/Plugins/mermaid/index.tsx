@@ -1,5 +1,5 @@
 import { CloseCircleOutlined } from '@ant-design/icons';
-import { Ace } from 'ace-builds';
+import type { Ace } from 'ace-builds';
 import { message } from 'antd';
 import copy from 'copy-to-clipboard';
 import React, { useContext, useEffect, useRef } from 'react';
