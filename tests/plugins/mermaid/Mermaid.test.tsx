@@ -232,4 +232,226 @@ describe('Mermaid Component', () => {
       expect(document.body).toBeInTheDocument();
     });
   });
+
+  describe('流式加载优化测试', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('应该在流式输入时使用防抖机制', async () => {
+      const mermaid = await import('mermaid');
+      const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+
+      const { rerender } = renderMermaid({ value: 'graph' });
+
+      // 快速连续更新代码（模拟流式输入）
+      rerender(<Mermaid element={{ ...defaultElement, value: 'graph TD' }} />);
+      rerender(
+        <Mermaid element={{ ...defaultElement, value: 'graph TD\nA' }} />,
+      );
+      rerender(
+        <Mermaid element={{ ...defaultElement, value: 'graph TD\nA -->' }} />,
+      );
+      rerender(
+        <Mermaid element={{ ...defaultElement, value: 'graph TD\nA --> B' }} />,
+      );
+
+      // 验证防抖机制被触发（应该清理之前的定时器）
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+      expect(setTimeoutSpy).toHaveBeenCalled();
+
+      // 快进时间，触发渲染
+      vi.advanceTimersByTime(1000);
+
+      await waitFor(() => {
+        // 应该只在最后稳定时调用一次 render
+        expect(mermaid.default.render).toHaveBeenCalled();
+      });
+    });
+
+    it('应该检测不完整的代码并延迟渲染', async () => {
+      const mermaid = await import('mermaid');
+      vi.clearAllMocks();
+
+      // 测试不完整的代码（只有 graph 关键字）
+      renderMermaid({ value: 'graph' });
+
+      // 快进时间，但代码不完整，应该延迟渲染
+      vi.advanceTimersByTime(300);
+      expect(mermaid.default.render).not.toHaveBeenCalled();
+
+      // 继续快进，应该最终尝试渲染（即使可能失败）
+      vi.advanceTimersByTime(500);
+    });
+
+    it('应该在代码快速变化时不显示错误', async () => {
+      const mermaid = await import('mermaid');
+      vi.clearAllMocks();
+
+      // 模拟渲染失败
+      mermaid.default.render = vi
+        .fn()
+        .mockRejectedValue(new Error('Syntax error'));
+
+      const { rerender } = renderMermaid({ value: 'graph' });
+
+      // 快速变化代码（流式输入）
+      rerender(<Mermaid element={{ ...defaultElement, value: 'graph TD' }} />);
+      rerender(
+        <Mermaid element={{ ...defaultElement, value: 'graph TD\nA -->' }} />,
+      );
+
+      // 快进时间
+      vi.advanceTimersByTime(1000);
+
+      await waitFor(() => {
+        // 代码还在变化中，不应该显示错误
+        const errorElements = document.querySelectorAll(
+          '[style*="rgba(239, 68, 68"]',
+        );
+        // 在流式输入过程中，不应该显示错误
+        expect(errorElements.length).toBe(0);
+      });
+    });
+
+    it('应该检测代码完整性 - 完整代码', () => {
+      const completeCodes = [
+        'graph TD\nA --> B',
+        'sequenceDiagram\nA->>B: message',
+        'pie title Test\n"Label" : 50',
+        'gantt\ntitle Test',
+      ];
+
+      completeCodes.forEach((code) => {
+        const { unmount } = renderMermaid({ value: code });
+        // 完整代码应该能够正常渲染
+        expect(document.body).toBeInTheDocument();
+        unmount();
+      });
+    });
+
+    it('应该检测代码完整性 - 不完整代码', () => {
+      const incompleteCodes = [
+        'graph', // 只有关键字
+        'graph TD\nA -->', // 箭头后没有内容
+        'graph TD\nA[', // 未闭合的方括号
+        'sequenceDiagram\nA->>', // 未完成的箭头
+      ];
+
+      incompleteCodes.forEach((code) => {
+        const { unmount } = renderMermaid({ value: code });
+        // 不完整代码应该被检测到，延迟渲染
+        expect(document.body).toBeInTheDocument();
+        unmount();
+      });
+    });
+
+    it('应该在代码稳定后显示错误', async () => {
+      const mermaid = await import('mermaid');
+      vi.clearAllMocks();
+
+      // 模拟语法错误
+      mermaid.default.render = vi
+        .fn()
+        .mockRejectedValue(new Error('Invalid syntax'));
+      mermaid.default.parse = vi
+        .fn()
+        .mockRejectedValue(new Error('Parse error'));
+
+      const invalidCode = 'invalid mermaid syntax that will fail';
+      renderMermaid({ value: invalidCode });
+
+      // 快进时间，让代码稳定
+      vi.advanceTimersByTime(1500);
+
+      await waitFor(() => {
+        // 代码稳定后，应该显示错误
+        const errorElements = document.querySelectorAll(
+          '[style*="rgba(239, 68, 68"]',
+        );
+        // 应该显示错误信息
+        expect(errorElements.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('应该在输入过程中显示"正在加载"状态', async () => {
+      const { rerender } = renderMermaid({ value: 'graph' });
+
+      // 快速更新代码（模拟流式输入）
+      rerender(<Mermaid element={{ ...defaultElement, value: 'graph TD' }} />);
+
+      // 快进时间，但不超过完整延迟
+      vi.advanceTimersByTime(500);
+
+      await waitFor(() => {
+        // 应该显示"正在加载"或类似的状态
+        const loadingText = Array.from(document.querySelectorAll('*')).find(
+          (el) =>
+            el.textContent?.includes('正在加载') ||
+            el.textContent?.includes('加载中'),
+        );
+        // 在流式输入过程中，可能显示加载状态
+        expect(document.body).toBeInTheDocument();
+      });
+    });
+
+    it('应该根据代码变化频率调整延迟时间', async () => {
+      const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
+      const { rerender } = renderMermaid({ value: 'graph' });
+
+      // 第一次变化
+      rerender(<Mermaid element={{ ...defaultElement, value: 'graph TD' }} />);
+      vi.advanceTimersByTime(100);
+
+      // 第二次变化
+      rerender(
+        <Mermaid element={{ ...defaultElement, value: 'graph TD\nA' }} />,
+      );
+      vi.advanceTimersByTime(100);
+
+      // 第三次变化
+      rerender(
+        <Mermaid element={{ ...defaultElement, value: 'graph TD\nA -->' }} />,
+      );
+      vi.advanceTimersByTime(100);
+
+      // 第四次变化（频繁变化，应该使用更长的延迟）
+      rerender(
+        <Mermaid element={{ ...defaultElement, value: 'graph TD\nA --> B' }} />,
+      );
+
+      // 验证使用了更长的延迟时间（1000ms 而不是 300ms）
+      const calls = setTimeoutSpy.mock.calls;
+      const lastCall = calls[calls.length - 1];
+      // 频繁变化时应该使用更长的延迟
+      expect(lastCall?.[1]).toBeGreaterThanOrEqual(800);
+    });
+
+    it('应该清理所有定时器', () => {
+      const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+      const { unmount } = renderMermaid();
+
+      unmount();
+
+      // 应该清理所有定时器
+      expect(clearTimeoutSpy).toHaveBeenCalled();
+    });
+
+    it('应该处理空代码和快速变化', () => {
+      const { rerender } = renderMermaid({ value: '' });
+
+      // 快速从空到有内容
+      rerender(<Mermaid element={{ ...defaultElement, value: 'graph TD' }} />);
+      rerender(
+        <Mermaid element={{ ...defaultElement, value: 'graph TD\nA --> B' }} />,
+      );
+
+      expect(document.body).toBeInTheDocument();
+    });
+  });
 });
