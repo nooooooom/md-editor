@@ -506,7 +506,7 @@ export type MarkdownInputFieldProps = {
    * />
    * ```
    */
-  onMaxLengthExceeded?: () => void;
+  onMaxLengthExceeded?: (value: string) => void;
 };
 
 /**
@@ -606,7 +606,7 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
   const collapsedHeightPx = useMemo(() => {
     const extra = props.attachment?.enable ? 90 : 0;
     return collapsedHeight + extra;
-  }, [props.style?.maxHeight, props.attachment?.enable]);
+  }, [collapsedHeight, props.attachment?.enable]);
 
   const [fileMap, setFileMap] = useMergedState<
     Map<string, AttachmentFile> | undefined
@@ -1032,7 +1032,7 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
                       const truncatedValue = value.slice(0, props.maxLength);
                       setValue(truncatedValue);
                       props.onChange?.(truncatedValue);
-                      props.onMaxLengthExceeded?.();
+                      props.onMaxLengthExceeded?.(value);
                       // 更新编辑器内容以反映截断后的值
                       markdownEditorRef.current?.store?.setMDContent(
                         truncatedValue,
