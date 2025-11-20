@@ -1,6 +1,7 @@
 ﻿import {
   BlockOutlined,
   DeleteFilled,
+  ExclamationCircleOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
 import { Image, ImageProps, Modal, Popover, Space } from 'antd';
@@ -52,7 +53,9 @@ export const ImageAndError: React.FC<ImageProps> = (props) => {
           color: '#1890ff',
           textDecoration: 'underline',
           wordBreak: 'break-all',
-          display: 'inline-block',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
           maxWidth: '100%',
           padding: '8px 12px',
           border: '1px dashed #d9d9d9',
@@ -60,6 +63,7 @@ export const ImageAndError: React.FC<ImageProps> = (props) => {
           backgroundColor: '#fafafa',
         }}
       >
+        <ExclamationCircleOutlined style={{ color: '#faad14' }} />
         {props.alt || props.src || '图片链接'}
       </a>
     );
@@ -155,7 +159,9 @@ export const ResizeImage = ({
           color: '#1890ff',
           textDecoration: 'underline',
           wordBreak: 'break-all',
-          display: 'inline-block',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
           maxWidth: '100%',
           padding: '8px 12px',
           border: '1px dashed #d9d9d9',
@@ -165,6 +171,7 @@ export const ResizeImage = ({
           lineHeight: '1.5',
         }}
       >
+        <ExclamationCircleOutlined style={{ color: '#faad14' }} />
         {props.alt || props.src}
       </a>
     );
@@ -352,7 +359,9 @@ export function EditorImage({
             color: '#1890ff',
             textDecoration: 'underline',
             wordBreak: 'break-all',
-            display: 'inline-block',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
             maxWidth: '100%',
             padding: '8px 12px',
             border: '1px dashed #d9d9d9',
@@ -362,6 +371,7 @@ export function EditorImage({
             lineHeight: '1.5',
           }}
         >
+          <ExclamationCircleOutlined style={{ color: '#faad14' }} />
           {element?.alt || state()?.url || element?.url || '图片链接'}
         </a>
       );
