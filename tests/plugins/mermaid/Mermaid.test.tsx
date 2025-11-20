@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, waitFor } from '@testing-library/react';
 import React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Mermaid } from '../../../src/Plugins/mermaid/Mermaid';
 
 vi.mock('../../../src/Hooks/useIntersectionOnce', () => ({
