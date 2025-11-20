@@ -1,10 +1,10 @@
 /**
  * @fileoverview Katex 异步加载器
- * 
+ *
  * 使用单例模式确保 katex 库和 CSS 只加载一次
  */
 
-import { loadCSS } from '../../Utils/loadCSS';
+import './katex.min.css';
 
 type KatexModule = typeof import('katex');
 
@@ -27,12 +27,6 @@ export const loadKatex = async (): Promise<KatexModule> => {
     )
       .then(async (module) => {
         // 异步加载 CSS
-        await loadCSS(() =>
-          import(
-            /* webpackChunkName: "katex-css" */
-            './katex.min.css'
-          ),
-        );
         return module;
       })
       .catch((error) => {
@@ -58,4 +52,3 @@ export const preloadKatex = (): void => {
     });
   }
 };
-
