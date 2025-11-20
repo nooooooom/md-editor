@@ -8,6 +8,48 @@ import { setupLottieMock } from './_mocks_/lottieMock';
 import { setupGlobalMocks } from './_mocks_/sharedMocks';
 MotionGlobalConfig.skipAnimations = true;
 
+// Mock ace-builds 模块，避免在测试环境中加载真实的 ace 库
+vi.mock('ace-builds/src-noconflict/ext-modelist', () => ({
+  default: {
+    modes: [
+      { name: 'javascript', extensions: ['js', 'jsx'] },
+      { name: 'typescript', extensions: ['ts', 'tsx'] },
+      { name: 'python', extensions: ['py'] },
+      { name: 'java', extensions: ['java'] },
+      { name: 'html', extensions: ['html'] },
+      { name: 'css', extensions: ['css'] },
+      { name: 'json', extensions: ['json'] },
+    ],
+    getModeForPath: vi.fn(() => ({ name: 'text' })),
+  },
+}));
+
+// 设置全局 ace 对象，用于 ace-builds 模块
+// ace-builds 的某些模块（如 ext-modelist）期望 ace 全局变量存在
+(globalThis as any).ace = {
+  define: vi.fn((name: string, deps: string[], factory: any) => {
+    // Mock ace.define 函数，正确处理模块导出
+    if (typeof factory === 'function') {
+      const module = { exports: {} };
+      const require = (dep: string) => {
+        // Mock require 函数
+        return {};
+      };
+      try {
+        factory(require, module.exports, module);
+      } catch (e) {
+        // 忽略错误，仅用于避免测试环境报错
+      }
+      return module.exports;
+    }
+    return {};
+  }),
+  require: vi.fn((module: string) => {
+    // Mock ace.require 函数
+    return {};
+  }),
+};
+
 // 设置全局mocks
 setupGlobalMocks();
 setupLottieMock();
