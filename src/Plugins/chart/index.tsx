@@ -222,15 +222,21 @@ export const ChartElement = (props: RenderElementProps) => {
   const [minWidth, setMinWidth] = React.useState(256);
 
   useEffect(() => {
-    const width = Math.max(
-      rootContainer?.current?.clientWidth ||
-        htmlRef.current?.parentElement?.clientWidth ||
+    const updateWidth = () => {
+      const width = Math.max(
+        rootContainer?.current?.clientWidth ||
+          htmlRef.current?.parentElement?.clientWidth ||
+          256,
         256,
-      256,
-    );
-    setMinWidth(width || 256);
-    setColumnLength(Math.min(Math.floor(width / 256), config.length));
-  }, []);
+      );
+      setMinWidth(width || 256);
+      setColumnLength(Math.min(Math.floor(width / 256), config.length));
+    };
+    
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, [config.length]);
 
   return useMemo(
     () => (
@@ -240,9 +246,11 @@ export const ChartElement = (props: RenderElementProps) => {
         data-be={'chart'}
         style={{
           flex: 1,
-          minWidth: `min(${Math.min(minWidth, 856)}px, 100%)`,
+          minWidth: 0,
+          width: '100%',
           maxWidth: '100%',
           margin: '1em 0',
+          overflow: 'hidden',
         }}
         ref={htmlRef}
         onDragStart={(e) => store.dragStart(e, markdownContainerRef.current!)}
@@ -405,7 +413,9 @@ export const ChartElement = (props: RenderElementProps) => {
                             key={index + subIndex}
                             style={{
                               margin: 'auto',
-                              minWidth: `max(calc(${100 / columnLength}% - 16px), 600px)`,
+                              minWidth: 0,
+                              width: columnLength === 1 ? '100%' : `calc(${100 / columnLength}% - 8px)`,
+                              maxWidth: '100%',
                               flex: 1,
                               userSelect: 'none',
                             }}
@@ -423,7 +433,9 @@ export const ChartElement = (props: RenderElementProps) => {
                         style={{
                           userSelect: 'none',
                           margin: 'auto',
-                          minWidth: `max(calc(${100 / columnLength}% - 16px), 600px)`,
+                          minWidth: 0,
+                          width: columnLength === 1 ? '100%' : `calc(${100 / columnLength}% - 8px)`,
+                          maxWidth: '100%',
                           flex: 1,
                         }}
                         onClick={(e) => {

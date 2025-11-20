@@ -54,9 +54,12 @@ export const Schema: React.FC<RenderElementProps> = (props) => {
         <div
           {...node.attributes}
           data-testid="schema-container"
+          contentEditable={false}
           style={{
             display: 'flex',
             flexDirection: 'column',
+            userSelect: 'text',
+            WebkitUserSelect: 'text',
           }}
         >
           {renderedContent}
