@@ -472,6 +472,41 @@ export type MarkdownInputFieldProps = {
    * ```
    */
   isShowBackTo?: boolean;
+
+  /**
+   * 输入框的最大高度（像素）
+   * @description 设置输入框的最大高度，超出部分将显示滚动条。如果同时设置了 style.maxHeight，则以该属性优先
+   * @example
+   * ```tsx
+   * <MarkdownInputField maxHeight={300} />
+   * ```
+   */
+  maxHeight?: number | string;
+
+  /**
+   * 输入文本的最大字符数限制
+   * @description 限制输入文本的最大字符数，超出限制后将无法继续输入
+   * @example
+   * ```tsx
+   * <MarkdownInputField maxLength={500} />
+   * ```
+   */
+  maxLength?: number;
+
+  /**
+   * 当输入达到最大长度限制时的回调函数
+   * @description 当用户尝试输入超出最大长度限制的内容时触发
+   * @example
+   * ```tsx
+   * <MarkdownInputField
+   *   maxLength={100}
+   *   onMaxLengthExceeded={() => {
+   *     message.warning('已达到最大字数限制');
+   *   }}
+   * />
+   * ```
+   */
+  onMaxLengthExceeded?: () => void;
 };
 
 /**
@@ -557,11 +592,16 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
   }, [props.toolsRender, rightPadding, topRightPadding, quickRightOffset]);
 
   const collapsedHeight = useMemo(() => {
-    const mh = props.style?.maxHeight;
+    // 优先使用 maxHeight prop，其次使用 style.maxHeight，最后使用默认值
+    const maxHeightValue = props.maxHeight ?? props.style?.maxHeight;
     const base =
-      typeof mh === 'number' ? mh : mh ? parseFloat(String(mh)) || 114 : 114;
+      typeof maxHeightValue === 'number'
+        ? maxHeightValue
+        : maxHeightValue
+          ? parseFloat(String(maxHeightValue)) || 114
+          : 114;
     return base;
-  }, [props.style?.maxHeight, props.attachment?.enable]);
+  }, [props.maxHeight, props.style?.maxHeight, props.attachment?.enable]);
 
   const collapsedHeightPx = useMemo(() => {
     const extra = props.attachment?.enable ? 90 : 0;
@@ -902,7 +942,13 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
             minHeight: computedMinHeight,
             cursor: isLoading || props.disabled ? 'not-allowed' : 'auto',
             opacity: props.disabled ? 0.5 : 1,
-            maxHeight: isEnlarged ? 'none' : `min(${collapsedHeightPx}px,100%)`,
+            maxHeight: isEnlarged
+              ? 'none'
+              : props.maxHeight !== undefined
+                ? typeof props.maxHeight === 'number'
+                  ? `${props.maxHeight}px`
+                  : props.maxHeight
+                : `min(${collapsedHeightPx}px,100%)`,
             transition:
               'height, max-height 0.3s,border-radius 0.3s,box-shadow 0.3s,transform 0.3s,opacity 0.3s,background 0.3s',
           }}
@@ -920,12 +966,14 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
               maxHeight: isEnlarged
                 ? 'none'
                 : (() => {
-                    const mh = props.style?.maxHeight;
+                    // 优先使用 maxHeight prop，其次使用 style.maxHeight，最后使用默认值
+                    const maxHeightValue =
+                      props.maxHeight ?? props.style?.maxHeight;
                     const base =
-                      typeof mh === 'number'
-                        ? mh
-                        : mh
-                          ? parseFloat(String(mh)) || 400
+                      typeof maxHeightValue === 'number'
+                        ? maxHeightValue
+                        : maxHeightValue
+                          ? parseFloat(String(maxHeightValue)) || 400
                           : 400;
                     const extra = props.attachment?.enable ? 90 : 0;
                     return `min(${base + extra}px)`;
@@ -978,6 +1026,20 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
                 }}
                 initValue={props.value}
                 onChange={(value) => {
+                  // 检查并限制字符数
+                  if (props.maxLength !== undefined) {
+                    if (value.length > props.maxLength) {
+                      const truncatedValue = value.slice(0, props.maxLength);
+                      setValue(truncatedValue);
+                      props.onChange?.(truncatedValue);
+                      props.onMaxLengthExceeded?.();
+                      // 更新编辑器内容以反映截断后的值
+                      markdownEditorRef.current?.store?.setMDContent(
+                        truncatedValue,
+                      );
+                      return;
+                    }
+                  }
                   setValue(value);
                   props.onChange?.(value);
                 }}
