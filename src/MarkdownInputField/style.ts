@@ -124,6 +124,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       },
       '&:active,&.active': {
         outline: '1px solid transparent',
+        outlineColor: 'var(--mif-active-outline-color, transparent)',
       },
 
       '&-enlarged': {
