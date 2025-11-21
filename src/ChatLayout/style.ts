@@ -5,6 +5,8 @@ import {
   useEditorStyleRegister,
 } from '../Hooks/useStyle';
 
+const MOBILE_PADDING = 'var(--padding-1x)';
+
 const genStyle: GenerateStyle<ChatTokenType> = (token) => {
   return {
     [token.componentCls]: {
@@ -174,6 +176,22 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         zIndex: 100,
         borderBottomLeftRadius: 'var(--radius-xl)',
         borderBottomRightRadius: 'var(--radius-xl)',
+      },
+      '@media (max-width: 768px)': {
+        '&-header': {
+          padding: `0 ${MOBILE_PADDING}`,
+        },
+        '&-content': {
+          '&-scrollable': {
+            paddingTop: MOBILE_PADDING,
+            paddingLeft: MOBILE_PADDING,
+            paddingRight: MOBILE_PADDING,
+            paddingBottom: '144px',
+          },
+        },
+        '&-footer': {
+          padding: MOBILE_PADDING,
+        },
       },
     },
   };
