@@ -100,7 +100,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // 移动标记样式
-    '.move-mark': {
+    '[data-move-mark]': {
       height: '0.125em',
       backgroundColor: 'var(--color-primary-control-fill-primary)',
       left: 0,

@@ -521,7 +521,7 @@ export function Media({
             </div>
           </div>
           <div
-            className="editor-icon-box"
+            data-icon-box
             style={{
               padding: '0 18px',
             }}

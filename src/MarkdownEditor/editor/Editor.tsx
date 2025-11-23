@@ -785,7 +785,9 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
    * 处理输入法开始事件
    */
   const onCompositionStart = (e: React.CompositionEvent) => {
-    markdownContainerRef.current?.classList.add('composition');
+    if (markdownContainerRef.current) {
+      markdownContainerRef.current.setAttribute('data-composition', '');
+    }
     store.inputComposition = true;
 
     const focusPath = markdownEditorRef.current.selection?.focus.path || [];
@@ -797,9 +799,10 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
       if (node) {
         const dom = ReactEditor.toDOMNode(markdownEditorRef.current, node);
         if (dom) {
-          dom
-            .querySelector('.tag-popup-input')
-            ?.classList.add('tag-popup-input-composition');
+          const tagInput = dom.querySelector('[data-tag-popup-input]');
+          if (tagInput) {
+            tagInput.setAttribute('data-composition', '');
+          }
         }
       }
     }
@@ -817,7 +820,9 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
    */
   const onCompositionEnd = () => {
     store.inputComposition = false;
-    markdownContainerRef.current?.classList.remove('composition');
+    if (markdownContainerRef.current) {
+      markdownContainerRef.current.removeAttribute('data-composition');
+    }
 
     const focusPath = markdownEditorRef.current.selection?.focus.path || [];
     if (focusPath.length > 0) {
@@ -828,9 +833,10 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
       if (node) {
         const dom = ReactEditor.toDOMNode(markdownEditorRef.current, node);
         if (dom) {
-          dom
-            .querySelector('.tag-popup-input')
-            ?.classList.remove('tag-popup-input-composition');
+          const tagInput = dom.querySelector('[data-tag-popup-input]');
+          if (tagInput) {
+            tagInput.removeAttribute('data-composition');
+          }
         }
       }
     }
