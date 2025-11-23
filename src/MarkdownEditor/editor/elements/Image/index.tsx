@@ -188,6 +188,8 @@ export const ResizeImage = ({
         overflow: 'hidden',
         width: size.width as number,
         height: size.height as number,
+        maxWidth: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {loading ? (
@@ -250,11 +252,10 @@ export const ResizeImage = ({
             let width = (e.target as HTMLImageElement).naturalWidth;
             const height = (e.target as HTMLImageElement).naturalHeight;
             radio.current = width / height;
-            width = Math.min(
-              defaultSize?.width || 400,
-              600,
-              document.documentElement.clientWidth * 0.8 || 600,
-            );
+            const containerWidth =
+              document.documentElement.clientWidth || window.innerWidth || 600;
+            const maxAllowedWidth = Math.min(containerWidth * 0.9, 600);
+            width = Math.min(defaultSize?.width || 400, maxAllowedWidth);
             setSize({
               width: width,
               height: width / radio.current,
@@ -403,7 +404,9 @@ export function EditorImage({
         referrerPolicy={'no-referrer'}
         draggable={false}
         style={{
-          maxWidth: 800,
+          maxWidth: '100%',
+          height: 'auto',
+          display: 'block',
         }}
         width={element.width}
         height={element.height}
@@ -430,6 +433,9 @@ export function EditorImage({
         WebkitUserSelect: 'none',
         MozUserSelect: 'none',
         msUserSelect: 'none',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
       }}
       draggable={false}
       onContextMenu={(e) => {
@@ -511,11 +517,14 @@ export function EditorImage({
           style={{
             padding: 4,
             display: 'flex',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
           }}
           ref={htmlRef}
           draggable={false}
           contentEditable={false}
-          className="md-editor-media"
+          data-be="media-container"
         >
           {imageDom}
           <div

@@ -108,6 +108,8 @@ export const ResizeImage = ({
         overflow: 'hidden',
         width: size.width as number,
         height: size.height as number,
+        maxWidth: '100%',
+        boxSizing: 'border-box',
       }}
     >
       {loading ? (
@@ -171,11 +173,10 @@ export const ResizeImage = ({
             let width = (e.target as HTMLImageElement).naturalWidth;
             const height = (e.target as HTMLImageElement).naturalHeight;
             radio.current = width / height;
-            width = Math.min(
-              width,
-              600,
-              document.documentElement.clientWidth * 0.8 || 600,
-            );
+            const containerWidth =
+              document.documentElement.clientWidth || window.innerWidth || 600;
+            const maxAllowedWidth = Math.min(containerWidth * 0.9, 600);
+            width = Math.min(width, maxAllowedWidth);
 
             setSize({
               width: width,
@@ -319,7 +320,9 @@ export function Media({
         crossOrigin={'anonymous'}
         draggable={false}
         style={{
-          maxWidth: 800,
+          maxWidth: '100%',
+          height: 'auto',
+          display: 'block',
         }}
         width={element.width}
         height={element.height}
@@ -365,9 +368,10 @@ export function Media({
           style={{
             width: element.width ? `${element.width}px` : '100%',
             height: element.height ? `${element.height}px` : 'auto',
-            maxWidth: 600,
+            maxWidth: '100%',
             borderRadius: '6px',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            display: 'block',
           }}
           src={state()?.url || ''}
           preload="metadata"
@@ -554,6 +558,9 @@ export function Media({
           WebkitUserSelect: 'none',
           MozUserSelect: 'none',
           msUserSelect: 'none',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
         }}
         draggable={false}
         onContextMenu={(e) => {
@@ -611,11 +618,13 @@ export function Media({
               display: 'flex',
               flexDirection: 'column',
               width: mediaElement ? '100%' : undefined,
+              maxWidth: '100%',
+              boxSizing: 'border-box',
             }}
             ref={htmlRef}
             draggable={false}
             contentEditable={false}
-            className="md-editor-media"
+            data-be="media-container"
           >
             {mediaElement}
             {imageDom}

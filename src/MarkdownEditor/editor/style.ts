@@ -403,6 +403,34 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         'ol,ul': {
           paddingLeft: '1em',
         },
+        // 移动端图片和视频响应式样式
+        '[data-be="image"], [data-be="media"]': {
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
+          '[data-be="media-container"]': {
+            width: '100%',
+            maxWidth: '100%',
+            padding: '2px',
+            boxSizing: 'border-box',
+          },
+          'img, video': {
+            maxWidth: '100%',
+            height: 'auto',
+            display: 'block',
+          },
+          '[data-testid="resize-image-container"]': {
+            maxWidth: '100%',
+            width: '100% !important',
+            boxSizing: 'border-box',
+          },
+          '[data-testid="video-element"]': {
+            maxWidth: '100%',
+            width: '100% !important',
+            height: 'auto',
+          },
+        },
       },
       '[data-be]:not(p):not(data-be="list")': {
         position: 'relative',
