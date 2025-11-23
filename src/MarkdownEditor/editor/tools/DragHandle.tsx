@@ -13,7 +13,7 @@ export const DragHandle = (props: { style?: CSSProperties }) => {
   return (
     <Tooltip title="拖拽移动">
       <span
-        className={'ant-agentic-md-editor-drag-handle'}
+        data-drag-handle
         data-testid="drag-handle"
         style={{ ...props.style }}
         contentEditable={false}
@@ -35,7 +35,7 @@ export const DragHandle = (props: { style?: CSSProperties }) => {
           store.draggedElement = parent;
         }}
       >
-        <div className="ant-agentic-md-editor-drag-icon">
+        <div data-drag-icon>
           <HolderOutlined />
         </div>
       </span>

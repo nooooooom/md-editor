@@ -232,7 +232,7 @@ export const ChartElement = (props: RenderElementProps) => {
       setMinWidth(width || 256);
       setColumnLength(Math.min(Math.floor(width / 256), config.length));
     };
-    
+
     updateWidth();
     window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
@@ -241,7 +241,7 @@ export const ChartElement = (props: RenderElementProps) => {
   return useMemo(
     () => (
       <div
-        className={'ant-agentic-md-editor-drag-el'}
+        data-drag-el
         {...attributes}
         data-be={'chart'}
         style={{
@@ -257,7 +257,7 @@ export const ChartElement = (props: RenderElementProps) => {
       >
         <DragHandle />
         <div
-          className="ant-agentic-md-editor-chart-box"
+          data-chart-box
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -414,7 +414,10 @@ export const ChartElement = (props: RenderElementProps) => {
                             style={{
                               margin: 'auto',
                               minWidth: 0,
-                              width: columnLength === 1 ? '100%' : `calc(${100 / columnLength}% - 8px)`,
+                              width:
+                                columnLength === 1
+                                  ? '100%'
+                                  : `calc(${100 / columnLength}% - 8px)`,
                               maxWidth: '100%',
                               flex: 1,
                               userSelect: 'none',
@@ -434,7 +437,10 @@ export const ChartElement = (props: RenderElementProps) => {
                           userSelect: 'none',
                           margin: 'auto',
                           minWidth: 0,
-                          width: columnLength === 1 ? '100%' : `calc(${100 / columnLength}% - 8px)`,
+                          width:
+                            columnLength === 1
+                              ? '100%'
+                              : `calc(${100 / columnLength}% - 8px)`,
                           maxWidth: '100%',
                           flex: 1,
                         }}

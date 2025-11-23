@@ -423,8 +423,8 @@ export function EditorImage({
   return (
     <div
       {...attributes}
-      className={'ant-agentic-md-editor-drag-el'}
       data-be="image"
+      data-drag-el
       data-testid="image-container"
       style={{
         cursor: 'pointer',

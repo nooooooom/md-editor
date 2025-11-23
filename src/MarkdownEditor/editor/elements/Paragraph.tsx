@@ -43,7 +43,8 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
       <div
         {...props.attributes}
         data-be={'paragraph'}
-        className={classNames('ant-agentic-md-editor-drag-el', {
+        data-drag-el
+        className={classNames({
           empty: isEmpty,
           typewriter: isLast && typewriter,
         })}

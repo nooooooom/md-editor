@@ -28,7 +28,7 @@ const COMMENT_HIGHLIGHT_COLOR =
 const genStyle: GenerateStyle<ChatTokenType> = (token) => {
   return {
     // 拖拽手柄样式
-    '.ant-agentic-md-editor-drag-handle': {
+    '[data-drag-handle]': {
       position: 'absolute',
       display: 'flex',
       userSelect: 'none',
@@ -42,7 +42,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // 拖拽图标样式
-    '.ant-agentic-md-editor-drag-icon': {
+    '[data-drag-icon]': {
       display: 'flex',
       alignItems: 'center',
       borderRadius: '18px',
@@ -57,10 +57,9 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // 拖拽元素悬浮效果
-    '.ant-agentic-md-editor-drag-el:hover > .ant-agentic-md-editor-drag-handle':
-      {
-        opacity: 1,
-      },
+    '[data-drag-el]:hover > [data-drag-handle]': {
+      opacity: 1,
+    },
 
     // 可调整大小组件样式
     '.react-resizable': {
@@ -114,7 +113,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     },
 
     // 隐藏样式
-    '.ant-agentic-md-editor-hidden': {
+    '[data-hidden]': {
       display: 'none',
     },
 
@@ -244,7 +243,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       'h1,h2,h3,h4,h5,h6': {
         position: 'relative',
         textWrap: 'balance',
-        '.ant-agentic-md-editor-drag-handle': {
+        '[data-drag-handle]': {
           top: 'calc(3px + 0.05em) !important',
         },
       },

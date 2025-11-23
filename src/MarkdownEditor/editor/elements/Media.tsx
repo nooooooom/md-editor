@@ -546,8 +546,8 @@ export function Media({
   return (
     <div {...attributes}>
       <div
-        className={'ant-agentic-md-editor-drag-el'}
         data-be="media"
+        data-drag-el
         data-testid="media-container"
         style={{
           cursor: 'pointer',

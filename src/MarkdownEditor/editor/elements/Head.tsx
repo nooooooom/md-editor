@@ -43,7 +43,8 @@ export function Head({
         onDragStart: (e) => store.dragStart(e, markdownContainerRef.current!),
         ['data-empty']: !str && selected ? 'true' : undefined,
         ['data-align']: element.align,
-        className: classNames('ant-agentic-md-editor-drag-el', {
+        ['data-drag-el']: true,
+        className: classNames({
           empty: !str,
           typewriter: isLast && typewriter,
         }),

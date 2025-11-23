@@ -86,7 +86,7 @@ export const Schema: React.FC<RenderElementProps> = (props) => {
           style={{
             padding: '0.5em',
           }}
-          className="md-editor-agentar-card"
+          data-agentar-card
         >
           <SchemaRenderer
             debug={false}
