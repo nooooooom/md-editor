@@ -379,6 +379,11 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
           backgroundColor: 'var(--color-gray-control-fill-secondary)',
         },
       },
+      '[data-be="media-container"], [data-be="image-container"]': {
+        display: 'flex',
+        minWidth: 0,
+        maxWidth: '100%',
+      },
       '@media screen and (max-width: 600px)': {
         h1: {
           fontSize: '1.5em',

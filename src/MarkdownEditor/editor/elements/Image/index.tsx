@@ -88,7 +88,7 @@ export const ImageAndError: React.FC<ImageProps> = (props) => {
   }
 
   return (
-    <div data-testid="image-container">
+    <div data-testid="image-container" data-be="image-container">
       <Image
         {...props}
         width={Number(props.width) || props.width || 400}
