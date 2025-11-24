@@ -1,4 +1,3 @@
-import { Keyframes } from '@ant-design/cssinjs';
 import { MOBILE_BREAKPOINT } from '../../Constants/mobile';
 import {
   ChatTokenType,
@@ -10,18 +9,6 @@ import './code.css';
 
 // 导入统一的标签样式配置
 import { TAG_STYLES } from './tagStyles';
-
-// 定义关键帧动画
-const typing = new Keyframes('typing', {
-  from: { width: 0 },
-  to: { width: '100%' },
-});
-
-const blinkCaret = new Keyframes('blink-caret', {
-  from: { borderColor: 'transparent' },
-  to: { borderColor: 'transparent' },
-  '50%': { borderColor: 'var(--color-primary-control-fill-primary)' },
-});
 
 const COMMENT_HIGHLIGHT_COLOR =
   'var(--agentic-comment-highlight-color, rgba(21, 0, 255, 0.15))';
@@ -513,17 +500,6 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         height: '0',
         margin: 'var(--margin-8x) 0',
       },
-
-      // 打字机效果样式
-      '.ant-agentic-md-editor-content .typewriter:last-of-type > *:last-of-type span[data-slate-leaf]:last-of-type span[data-slate-string]':
-        {
-          borderRight: '0.15em solid var(--color-primary-control-fill-primary)',
-          animationName: `${typing.getName()}, ${blinkCaret.getName()}`,
-          animationDuration: '3.5s, 0.5s',
-          animationTimingFunction: 'steps(30, end), step-end',
-          animationIterationCount: '1, infinite',
-          animationFillMode: 'forwards, both',
-        },
     },
     [`${token.componentCls}-compact`]: {
       'div[data-be="paragraph"]': {
