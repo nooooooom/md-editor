@@ -310,7 +310,7 @@ describe('WelcomeMessage 组件', () => {
 
     const rootElement = container.querySelector('.custom-root');
     expect(rootElement).toBeInTheDocument();
-    expect(rootElement).toHaveStyle('padding: 12px');
+    expect(rootElement).toHaveStyle('padding: 20px');
 
     const titleElement = container.querySelector('.custom-title');
     expect(titleElement).toBeInTheDocument();

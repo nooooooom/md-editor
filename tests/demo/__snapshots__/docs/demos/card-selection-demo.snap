@@ -117,8 +117,9 @@
               zindex="-1"
             >
               <div
-                class="ant-agentic-md-editor-drag-el"
+                class=""
                 data-be="paragraph"
+                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -215,8 +216,9 @@
                 </span>
               </div>
               <div
-                class="ant-agentic-md-editor-drag-el"
+                class=""
                 data-be="paragraph"
+                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
