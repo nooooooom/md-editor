@@ -74,7 +74,8 @@ export const AceEditorWrapper: React.FC<AceEditorWrapperProps> = ({
 
     (async () => {
       try {
-        const ace = (aceModuleRef.current as any).default || aceModuleRef.current;
+        const ace =
+          (aceModuleRef.current as any).default || aceModuleRef.current;
 
         const codeEditor = ace.edit(containerRef.current!, {
           useWorker: false,

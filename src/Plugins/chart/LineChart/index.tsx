@@ -139,7 +139,7 @@ const LineChart: React.FC<LineChartProps> = ({
   }, []);
 
   const safeData = Array.isArray(data) ? data : [];
-  
+
   // 使用数据哈希来优化依赖项比较
   const dataHash = useMemo(() => getDataHash(safeData), [safeData]);
 

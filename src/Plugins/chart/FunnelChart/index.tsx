@@ -276,7 +276,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({
 
       const maxValue = Math.max(...values);
       const minValue = Math.min(...values);
-      
+
       // 如果最小值已经满足最小宽度要求，无需调整
       if (minValue >= maxValue * bottomLayerMinWidth) {
         return values;
@@ -285,7 +285,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({
       // 线性映射到 [minWidth, maxValue] 区间
       const minWidth = bottomLayerMinWidth * maxValue;
       const range = maxValue - minValue;
-      
+
       return values.map((v) => {
         if (range === 0) return maxValue;
         const normalized = (v - minValue) / range;

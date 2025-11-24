@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useEffect, useRef, useState, startTransition } from 'react';
+import React, { startTransition, useEffect, useRef, useState } from 'react';
 import { Editor, Node, Transforms } from 'slate';
 import { useEditorStore } from '../../MarkdownEditor/editor/store';
 import { ElementProps, InlineKatexNode } from '../../MarkdownEditor/el';
