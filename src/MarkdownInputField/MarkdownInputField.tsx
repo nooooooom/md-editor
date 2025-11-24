@@ -46,7 +46,7 @@ import { useVoiceInputManager } from './VoiceInputManager';
  * @property {string} [className] - 应用于输入字段的 CSS 类名
  * @property {boolean} [disabled] - 是否禁用输入字段
  * @property {boolean} [typing] - 用户是否正在输入的状态标志
- * @property {'Enter' | 'Mod+Enter'} [triggerSendKey] - 触发发送操作的键盘快捷键
+ * @property {'Enter'} [triggerSendKey] - 触发发送操作的键盘快捷键（Enter 发送，Shift+Enter 换行）
  * @property {function} [onSend] - 当内容发送时触发的异步回调函数
  */
 
@@ -96,11 +96,11 @@ export type MarkdownInputFieldProps = {
 
   /**
    * 触发发送操作的键盘快捷键。
-   * - 'Enter': 回车键触发发送
-   * - 'Mod+Enter': 按下 Ctrl/Command + Enter 触发发送
-   * @example triggerSendKey="Mod+Enter"
+   * - 'Enter': 回车键触发发送，Shift+Enter 换行
+   * @deprecated 此属性已废弃，现在固定使用 Enter 发送，Shift+Enter 换行
+   * @example triggerSendKey="Enter"
    */
-  triggerSendKey?: 'Enter' | 'Mod+Enter';
+  triggerSendKey?: 'Enter';
 
   /**
    * 当内容发送时触发的异步回调函数。
@@ -522,7 +522,7 @@ export type MarkdownInputFieldProps = {
  * @param {(value: string) => void} [props.onChange] - 值变化时的回调
  * @param {(value: string) => Promise<void>} [props.onSend] - 发送消息的回调
  * @param {string} [props.placeholder] - 占位符文本
- * @param {string} [props.triggerSendKey='Mod+Enter'] - 触发发送的快捷键
+ * @param {string} [props.triggerSendKey='Enter'] - 触发发送的快捷键（Enter 发送，Shift+Enter 换行）
  * @param {boolean} [props.disabled] - 是否禁用
  * @param {boolean} [props.typing] - 是否正在输入
  * @param {AttachmentProps} [props.attachment] - 附件配置
@@ -538,7 +538,7 @@ export type MarkdownInputFieldProps = {
  *   onChange={(value) => console.log(value)}
  *   onSend={(value) => Promise.resolve()}
  *   placeholder="请输入Markdown文本..."
- *   triggerSendKey="Mod+Enter"
+ *   triggerSendKey="Enter"
  * />
  * ```
  *
@@ -837,29 +837,18 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
   // 键盘事件：早返回减少嵌套
   const handleKeyDown = useRefFunction(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
-      const triggerSendKey = props.triggerSendKey || 'Enter';
       if (markdownEditorRef?.current?.store.inputComposition) return;
 
       const isEnter = e.key === 'Enter';
       const isMod = e.ctrlKey || e.metaKey;
+      const isShift = e.shiftKey;
 
-      if (triggerSendKey === 'Enter') {
-        if (!(isEnter && !isMod)) return;
-        e.stopPropagation();
-        e.preventDefault();
-        if (props.onSend) sendMessage();
-        return;
-      }
-
-      if (triggerSendKey === 'Mod+Enter') {
-        if (!(isEnter && isMod)) return;
-        e.stopPropagation();
-        e.preventDefault();
-        // 防止重复触发：检查是否已经在加载中
-        if (props.onSend && !isLoading && !props.disabled && !props.typing) {
-          sendMessage();
-        }
-      }
+      // Enter 发送，Shift+Enter 换行
+      if (!isEnter || isMod) return;
+      if (isShift) return; // Shift+Enter 时让编辑器处理换行
+      e.stopPropagation();
+      e.preventDefault();
+      if (props.onSend) sendMessage();
     },
   );
 
@@ -1017,7 +1006,6 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
                 textAreaProps={{
                   enable: true,
                   placeholder: props.placeholder,
-                  triggerSendKey: props.triggerSendKey || 'Enter',
                 }}
                 tagInputProps={{
                   enable: true,
