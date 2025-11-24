@@ -50,6 +50,7 @@ const INLINE_MATH_SIMPLE_NUMBER_PATTERN = new RegExp(
 // HTML 转义和代码块检测相关的常量
 const NOT_SPACE_START = /^\S*/;
 const ENDING_NEWLINE = /\n$/;
+const FENCED_CODE_REGEX = /^(`{3,}|~{3,})/;
 
 const shouldTreatInlineMathAsText = (rawValue: string): boolean => {
   const trimmedValue = rawValue.trim();
@@ -708,62 +709,80 @@ const handleHtml = (currentElement: any, parent: any, htmlTag: any[]) => {
 
   let el: any;
   if (!parent || ['listItem', 'blockquote'].includes(parent.type)) {
-    // 检查是否为 <think> 标签
-    const thinkElement = findThinkElement(currentElement.value);
-    if (thinkElement) {
-      // 将 <think> 标签转换为 think 类型的代码块
-      el = {
-        type: 'code',
-        language: 'think',
-        value: thinkElement.content,
-        children: [
-          {
-            text: thinkElement.content,
-          },
-        ],
-      };
+    // 检查是否为不完整的图片标记
+    const incompleteImageMatch = currentElement.value.match(
+      /<incomplete-image\s+data-raw="([^"]+)"\s*\/?>/,
+    );
+    if (incompleteImageMatch) {
+      const rawMarkdown = decodeURIComponent(incompleteImageMatch[1]);
+      // 直接创建带有 loading 状态的图片节点（不通过 createMediaNode，因为 URL 为空）
+      el = EditorUtils.wrapperCardNode({
+        type: 'image',
+        url: '', // 空 URL 表示不完整的图片
+        mediaType: 'image',
+        alt: rawMarkdown,
+        loading: true,
+        rawMarkdown: rawMarkdown,
+        children: [{ text: '' }],
+      } as any);
     } else {
-      // 检查是否为 <answer> 标签
-      const answerElement = findAnswerElement(currentElement.value);
-      if (answerElement) {
-        // 将 <answer> 标签的内容作为普通文本
-        el = { text: answerElement.content };
+      // 检查是否为 <think> 标签
+      const thinkElement = findThinkElement(currentElement.value);
+      if (thinkElement) {
+        // 将 <think> 标签转换为 think 类型的代码块
+        el = {
+          type: 'code',
+          language: 'think',
+          value: thinkElement.content,
+          children: [
+            {
+              text: thinkElement.content,
+            },
+          ],
+        };
       } else {
-        const mediaElement = findImageElement(currentElement.value);
-        if (mediaElement) {
-          el = createMediaNodeFromElement(mediaElement);
-        } else if (currentElement.value === '<br/>') {
-          el = { type: 'paragraph', children: [{ text: '' }] };
-        } else if (currentElement.value.match(/^<\/(img|video|iframe)>/)) {
-          // 如果是媒体标签的结束标签，跳过处理
-          el = null;
+        // 检查是否为 <answer> 标签
+        const answerElement = findAnswerElement(currentElement.value);
+        if (answerElement) {
+          // 将 <answer> 标签的内容作为普通文本
+          el = { text: answerElement.content };
         } else {
-          // 检查是否为注释（注释需要特殊处理以提取配置）
-          const isComment =
-            currentElement.value.trim().startsWith('<!--') &&
-            currentElement.value.trim().endsWith('-->');
-
-          // 检查是否为标准 HTML 元素或注释
-          if (isComment || isStandardHtmlElement(currentElement.value)) {
-            // 标准 HTML 元素或注释：按原逻辑处理
-            el = currentElement.value.match(
-              /<\/?(table|div|ul|li|ol|p|strong)[^\n>]*?>/,
-            )
-              ? htmlToFragmentList(currentElement.value, '')
-              : {
-                  type: 'code',
-                  language: 'html',
-                  render: true,
-                  value: currentElement.value,
-                  children: [
-                    {
-                      text: currentElement.value,
-                    },
-                  ],
-                };
+          const mediaElement = findImageElement(currentElement.value);
+          if (mediaElement) {
+            el = createMediaNodeFromElement(mediaElement);
+          } else if (currentElement.value === '<br/>') {
+            el = { type: 'paragraph', children: [{ text: '' }] };
+          } else if (currentElement.value.match(/^<\/(img|video|iframe)>/)) {
+            // 如果是媒体标签的结束标签，跳过处理
+            el = null;
           } else {
-            // 非标准元素（如自定义标签）：当作普通文本处理
-            el = { text: currentElement.value };
+            // 检查是否为注释（注释需要特殊处理以提取配置）
+            const isComment =
+              currentElement.value.trim().startsWith('<!--') &&
+              currentElement.value.trim().endsWith('-->');
+
+            // 检查是否为标准 HTML 元素或注释
+            if (isComment || isStandardHtmlElement(currentElement.value)) {
+              // 标准 HTML 元素或注释：按原逻辑处理
+              el = currentElement.value.match(
+                /<\/?(table|div|ul|li|ol|p|strong)[^\n>]*?>/,
+              )
+                ? htmlToFragmentList(currentElement.value, '')
+                : {
+                    type: 'code',
+                    language: 'html',
+                    render: true,
+                    value: currentElement.value,
+                    children: [
+                      {
+                        text: currentElement.value,
+                      },
+                    ],
+                  };
+            } else {
+              // 非标准元素（如自定义标签）：当作普通文本处理
+              el = { text: currentElement.value };
+            }
           }
         }
       }
@@ -800,6 +819,24 @@ const processInlineHtml = (currentElement: any, htmlTag: any[]) => {
   if (answerElement) {
     // 将 <answer> 标签的内容作为普通文本
     return { text: answerElement.content };
+  }
+
+  // 检查是否为不完整的图片标记
+  const incompleteImageMatch = currentElement.value.match(
+    /<incomplete-image\s+data-raw="([^"]+)"\s*\/?>/,
+  );
+  if (incompleteImageMatch) {
+    const rawMarkdown = decodeURIComponent(incompleteImageMatch[1]);
+    // 直接创建带有 loading 状态的图片节点（不通过 createMediaNode，因为 URL 为空）
+    return EditorUtils.wrapperCardNode({
+      type: 'image',
+      url: '', // 空 URL 表示不完整的图片
+      mediaType: 'image',
+      alt: rawMarkdown,
+      loading: true,
+      rawMarkdown: rawMarkdown,
+      children: [{ text: '' }],
+    } as any);
   }
 
   // 检查是否为非标准 HTML 元素，如果是则直接当作文本
@@ -1681,6 +1718,8 @@ const STANDARD_HTML_ELEMENTS = new Set([
   'menuitem',
   // 字体
   'font',
+  // 自定义标签（用于流式渲染）
+  'incomplete-image',
 ]);
 
 /**
@@ -1739,6 +1778,88 @@ function preprocessThinkTags(markdown: string): string {
 }
 
 /**
+ * 检测不完整的图片标记
+ * 参考 useStreaming 中的逻辑，检测类似 ![ 或 ![text]( 的不完整图片语法
+ * @param markdown - 要检测的 Markdown 字符串
+ * @returns 是否为不完整的图片标记
+ */
+function isIncompleteImage(markdown: string): boolean {
+  // 匹配不完整的图片语法：
+  // 1. ![ 开始但还没有 ]
+  // 2. ![text] 开始但还没有 (
+  // 3. ![text]( 开始但还没有 )
+  const incompleteImagePatterns = [
+    /^!\[[^\]\r\n]{0,1000}$/, // ![ 或 ![text 但没有 ]
+    /^!\[[^\r\n]{0,1000}\]\(*[^)\r\n]{0,1000}$/, // ![text]( 或 ![text](url 但没有 )
+  ];
+  return incompleteImagePatterns.some((pattern) => pattern.test(markdown));
+}
+
+/**
+ * 预处理不完整的图片标记，将其转换为特殊的 HTML 标签
+ * @param markdown - 原始 Markdown 字符串
+ * @returns 处理后的 Markdown 字符串
+ */
+function preprocessIncompleteImages(markdown: string): string {
+  if (!markdown) return markdown;
+
+  // 按行处理，避免在代码块中处理
+  const lines = markdown.split('\n');
+  let inCodeBlock = false;
+  let codeBlockFence = '';
+  let codeBlockFenceLen = 0;
+
+  const processedLines = lines.map((line) => {
+    // 检测代码块开始/结束
+    const fenceMatch = line.match(FENCED_CODE_REGEX);
+    if (fenceMatch) {
+      const currentFence = fenceMatch[1];
+      const char = currentFence[0];
+      const len = currentFence.length;
+
+      if (!inCodeBlock) {
+        inCodeBlock = true;
+        codeBlockFence = char;
+        codeBlockFenceLen = len;
+      } else if (char === codeBlockFence && len >= codeBlockFenceLen) {
+        inCodeBlock = false;
+        codeBlockFence = '';
+        codeBlockFenceLen = 0;
+      }
+      return line;
+    }
+
+    // 如果在代码块中，不处理
+    if (inCodeBlock) {
+      return line;
+    }
+
+    // 检测不完整的图片标记
+    // 匹配行尾的不完整图片语法（避免匹配完整的图片）
+    const trimmedLine = line.trim();
+
+    // 如果整行就是一个不完整的图片标记
+    if (isIncompleteImage(trimmedLine)) {
+      const encodedRaw = encodeURIComponent(trimmedLine);
+      return `<incomplete-image data-raw="${encodedRaw}" />`;
+    }
+
+    // 检测行内不完整的图片标记（在行尾）
+    // 使用负向前瞻确保不是完整图片的一部分
+    return line.replace(/(!\[[^\]]*\]?\(?[^)]*)$/, (match) => {
+      // 检查是否是不完整的图片
+      if (isIncompleteImage(match.trim())) {
+        const encodedRaw = encodeURIComponent(match.trim());
+        return `<incomplete-image data-raw="${encodedRaw}" />`;
+      }
+      return match;
+    });
+  });
+
+  return processedLines.join('\n');
+}
+
+/**
  * 预处理所有非标准 HTML 标签，提取其内容（删除标签本身）
  * @param markdown - 原始 Markdown 字符串
  * @returns 处理后的 Markdown 字符串
@@ -1752,9 +1873,14 @@ function preprocessNonStandardHtmlTags(markdown: string): string {
     const before = result;
 
     // 匹配所有 HTML 标签对：<tagname>content</tagname>
+    // 注意：跳过 incomplete-image 标签（它是自闭合标签，需要特殊处理）
     result = result.replace(
       /<(\w+)>([\s\S]*?)<\/\1>/g,
       (match, tagName, content) => {
+        // 保护 incomplete-image 标签（虽然它是自闭合的，但为了安全起见）
+        if (tagName.toLowerCase() === 'incomplete-image') {
+          return match;
+        }
         // 检查是否为标准 HTML 元素
         if (STANDARD_HTML_ELEMENTS.has(tagName.toLowerCase())) {
           // 标准元素保持不变
@@ -1848,9 +1974,12 @@ export class MarkdownToSlateParser {
     schema: Elements[];
     links: { path: number[]; target: string }[];
   } {
-    // 先预处理 <think> 标签，再预处理其他非标准 HTML 标签，最后处理表格换行
+    // 先预处理 <think> 标签，再预处理不完整的图片，然后预处理其他非标准 HTML 标签，最后处理表格换行
     const thinkProcessed = preprocessThinkTags(md || '');
-    const nonStandardProcessed = preprocessNonStandardHtmlTags(thinkProcessed);
+    const incompleteImageProcessed = preprocessIncompleteImages(thinkProcessed);
+    const nonStandardProcessed = preprocessNonStandardHtmlTags(
+      incompleteImageProcessed,
+    );
     const processedMarkdown = mdastParser.parse(
       preprocessMarkdownTableNewlines(nonStandardProcessed),
     ) as any;

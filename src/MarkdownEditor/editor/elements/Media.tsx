@@ -4,7 +4,7 @@ import {
   EyeOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
-import { Modal, Popover } from 'antd';
+import { Modal, Popover, Skeleton } from 'antd';
 import React, {
   useCallback,
   useContext,
@@ -293,6 +293,14 @@ export function Media({
   const imageDom = useMemo(() => {
     if (state().type !== 'image' && state().type !== 'other') return null;
 
+    // 检查是否为不完整的图片（loading 状态）
+    const isLoading =
+      (element as any)?.loading || (element as any)?.otherProps?.loading;
+    if (isLoading) {
+      // 显示 loading 状态的占位符
+      return <Skeleton.Image active />;
+    }
+
     return !readonly ? (
       <ResizeImage
         defaultSize={{
@@ -328,10 +336,30 @@ export function Media({
         height={element.height}
       />
     );
-  }, [state().type, state()?.url, readonly, state().selected]);
+  }, [
+    state().type,
+    state()?.url,
+    readonly,
+    state().selected,
+    (element as any)?.loading,
+    (element as any)?.otherProps?.loading,
+    (element as any)?.rawMarkdown,
+  ]);
 
   const mediaElement = useMemo(() => {
+    // 检查是否为不完整的媒体（loading 状态）
+    const isLoading =
+      (element as any)?.loading || (element as any)?.otherProps?.loading;
+    const rawMarkdown =
+      (element as any)?.rawMarkdown ||
+      (element as any)?.otherProps?.rawMarkdown;
+
     if (state().type === 'video') {
+      // 如果是 loading 状态，显示 loading 占位符
+      if (isLoading) {
+        return <Skeleton.Image active />;
+      }
+
       if (!state().loadSuccess) {
         return (
           <a
@@ -384,6 +412,39 @@ export function Media({
     }
 
     if (state().type === 'audio') {
+      // 如果是 loading 状态，显示 loading 占位符
+      if (isLoading) {
+        return (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 16px',
+              border: '1px dashed #d9d9d9',
+              borderRadius: '6px',
+              backgroundColor: '#fafafa',
+              minWidth: '200px',
+              justifyContent: 'center',
+            }}
+          >
+            <LoadingOutlined
+              style={{ color: '#1890ff', fontSize: '16px' }}
+              spin
+            />
+            <span
+              style={{
+                color: '#666',
+                fontSize: '13px',
+                wordBreak: 'break-all',
+              }}
+            >
+              {rawMarkdown || element?.alt || '音频加载中...'}
+            </span>
+          </div>
+        );
+      }
+
       if (!state().loadSuccess) {
         return (
           <a
@@ -541,7 +602,13 @@ export function Media({
       );
     }
     return null;
-  }, [state().type, state()?.url]);
+  }, [
+    state().type,
+    state()?.url,
+    (element as any)?.loading,
+    (element as any)?.otherProps?.loading,
+    (element as any)?.rawMarkdown,
+  ]);
 
   return (
     <div {...attributes}>
