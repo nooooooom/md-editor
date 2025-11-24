@@ -82,6 +82,8 @@ export interface FunnelChartProps extends ChartContainerProps {
     /** 类型名称，用于图例和数据集标签 */
     name: string;
   };
+  /** 是否显示加载状态（当图表未闭合时显示） */
+  loading?: boolean;
 }
 
 const FunnelChart: React.FC<FunnelChartProps> = ({
@@ -102,6 +104,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({
   bottomLayerMinWidth = 0,
   typeNames,
   statistic: statisticConfig,
+  loading = false,
   ...props
 }) => {
   useMemo(() => {
@@ -731,6 +734,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({
         onDownload={handleDownload}
         dataTime={dataTime}
         extra={toolbarExtra}
+        loading={loading}
         filter={
           renderFilterInToolbar && filterOptions && filterOptions.length > 1 ? (
             <ChartFilter

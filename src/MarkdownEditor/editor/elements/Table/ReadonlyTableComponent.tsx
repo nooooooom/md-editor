@@ -11,6 +11,7 @@ import React, {
   useState,
 } from 'react';
 import { ActionIconBox } from '../../../../Components/ActionIconBox';
+import { Loading } from '../../../../Components/Loading';
 import { I18nContext } from '../../../../I18n';
 import { useEditorStore } from '../../store';
 import { TableNode } from '../../types/Table';
@@ -43,6 +44,9 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
     const modelTargetRef = useRef<HTMLDivElement>(null);
     const [previewOpen, setPreviewOpen] = useState(false);
     const i18n = useContext(I18nContext);
+
+    // 检查表格是否未闭合
+    const isUnclosed = element?.otherProps?.finish === false;
 
     // 简化的列宽计算 - 只为 readonly 模式设计
     const colWidths = useMemo(() => {
@@ -176,8 +180,23 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
           style={{
             flex: 1,
             minWidth: 0,
+            position: 'relative',
           }}
+          data-is-unclosed={isUnclosed}
         >
+          {/* 未闭合表格的 loading 指示器 */}
+          {isUnclosed && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                zIndex: 10,
+              }}
+            >
+              <Loading />
+            </div>
+          )}
           {tableDom}
           {popoverContent}
         </div>

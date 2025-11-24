@@ -120,13 +120,13 @@ const ChartRuntimeRendererImpl: React.FC<{
   colorLegend?: string;
   chartData: Record<string, any>[];
   getFieldValue: (row: any, field?: string) => string | undefined;
+  loading?: boolean;
 }> = ({
   chartType,
   runtime,
   convertDonutData,
   convertFlatData,
   config,
-  renderKey,
   title,
   dataTime,
   toolBar,
@@ -135,6 +135,7 @@ const ChartRuntimeRendererImpl: React.FC<{
   colorLegend,
   chartData,
   getFieldValue,
+  loading = false,
 }) => {
   const {
     DonutChart,
@@ -149,7 +150,7 @@ const ChartRuntimeRendererImpl: React.FC<{
   if (chartType === 'pie') {
     return (
       <DonutChart
-        key={`${config?.index}-pie-${renderKey}`}
+        key={`${config?.index}-pie`}
         data={convertDonutData}
         configs={[{ chartStyle: 'pie', showLegend: true }]}
         height={config?.height || 400}
@@ -157,6 +158,7 @@ const ChartRuntimeRendererImpl: React.FC<{
         showToolbar={true}
         dataTime={dataTime}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -164,7 +166,7 @@ const ChartRuntimeRendererImpl: React.FC<{
   if (chartType === 'donut') {
     return (
       <DonutChart
-        key={`${config?.index}-donut-${renderKey}`}
+        key={`${config?.index}-donut`}
         data={convertDonutData}
         configs={[{ chartStyle: 'donut', showLegend: true }]}
         height={config?.height || 400}
@@ -172,6 +174,7 @@ const ChartRuntimeRendererImpl: React.FC<{
         showToolbar={true}
         dataTime={dataTime}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -179,7 +182,7 @@ const ChartRuntimeRendererImpl: React.FC<{
   if (chartType === 'bar') {
     return (
       <BarChart
-        key={`${config?.index}-bar-${renderKey}`}
+        key={`${config?.index}-bar`}
         data={convertFlatData}
         height={config?.height || 400}
         title={title || ''}
@@ -189,6 +192,7 @@ const ChartRuntimeRendererImpl: React.FC<{
         showGrid={config?.rest?.showGrid ?? true}
         dataTime={dataTime}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -196,7 +200,7 @@ const ChartRuntimeRendererImpl: React.FC<{
   if (chartType === 'line') {
     return (
       <LineChart
-        key={`${config?.index}-line-${renderKey}`}
+        key={`${config?.index}-line`}
         data={convertFlatData}
         height={config?.height || 400}
         title={title || ''}
@@ -204,6 +208,7 @@ const ChartRuntimeRendererImpl: React.FC<{
         showGrid={config?.rest?.showGrid ?? true}
         dataTime={dataTime}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -211,7 +216,7 @@ const ChartRuntimeRendererImpl: React.FC<{
   if (chartType === 'column') {
     return (
       <BarChart
-        key={`${config?.index}-column-${renderKey}`}
+        key={`${config?.index}-column`}
         data={convertFlatData}
         height={config?.height || 400}
         title={title || ''}
@@ -221,6 +226,7 @@ const ChartRuntimeRendererImpl: React.FC<{
         showGrid={config?.rest?.showGrid ?? true}
         dataTime={dataTime}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -228,7 +234,7 @@ const ChartRuntimeRendererImpl: React.FC<{
   if (chartType === 'area') {
     return (
       <AreaChart
-        key={`${config?.index}-area-${renderKey}`}
+        key={`${config?.index}-area`}
         data={convertFlatData}
         height={config?.height || 400}
         title={title || ''}
@@ -236,6 +242,7 @@ const ChartRuntimeRendererImpl: React.FC<{
         showGrid={config?.rest?.showGrid ?? true}
         dataTime={dataTime}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -245,9 +252,12 @@ const ChartRuntimeRendererImpl: React.FC<{
       const filterLabel = getFieldValue(row, filterBy);
       const category = getFieldValue(row, groupBy);
       const type = getFieldValue(row, colorLegend);
+      // 使用 getFieldValue 获取 x 和 y 值，支持字段名规范化
+      const xValue = getFieldValue(row, config?.x);
+      const yValue = getFieldValue(row, config?.y);
       return {
-        label: String(row?.[config?.x] ?? i + 1),
-        score: row?.[config?.y],
+        label: xValue ? String(xValue) : String(i + 1),
+        score: yValue ? Number(yValue) : undefined,
         ...(category ? { category } : {}),
         ...(type ? { type } : {}),
         ...(filterLabel ? { filterLabel } : {}),
@@ -256,12 +266,13 @@ const ChartRuntimeRendererImpl: React.FC<{
 
     return (
       <RadarChart
-        key={`${config?.index}-radar-${renderKey}`}
+        key={`${config?.index}-radar`}
         data={radarData}
         height={config?.height || 400}
         title={title || ''}
         dataTime={dataTime}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -271,9 +282,12 @@ const ChartRuntimeRendererImpl: React.FC<{
       const filterLabel = getFieldValue(row, filterBy);
       const category = getFieldValue(row, groupBy);
       const type = getFieldValue(row, colorLegend);
+      // 使用 getFieldValue 获取 x 和 y 值，支持字段名规范化
+      const xValue = getFieldValue(row, config?.x);
+      const yValue = getFieldValue(row, config?.y);
       return {
-        x: row?.[config?.x],
-        y: row?.[config?.y],
+        x: xValue ? Number(xValue) : 0,
+        y: yValue ? Number(yValue) : 0,
         ...(category ? { category } : {}),
         ...(type ? { type } : {}),
         ...(filterLabel ? { filterLabel } : {}),
@@ -282,12 +296,13 @@ const ChartRuntimeRendererImpl: React.FC<{
 
     return (
       <ScatterChart
-        key={`${config?.index}-scatter-${renderKey}`}
+        key={`${config?.index}-scatter`}
         data={scatterData}
         height={config?.height || 400}
         title={title || ''}
         dataTime={dataTime}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -297,9 +312,12 @@ const ChartRuntimeRendererImpl: React.FC<{
       const filterLabel = getFieldValue(row, filterBy);
       const category = getFieldValue(row, groupBy);
       const type = getFieldValue(row, colorLegend);
+      // 使用 getFieldValue 获取 x 和 y 值，支持字段名规范化
+      const xValue = getFieldValue(row, config?.x);
+      const yValue = getFieldValue(row, config?.y);
       return {
-        x: String(row?.[config?.x] ?? i + 1),
-        y: toNumber(row?.[config?.y], 0),
+        x: xValue ? String(xValue) : String(i + 1),
+        y: yValue ? toNumber(yValue, 0) : 0,
         ...(row?.ratio !== undefined ? { ratio: row.ratio } : {}),
         ...(category ? { category } : {}),
         ...(type ? { type } : {}),
@@ -309,13 +327,14 @@ const ChartRuntimeRendererImpl: React.FC<{
 
     return (
       <FunnelChart
-        key={`${config?.index}-funnel-${renderKey}`}
+        key={`${config?.index}-funnel`}
         data={funnelData}
         height={config?.height || 400}
         title={title || ''}
         dataTime={dataTime}
         typeNames={{ rate: '转化率', name: colorLegend || '转化' }}
         toolbarExtra={toolBar}
+        loading={loading}
       />
     );
   }
@@ -329,6 +348,7 @@ const ChartRuntimeRendererImpl: React.FC<{
  */
 const ChartRuntimeRenderer = lazy(async () => {
   const runtime = await loadChartRuntime();
+
   return {
     default: (props: {
       chartType:
@@ -353,6 +373,7 @@ const ChartRuntimeRenderer = lazy(async () => {
       colorLegend?: string;
       chartData: Record<string, any>[];
       getFieldValue: (row: any, field?: string) => string | undefined;
+      loading?: boolean;
     }) => <ChartRuntimeRendererImpl {...props} runtime={runtime} />,
   };
 });
@@ -467,6 +488,7 @@ export const ChartRender: React.FC<{
   groupBy?: string;
   filterBy?: string;
   colorLegend?: string;
+  loading?: boolean;
 }> = (props) => {
   const [chartType, setChartType] = useState<
     | 'pie'
@@ -491,6 +513,7 @@ export const ChartRender: React.FC<{
     groupBy,
     filterBy,
     colorLegend,
+    loading = false,
   } = props;
   const i18n = useContext(I18nContext);
   const [config, setConfig] = useState(() => props.config);
@@ -517,10 +540,11 @@ export const ChartRender: React.FC<{
   );
 
   // 防抖更新 renderKey，避免流式数据频繁更新导致的性能问题
+  // 增加延迟时间以减少抖动
   const debouncedUpdateRenderKeyRef = React.useRef(
     debounce(() => {
       setRenderKey((k) => k + 1);
-    }, 300),
+    }, 800), // 从 300ms 增加到 800ms
   );
 
   const renderDescriptionsFallback = React.useMemo(() => {
@@ -561,9 +585,50 @@ export const ChartRender: React.FC<{
     return map;
   };
 
+  /**
+   * 规范化字段名，统一处理转义字符
+   * 将 `index\_value` 转换为 `index_value`，确保字段名一致
+   */
+  const normalizeFieldName = (fieldName: string): string => {
+    if (!fieldName) return fieldName;
+    // 移除转义字符：将 `\_` 转换为 `_`，`\\` 转换为 `\`
+    return fieldName
+      .replace(/\\_/g, '_')
+      .replace(/\\\\/g, '\\')
+      .replace(/\\(?=")/g, '') // 移除转义的双引号
+      .trim();
+  };
+
+  /**
+   * 安全地获取字段值，如果字段名不匹配，也尝试规范化后的字段名
+   */
+  const getFieldValueSafely = (row: any, field?: string): any => {
+    if (!field) return undefined;
+
+    // 先尝试直接访问
+    if (row[field] !== undefined) {
+      return row[field];
+    }
+
+    // 如果直接访问失败，尝试规范化后的字段名
+    const normalizedField = normalizeFieldName(field);
+    if (normalizedField !== field && row[normalizedField] !== undefined) {
+      return row[normalizedField];
+    }
+
+    // 也尝试反向：如果字段名已经是规范化的，尝试带转义字符的版本
+    const escapedField = field.replace(/_/g, '\\_');
+    if (escapedField !== field && row[escapedField] !== undefined) {
+      return row[escapedField];
+    }
+
+    return undefined;
+  };
+
   const getFieldValue = (row: any, field?: string): string | undefined => {
-    if (field && isNotEmpty(row[field])) {
-      return String(row[field]);
+    const value = getFieldValueSafely(row, field);
+    if (field && isNotEmpty(value)) {
+      return String(value);
     }
     return undefined;
   };
@@ -573,8 +638,8 @@ export const ChartRender: React.FC<{
     const xIndexer = buildXIndexer();
 
     return (chartData || []).map((row: any, i: number) => {
-      const rawX = row?.[config?.x];
-      const rawY = row?.[config?.y];
+      const rawX = getFieldValueSafely(row, config?.x);
+      const rawY = getFieldValueSafely(row, config?.y);
       const category = getFieldValue(row, groupBy);
       const type = getFieldValue(row, colorLegend);
       const filterLabel = getFieldValue(row, filterBy);
@@ -618,8 +683,8 @@ export const ChartRender: React.FC<{
   const convertDonutData = useMemo(() => {
     return (chartData || []).map((row: any) => {
       const category = getFieldValue(row, groupBy);
-      const label = String(row?.[config?.x] ?? '');
-      const value = toNumber(row?.[config?.y], 0);
+      const label = String(getFieldValueSafely(row, config?.x) ?? '');
+      const value = toNumber(getFieldValueSafely(row, config?.y), 0);
       const filterLabel = getFieldValue(row, filterBy);
 
       return {
@@ -682,8 +747,8 @@ export const ChartRender: React.FC<{
   /**
    * 图表配置
    */
-  const getChartPopover = () =>
-    [
+  const toolBar = useMemo(() => {
+    return [
       <Dropdown
         key="dropdown"
         menu={{
@@ -723,7 +788,7 @@ export const ChartRender: React.FC<{
       </Dropdown>,
       isChartList ? (
         <Dropdown
-          key="dropdown"
+          key="dropdown-column"
           menu={{
             items: new Array(4).fill(0).map((_, i) => {
               return {
@@ -845,8 +910,16 @@ export const ChartRender: React.FC<{
         </ActionIconBox>
       </Popover>,
     ].filter((item) => !!item) as JSX.Element[];
-
-  const toolBar = getChartPopover();
+  }, [
+    chartType,
+    ChartMap,
+    i18n?.locale,
+    isChartList,
+    columnLength,
+    onColumnLengthChange,
+    config,
+    props.config,
+  ]);
 
   const chartDom = useMemo(() => {
     if (typeof window === 'undefined') return null;
@@ -926,6 +999,7 @@ export const ChartRender: React.FC<{
           fallback={<ChartRuntimeFallback height={config?.height || 240} />}
         >
           <ChartRuntimeRenderer
+            loading={loading}
             chartType={chartType}
             convertDonutData={convertDonutData}
             convertFlatData={convertFlatData}
@@ -957,7 +1031,6 @@ export const ChartRender: React.FC<{
     config?.y,
     config?.height,
     config?.index,
-    renderKey,
     toolBar,
     convertDonutData,
     convertFlatData,
@@ -969,6 +1042,12 @@ export const ChartRender: React.FC<{
     isIntersecting,
     shouldLoadRuntime,
     renderDescriptionsFallback,
+    chartData,
+    config?.columns,
+    config?.rest?.stacked,
+    config?.rest?.showLegend,
+    config?.rest?.showGrid,
+    loading,
   ]);
 
   return (

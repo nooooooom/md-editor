@@ -4,7 +4,7 @@
  */
 
 import { ConfigProvider, theme as antdTheme } from 'antd';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { MarkdownEditor } from '../../../MarkdownEditor';
 import { useEditorStore } from '../../../MarkdownEditor/editor/store';
 import { CodeNode, ElementProps } from '../../../MarkdownEditor/el';
@@ -92,6 +92,30 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
     onViewModeToggle: handleViewModeToggle,
     viewMode,
   });
+
+  // 检查代码块是否未闭合
+  const isUnclosed = props.element?.otherProps?.finish === false;
+
+  // 5 秒超时机制：如果代码块未闭合，5 秒后自动设置为完成
+  useEffect(() => {
+    if (isUnclosed && !readonly) {
+      const timer = setTimeout(() => {
+        // 检查 finish 是否仍然是 false（可能已经被其他逻辑更新）
+        if (props.element?.otherProps?.finish === false) {
+          update({
+            otherProps: {
+              ...props.element?.otherProps,
+              finish: true,
+            },
+          });
+        }
+      }, 5000); // 5 秒超时
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [isUnclosed, readonly, props.element?.otherProps?.finish, update]);
 
   // 渲染组件
   return useMemo(() => {

@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef } from 'react';
 import { useGetSetState } from 'react-use';
 import { useIntersectionOnce } from '../../Hooks/useIntersectionOnce';
+import { isCodeBlockLikelyComplete } from '../../MarkdownEditor/editor/utils/findMatchingClose';
 import { CodeNode } from '../../MarkdownEditor/el';
 
 type MermaidApi = typeof import('mermaid').default;
@@ -49,43 +50,7 @@ export const loadMermaid = async (): Promise<MermaidApi> => {
  * 用于流式输入时判断是否应该尝试渲染
  */
 const isCodeLikelyComplete = (code: string): boolean => {
-  const trimmed = code.trim();
-  if (!trimmed) return false;
-
-  // 检查是否包含基本的 Mermaid 图表类型关键字
-  const hasChartType =
-    trimmed.includes('graph') ||
-    trimmed.includes('sequenceDiagram') ||
-    trimmed.includes('gantt') ||
-    trimmed.includes('pie') ||
-    trimmed.includes('classDiagram') ||
-    trimmed.includes('stateDiagram') ||
-    trimmed.includes('erDiagram') ||
-    trimmed.includes('journey') ||
-    trimmed.includes('gitgraph') ||
-    trimmed.includes('flowchart');
-
-  if (!hasChartType) return false;
-
-  // 检查基本结构完整性（简单启发式检查）
-  // 如果代码很短，可能是正在输入中
-  if (trimmed.length < 10) return false;
-
-  // 检查是否以常见的不完整模式结尾
-  const incompletePatterns = [
-    /graph\s*$/i, // 只有 graph 关键字
-    /-->?\s*$/, // 箭头后面没有内容
-    /\[.*$/, // 未闭合的方括号
-    /\(.*$/, // 未闭合的圆括号
-    /{.*$/, // 未闭合的花括号
-  ];
-
-  // 如果匹配不完整模式，可能还在输入中
-  const endsWithIncomplete = incompletePatterns.some((pattern) =>
-    pattern.test(trimmed),
-  );
-
-  return !endsWithIncomplete;
+  return isCodeBlockLikelyComplete(code, 'mermaid');
 };
 
 const MermaidRendererImpl = (props: { element: CodeNode }) => {
@@ -161,9 +126,9 @@ const MermaidRendererImpl = (props: { element: CodeNode }) => {
     const likelyComplete = isCodeLikelyComplete(nextCode);
 
     // 防抖延迟：根据代码变化频率动态调整
-    // 如果代码变化频繁（流式输入），使用更长的延迟
-    const baseDelay = 300;
-    const typingDelay = changeCountRef.current > 3 ? 1000 : 800; // 频繁变化时延长到 1 秒
+    // 如果代码变化频繁（流式输入），使用更长的延迟以减少抖动
+    const baseDelay = 500; // 增加基础延迟
+    const typingDelay = changeCountRef.current > 3 ? 1500 : 1200; // 频繁变化时延长到 1.5 秒
     const delay = currentState.code
       ? likelyComplete
         ? baseDelay
@@ -181,8 +146,8 @@ const MermaidRendererImpl = (props: { element: CodeNode }) => {
       }
 
       // 第二层防抖：实际渲染
-      // 如果代码可能不完整，再等待一段时间
-      const finalDelay = likelyComplete ? 0 : 500;
+      // 如果代码可能不完整，再等待一段时间，增加延迟以减少抖动
+      const finalDelay = likelyComplete ? 200 : 800; // 增加延迟时间
       renderTimer.current = window.setTimeout(async () => {
         try {
           const api = mermaidRef.current ?? (await loadMermaid());
@@ -202,70 +167,91 @@ const MermaidRendererImpl = (props: { element: CodeNode }) => {
           const { svg } = await api.render(id, trimmedCode);
 
           if (divRef.current) {
-            // 清理旧内容
-            divRef.current.innerHTML = '';
+            // 使用更平滑的更新方式，避免抖动
+            // 先设置透明度，然后更新内容，最后恢复透明度
+            const container = divRef.current;
 
-            // 创建隔离的容器包装 SVG
-            const wrapper = document.createElement('div');
-            wrapper.style.cssText = `
-            position: relative;
-            width: 100%;
-            max-width: 100%;
-            overflow: hidden;
-            isolation: isolate;
-            contain: layout style paint;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          `;
-
-            // 解析 SVG 并添加隔离属性
-            const parser = new DOMParser();
-            const svgDoc = parser.parseFromString(svg, 'image/svg+xml');
-            const svgElement = svgDoc.querySelector('svg');
-
-            if (svgElement) {
-              // 确保 SVG 不会溢出
-              const existingStyle = svgElement.getAttribute('style') || '';
-              const newStyle =
-                `${existingStyle}; max-width: 100%; height: auto; overflow: hidden;`.trim();
-              svgElement.setAttribute('style', newStyle);
-
-              // 添加隔离属性和类名
-              svgElement.setAttribute('data-mermaid-svg', 'true');
-              svgElement.setAttribute(
-                'class',
-                (svgElement.getAttribute('class') || '') + ' mermaid-isolated',
-              );
-
-              // 限制 SVG 内部元素的样式影响范围
-              const allElements = svgElement.querySelectorAll('*');
-              allElements.forEach((el) => {
-                // 确保内部元素不会影响外部
-                if (el instanceof SVGElement) {
-                  el.setAttribute('data-mermaid-internal', 'true');
-                }
-              });
-
-              wrapper.appendChild(svgElement);
-            } else {
-              // 如果解析失败，直接使用原始 SVG，但添加包装
-              const tempDiv = document.createElement('div');
-              tempDiv.innerHTML = svg;
-              const extractedSvg = tempDiv.querySelector('svg');
-              if (extractedSvg) {
-                extractedSvg.setAttribute(
-                  'style',
-                  'max-width: 100%; height: auto; overflow: hidden;',
-                );
-                extractedSvg.setAttribute('data-mermaid-svg', 'true');
-                wrapper.appendChild(extractedSvg);
-              } else {
-                wrapper.innerHTML = svg;
-              }
+            // 如果已有内容，先淡出
+            if (container.children.length > 0) {
+              container.style.opacity = '0';
+              container.style.transition = 'opacity 0.2s ease-in-out';
             }
 
-            divRef.current.appendChild(wrapper);
+            // 使用 requestAnimationFrame 确保平滑更新
+            requestAnimationFrame(() => {
+              // 清理旧内容
+              container.innerHTML = '';
+
+              // 创建隔离的容器包装 SVG
+              const wrapper = document.createElement('div');
+              wrapper.style.cssText = `
+                position: relative;
+                width: 100%;
+                max-width: 100%;
+                overflow: hidden;
+                isolation: isolate;
+                contain: layout style paint;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 200px; /* 保持最小高度，避免尺寸抖动 */
+              `;
+
+              // 解析 SVG 并添加隔离属性
+              const parser = new DOMParser();
+              const svgDoc = parser.parseFromString(svg, 'image/svg+xml');
+              const svgElement = svgDoc.querySelector('svg');
+
+              if (svgElement) {
+                // 确保 SVG 不会溢出
+                const existingStyle = svgElement.getAttribute('style') || '';
+                const newStyle =
+                  `${existingStyle}; max-width: 100%; height: auto; overflow: hidden;`.trim();
+                svgElement.setAttribute('style', newStyle);
+
+                // 添加隔离属性和类名
+                svgElement.setAttribute('data-mermaid-svg', 'true');
+                svgElement.setAttribute(
+                  'class',
+                  (svgElement.getAttribute('class') || '') +
+                    ' mermaid-isolated',
+                );
+
+                // 限制 SVG 内部元素的样式影响范围
+                const allElements = svgElement.querySelectorAll('*');
+                allElements.forEach((el) => {
+                  // 确保内部元素不会影响外部
+                  if (el instanceof SVGElement) {
+                    el.setAttribute('data-mermaid-internal', 'true');
+                  }
+                });
+
+                wrapper.appendChild(svgElement);
+              } else {
+                // 如果解析失败，直接使用原始 SVG，但添加包装
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = svg;
+                const extractedSvg = tempDiv.querySelector('svg');
+                if (extractedSvg) {
+                  extractedSvg.setAttribute(
+                    'style',
+                    'max-width: 100%; height: auto; overflow: hidden;',
+                  );
+                  extractedSvg.setAttribute('data-mermaid-svg', 'true');
+                  wrapper.appendChild(extractedSvg);
+                } else {
+                  wrapper.innerHTML = svg;
+                }
+              }
+
+              container.appendChild(wrapper);
+
+              // 恢复透明度，实现淡入效果
+              requestAnimationFrame(() => {
+                container.style.opacity = '1';
+                container.style.transition = 'opacity 0.3s ease-in-out';
+              });
+            });
           }
 
           // 渲染成功，重置状态
@@ -383,6 +369,7 @@ const MermaidRendererImpl = (props: { element: CodeNode }) => {
         style={{
           width: '100%',
           maxWidth: '100%',
+          minHeight: '200px', // 保持最小高度，避免尺寸抖动
           display: 'flex',
           justifyContent: 'center',
           visibility: snapshot.code && !snapshot.error ? 'visible' : 'hidden',
@@ -393,6 +380,8 @@ const MermaidRendererImpl = (props: { element: CodeNode }) => {
           overflow: 'hidden',
           // 防止 SVG 样式影响外部
           pointerEvents: snapshot.code && !snapshot.error ? 'auto' : 'none',
+          // 添加过渡效果，使更新更平滑
+          transition: 'opacity 0.3s ease-in-out, min-height 0.2s ease-in-out',
         }}
         // 使用 data 属性标记，方便样式隔离
         data-mermaid-container="true"
