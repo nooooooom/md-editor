@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { useMergedState } from 'rc-util';
 import React, { memo, useCallback, useContext } from 'react';
 import { ActionIconBox } from '../Components/ActionIconBox';
-import { Loading } from '../Components/Loading';
+import { LoadingEffect } from '../Components/effects';
 import { I18nContext } from '../I18n';
 import { useStyle } from './style';
 
@@ -54,7 +54,7 @@ const StatusIcon: React.FC<{
 }> = ({ status, prefixCls, hashId }) => {
   const statusMap: Record<TaskStatus, React.ReactNode> = {
     success: <SuccessFill />,
-    loading: <Loading size={LOADING_SIZE} />,
+    loading: <LoadingEffect size={LOADING_SIZE} />,
     pending: (
       <div className={buildClassName(`${prefixCls}-status-idle`, hashId)}>
         <CircleDashed />

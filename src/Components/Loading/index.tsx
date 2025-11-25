@@ -1,5 +1,11 @@
 import React from 'react';
+import { CreativeSparkEffect } from '../effects';
+import { CreativeRecommendationLottie } from '../lotties';
 import { LoadingLottie, LoadingLottieProps } from '../lotties/LoadingLottie';
+
+export interface LoadingProps extends LoadingLottieProps {
+  type?: 'loading' | 'spark' | 'recommendation';
+}
 
 /**
  * Loading 组件 - 加载动画组件
@@ -24,6 +30,17 @@ import { LoadingLottie, LoadingLottieProps } from '../lotties/LoadingLottie';
  *
  * @returns {React.ReactElement} 渲染的加载动画组件
  */
-export const Loading = (props: LoadingLottieProps) => {
-  return <LoadingLottie size={'1em'} {...props} />;
+export const Loading = ({ type, ...props }: LoadingProps) => {
+  const lottieProps = {
+    size: '1em',
+    ...props,
+  };
+
+  if (type === 'spark') {
+    return <CreativeSparkEffect {...lottieProps} />;
+  } else if (type === 'recommendation') {
+    return <CreativeRecommendationLottie {...lottieProps} />;
+  }
+
+  return <LoadingLottie {...lottieProps} />;
 };
