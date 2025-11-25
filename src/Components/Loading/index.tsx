@@ -1,6 +1,6 @@
 import React from 'react';
-import { CreativeSparkEffect } from '../effects';
-import { CreativeRecommendationLottie } from '../lotties';
+import { CreativeRecommendationEffect } from '../effects';
+import { CreativeSparkLottie } from '../lotties';
 import { LoadingLottie, LoadingLottieProps } from '../lotties/LoadingLottie';
 
 export interface LoadingProps extends LoadingLottieProps {
@@ -37,9 +37,14 @@ export const Loading = ({ type, ...props }: LoadingProps) => {
   };
 
   if (type === 'spark') {
-    return <CreativeSparkEffect {...lottieProps} />;
+    return (
+      <CreativeSparkLottie
+        {...lottieProps}
+        style={{ ...props.style, transform: 'scale(1.2)' }}
+      />
+    );
   } else if (type === 'recommendation') {
-    return <CreativeRecommendationLottie {...lottieProps} />;
+    return <CreativeRecommendationEffect {...lottieProps} />;
   }
 
   return <LoadingLottie {...lottieProps} />;

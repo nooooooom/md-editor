@@ -1,4 +1,4 @@
-export * from './CreativeRecommendationLottie';
+export * from './CreativeSparkLottie';
 export * from './DazingLottie';
 export * from './LoadingLottie';
 export * from './TextLoading';

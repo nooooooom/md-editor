@@ -1,32 +1,32 @@
 ﻿import React from 'react';
 import EffectPlayer, { EffectPlayerProps } from '../EffectPlayer';
-import creativeSparkEffect from './creativeSpark.json';
+import creativeRecommendation from './creativeRecommendation.json';
 
 /**
  * 创意推荐闪动组件
  *
- * 使用 Lottie 动画展示创意生成中火花的组件，支持自定义尺寸、样式和播放行为。
+ * 使用 Lottie 动画展示创意推荐闪动的组件，支持自定义尺寸、样式和播放行为。
  *
  * @component
  * @example
  * // 基础用法
- * <CreativeSparkLottie />
+ * <CreativeRecommendationEffect />
  *
  * @example
  * // 自定义尺寸
- * <CreativeSparkLottie size={64} />
+ * <CreativeRecommendationEffect size={64} />
  *
  * @example
  * // 自定义样式
- * <CreativeSparkLottie
+ * <CreativeRecommendationEffect
  *   size={80}
  *   style={{ margin: '20px' }}
- *   className="custom-creative-spark"
+ *   className="custom-creative-recommendation"
  * />
  *
  * @example
  * // 控制播放行为
- * <CreativeSparkLottie
+ * <CreativeRecommendationEffect
  *   autoplay={false}
  *   loop={false}
  * />
@@ -37,14 +37,14 @@ import creativeSparkEffect from './creativeSpark.json';
  * @param props.className - 动画容器类名
  * @param props.style - 动画容器自定义样式
  * @param props.size - 动画尺寸（宽度和高度）
- * @returns 渲染的创意生成中火花组件
+ * @returns 渲染的创意推荐闪动组件
  */
-export const CreativeSparkLottie: React.FC<
+export const CreativeRecommendationEffect: React.FC<
   Omit<EffectPlayerProps, 'sceneUrl'>
 > = ({ autoplay = true, loop = true, className, style, size }) => {
   return (
     <EffectPlayer
-      sceneUrl={creativeSparkEffect}
+      sceneUrl={creativeRecommendation}
       downgradeImage={
         'https://mdn.alipayobjects.com/graph_jupiter/afts/img/A*VgxnSph0dEwAAAAAQCAAAAgAesF2AQ/original'
       }
@@ -57,4 +57,4 @@ export const CreativeSparkLottie: React.FC<
   );
 };
 
-export default CreativeSparkLottie;
+export default CreativeRecommendationEffect;

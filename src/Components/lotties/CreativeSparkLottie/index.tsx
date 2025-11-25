@@ -1,8 +1,8 @@
 ﻿import Lottie from 'lottie-react';
 import React from 'react';
-import creativeRecommendationLottie from './creativeRecommendation.json';
+import creativeSpark from './creativeSpark.json';
 
-export interface CreativeRecommendationLottieProps {
+export interface CreativeSparkLottieProps {
   /**
    * 是否自动播放动画
    * @default true
@@ -36,23 +36,23 @@ export interface CreativeRecommendationLottieProps {
  * @component
  * @example
  * // 基础用法
- * <CreativeRecommendationLottie />
+ * <CreativeSparkLottie />
  *
  * @example
  * // 自定义尺寸
- * <CreativeRecommendationLottie size={64} />
+ * <CreativeSparkLottie size={64} />
  *
  * @example
  * // 自定义样式
- * <CreativeRecommendationLottie
+ * <CreativeSparkLottie
  *   size={80}
  *   style={{ margin: '20px' }}
- *   className="custom-creative-recommendation"
+ *   className="custom-creative-spark"
  * />
  *
  * @example
  * // 控制播放行为
- * <CreativeRecommendationLottie
+ * <CreativeSparkLottie
  *   autoplay={false}
  *   loop={false}
  * />
@@ -65,9 +65,13 @@ export interface CreativeRecommendationLottieProps {
  * @param props.size - 动画尺寸（宽度和高度）
  * @returns 渲染的创意生成中火花组件
  */
-export const CreativeRecommendationLottie: React.FC<
-  CreativeRecommendationLottieProps
-> = ({ autoplay = true, loop = true, className, style, size }) => {
+export const CreativeSparkLottie: React.FC<CreativeSparkLottieProps> = ({
+  autoplay = true,
+  loop = true,
+  className,
+  style,
+  size,
+}) => {
   const containerStyle: React.CSSProperties = {
     width: size,
     height: size,
@@ -83,11 +87,11 @@ export const CreativeRecommendationLottie: React.FC<
       className={className}
       data-testid="lottie-animation"
       aria-hidden="true"
-      animationData={creativeRecommendationLottie}
+      animationData={creativeSpark}
       loop={loop}
       autoplay={autoplay}
     />
   );
 };
 
-export default CreativeRecommendationLottie;
+export default CreativeSparkLottie;
