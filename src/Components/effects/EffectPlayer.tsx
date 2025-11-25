@@ -39,7 +39,7 @@ function EffectPlayer({
   sceneUrl,
   downgradeImage,
   autoplay = true,
-  // TODO
+  // TODO: 添加禁止循环播放功能
   // loop = true,
   size,
   style,
