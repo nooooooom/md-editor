@@ -51,6 +51,7 @@
     "@better-scroll/mouse-wheel": "^2.5.1",
     "@better-scroll/observe-dom": "^2.5.1",
     "@better-scroll/scroll-bar": "^2.5.1",
+    "@galacean/effects": "^2.7.3",
     "@juggle/resize-observer": "^3.4.0",
     "@sofa-design/icons": "^1.6.1",
     "ace-builds": "^1.43.4",
