@@ -41,7 +41,7 @@ function EffectPlayer({
   autoplay = true,
   // TODO: 添加禁止循环播放功能
   // loop = true,
-  size,
+  size = '1em',
   style,
   ...attrs
 }: EffectPlayerProps) {
