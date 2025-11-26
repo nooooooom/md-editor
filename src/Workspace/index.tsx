@@ -15,6 +15,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { Loading } from '../Components/Loading';
 import { I18nContext } from '../I18n';
 import { BrowserList } from './Browser';
 import { File } from './File';
@@ -91,7 +92,13 @@ const RealtimeComponent: FC<RealtimeProps> = ({ data }) =>
 const BrowserComponent: FC<BrowserProps> = ({ data }) =>
   data ? <BrowserList data={data} /> : null;
 const TaskComponent: FC<TaskProps> = ({ data, onItemClick }) =>
-  data ? <TaskList data={data} onItemClick={onItemClick} /> : null;
+  data ? (
+    <TaskList
+      data={data}
+      onItemClick={onItemClick}
+      renderIcon={(status, icon) => (status === 'loading' ? <Loading /> : icon)}
+    />
+  ) : null;
 const FileComponent: FC<FileProps> = (props) => <File {...props} />;
 const CustomComponent: FC<CustomProps> = ({ children }) => children || null;
 
