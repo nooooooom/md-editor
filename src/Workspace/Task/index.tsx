@@ -2,7 +2,7 @@ import { Check, CircleDashed, OctagonX } from '@sofa-design/icons';
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import React, { type FC, useContext } from 'react';
-import { Loading } from '../../Components/Loading';
+import { LoadingEffect } from '../../Components/effects';
 import { useTaskStyle } from './style';
 
 type TaskStatus = 'success' | 'pending' | 'loading' | 'error';
@@ -23,8 +23,6 @@ export interface TaskListProps {
   data: TaskItemInput;
   /** 点击任务项时的回调 */
   onItemClick?: (item: TaskItem) => void;
-  /** 自定义渲染任务项图标 */
-  renderIcon?: (status: TaskStatus, icon: React.ReactNode) => React.ReactNode;
 }
 
 const StatusIcon: FC<{
@@ -40,7 +38,14 @@ const StatusIcon: FC<{
         <OctagonX style={{ color: 'var(--color-red-control-fill-primary)' }} />
       );
     case 'loading':
-      return <Loading style={{ color: 'var(--color-gray-text-disabled)' }} />;
+      return (
+        <LoadingEffect
+          style={{
+            color: 'var(--color-gray-text-disabled)',
+            transform: 'scale(1.1)',
+          }}
+        />
+      );
     case 'pending':
     default:
       return (
@@ -49,13 +54,7 @@ const StatusIcon: FC<{
   }
 };
 
-const defaultRenderIcon = (status: TaskStatus, icon: React.ReactNode) => icon;
-
-export const TaskList: FC<TaskListProps> = ({
-  data,
-  onItemClick,
-  renderIcon = defaultRenderIcon,
-}) => {
+export const TaskList: FC<TaskListProps> = ({ data, onItemClick }) => {
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const prefixCls = getPrefixCls('agentic-workspace-task');
   const { wrapSSR, hashId } = useTaskStyle(prefixCls);
@@ -90,7 +89,7 @@ export const TaskList: FC<TaskListProps> = ({
           style={{ cursor: onItemClick ? 'pointer' : undefined }}
         >
           <div className={classNames(`${prefixCls}-status`, hashId)}>
-            {renderIcon(item.status, <StatusIcon status={item.status} />)}
+            <StatusIcon status={item.status} />
           </div>
           <div className={classNames(`${prefixCls}-content`, hashId)}>
             <div className={classNames(`${prefixCls}-title`, hashId)}>
