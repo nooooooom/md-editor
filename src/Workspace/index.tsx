@@ -15,7 +15,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Loading } from '../Components/Loading';
+import { LoadingEffect } from '../Components/effects';
 import { I18nContext } from '../I18n';
 import { BrowserList } from './Browser';
 import { File } from './File';
@@ -96,7 +96,13 @@ const TaskComponent: FC<TaskProps> = ({ data, onItemClick }) =>
     <TaskList
       data={data}
       onItemClick={onItemClick}
-      renderIcon={(status, icon) => (status === 'loading' ? <Loading /> : icon)}
+      renderIcon={(status, icon) =>
+        status === 'loading' ? (
+          <LoadingEffect style={{ transform: 'scale(1.1)' }} />
+        ) : (
+          icon
+        )
+      }
     />
   ) : null;
 const FileComponent: FC<FileProps> = (props) => <File {...props} />;
