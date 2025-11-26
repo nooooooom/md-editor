@@ -4,10 +4,10 @@ import React from 'react';
 import { BaseEditor, Selection } from 'slate';
 import { HistoryEditor } from 'slate-history';
 import { ReactEditor, RenderElementProps } from 'slate-react';
-import type { MarkdownToHtmlOptions } from './editor/utils/markdownToHtml';
 import { TagPopupProps } from './editor/elements/TagPopup';
 import { EditorStore } from './editor/store';
 import { InsertAutocompleteProps } from './editor/tools/InsertAutocomplete';
+import type { MarkdownToHtmlOptions } from './editor/utils/markdownToHtml';
 import { CustomLeaf, Elements } from './el';
 
 /**

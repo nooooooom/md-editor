@@ -1,10 +1,10 @@
-﻿import {
+import {
   BlockOutlined,
   DeleteFilled,
   ExclamationCircleOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
-import { Image, ImageProps, Modal, Popover, Space } from 'antd';
+import { Image, ImageProps, Modal, Popover, Skeleton, Space } from 'antd';
 import React, {
   useCallback,
   useContext,
@@ -88,7 +88,7 @@ export const ImageAndError: React.FC<ImageProps> = (props) => {
   }
 
   return (
-    <div data-testid="image-container">
+    <div data-testid="image-container" data-be="image-container">
       <Image
         {...props}
         width={Number(props.width) || props.width || 400}
@@ -349,6 +349,15 @@ export function EditorImage({
   }, [element?.url]);
 
   const imageDom = useMemo(() => {
+    // 检查是否为不完整的图片（loading 状态）
+    const isLoading =
+      (element as any)?.loading || (element as any)?.otherProps?.loading;
+
+    if (isLoading) {
+      // 显示 loading 状态的占位符
+      return <Skeleton.Image active />;
+    }
+
     // 如果图片加载失败，显示为链接
     if (!state().loadSuccess) {
       return (
@@ -418,6 +427,9 @@ export function EditorImage({
     readonly,
     state().selected,
     state().loadSuccess,
+    (element as any)?.loading,
+    (element as any)?.otherProps?.loading,
+    (element as any)?.rawMarkdown,
   ]);
 
   return (

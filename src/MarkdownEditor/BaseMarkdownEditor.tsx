@@ -362,8 +362,8 @@ export const BaseMarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
               </div>
             ) : readonly ? null : null}
             <div
+              className={`${baseClassName}-content`}
               style={{
-                padding: '4px 20px',
                 overflow: 'auto',
                 display: 'flex',
                 height:
@@ -371,6 +371,18 @@ export const BaseMarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
                 position: 'relative',
                 gap: 24,
                 outline: 'none',
+                // 如果 contentStyle 中设置了 padding，设置 CSS 变量和内联样式
+                ...(contentStyle?.padding !== undefined
+                  ? {
+                      '--content-padding': `${
+                        typeof contentStyle.padding === 'number'
+                          ? `${contentStyle.padding}px`
+                          : contentStyle.padding
+                      }`,
+                      padding: contentStyle.padding,
+                    }
+                  : {}),
+                // contentStyle 放在最后，确保能够覆盖默认样式（包括 padding）
                 ...contentStyle,
               }}
               ref={(dom) => {

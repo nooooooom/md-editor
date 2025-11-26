@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useEffect, useRef, useState, startTransition } from 'react';
+import React, { startTransition, useEffect, useRef, useState } from 'react';
 import { useGetSetState } from 'react-use';
 import { CodeNode } from '../../MarkdownEditor/el';
 import { loadKatex } from './loadKatex';

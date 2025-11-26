@@ -460,3 +460,46 @@ export const isConfigEqual = (config1: any, config2: any): boolean => {
 
   return true;
 };
+
+/**
+ * 将十六进制颜色转换为带透明度的 RGBA 字符串
+ *
+ * 支持3位和6位十六进制颜色格式，并添加透明度。
+ *
+ * @param {string} hex - 十六进制颜色值（如 '#ff0000' 或 '#f00'）
+ * @param {number} alpha - 透明度值（0-1之间）
+ * @returns {string} RGBA 颜色字符串
+ *
+ * @example
+ * ```typescript
+ * hexToRgba('#ff0000', 0.5); // 'rgba(255, 0, 0, 0.5)'
+ * hexToRgba('#f00', 0.8); // 'rgba(255, 0, 0, 0.8)'
+ * ```
+ *
+ * @since 1.0.0
+ */
+export const hexToRgba = (hex: string, alpha: number): string => {
+  const sanitized = hex.replace('#', '');
+  const isShort = sanitized.length === 3;
+  const r = parseInt(
+    isShort ? sanitized[0] + sanitized[0] : sanitized.slice(0, 2),
+    16,
+  );
+  const g = parseInt(
+    isShort ? sanitized[1] + sanitized[1] : sanitized.slice(2, 4),
+    16,
+  );
+  const b = parseInt(
+    isShort ? sanitized[2] + sanitized[2] : sanitized.slice(4, 6),
+    16,
+  );
+  const a = Math.max(0, Math.min(1, alpha));
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+};
+
+// 导出 Chart.js 注册相关函数
+export {
+  registerChartComponents,
+  registerLineChartComponents,
+  registerBarChartComponents,
+} from './utils/registerChart';
