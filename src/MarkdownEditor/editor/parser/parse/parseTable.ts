@@ -5,7 +5,10 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
-import { fixStrongWithSpecialChars } from '../remarkParse';
+import {
+  convertParagraphToImage,
+  fixStrongWithSpecialChars,
+} from '../remarkParse';
 //@ts-ignore
 import rehypeKatex from 'rehype-katex';
 import remarkFrontmatter from 'remark-frontmatter';
@@ -23,6 +26,7 @@ export const tableRegex = /^\|.*\|\s*\n\|[-:| ]+\|/m;
 const stringifyObj = remark()
   .use(remarkParse)
   .use(fixStrongWithSpecialChars)
+  .use(convertParagraphToImage)
   .use(remarkMath as any, {
     singleDollarTextMath: false,
   })
@@ -138,7 +142,7 @@ export const getColumnAlignment = (
  * @returns 返回表格或图表节点
  */
 export const parseTableOrChart = (
-  table: Table,
+  table: Table & { finished?: boolean },
   preNode: RootContent,
   plugins: MarkdownEditorPlugin[],
   parseNodes: (
@@ -161,29 +165,6 @@ export const parseTableOrChart = (
       ? // @ts-ignore
         preNode?.otherProps
       : {};
-
-  // 计算表格的总单元格数
-  const headerRow = table?.children?.at(0);
-  const headerCellCount = headerRow?.children?.length || 0;
-  const dataRows = table?.children?.slice(1) || [];
-  const dataCellCount = dataRows.reduce(
-    (sum, row) => sum + (row.children?.length || 0),
-    0,
-  );
-  const totalCellCount = headerCellCount + dataCellCount;
-
-  // 如果单元格数少于2个，返回普通段落节点
-  if (totalCellCount < 2) {
-    // 返回包含表格原始文本的段落节点
-    const tableMarkdown = myRemark.stringify({
-      type: 'root',
-      children: [table],
-    });
-    return {
-      type: 'paragraph',
-      children: [{ text: tableMarkdown }],
-    } as Elements;
-  }
 
   const tableHeader = table?.children?.at(0);
   const columns =
@@ -341,6 +322,7 @@ export const parseTableOrChart = (
 
   const node: TableNode | ChartNode = {
     type: isChart ? 'chart' : 'table',
+    finished: table.finished,
     children: children,
     otherProps,
   } as any;

@@ -2,6 +2,15 @@ export const newEnergyFundContent = `# 新能源基金现状及投资
 
 ![头图](https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*VctTQoYxOzYAAAAAAAAAAAAADml6AQ/original)
 
+[受产业链价格战影响，部分产品出现降价，产能过剩问题凸显](https://example.com/report)
+
+<think>
+这是一段思考内容
+</think>
+<answer>
+这是一段答案内容
+</answer>
+
 ## 一、新能源板块现状：机遇与挑战并存
 
 ### 1.1 走势分化，结构性机会凸显

@@ -243,16 +243,35 @@ const parseText = (
 ) => {
   let leafs: CustomLeaf[] = [];
   for (let n of els) {
-    if (n.type === 'strong')
-      leafs = leafs.concat(parseText(n.children, { ...leaf, bold: true }));
-    if (n.type === 'emphasis')
-      leafs = leafs.concat(parseText(n.children, { ...leaf, italic: true }));
+    if (n.type === 'strong') {
+      const strongLeaf = { ...leaf, bold: true };
+      // 如果 strong 节点有 finished 属性，传递到文本节点
+      if ((n as any).finished !== undefined) {
+        if (!strongLeaf.otherProps) {
+          strongLeaf.otherProps = {};
+        }
+        (strongLeaf.otherProps as any).finished = (n as any).finished;
+      }
+      leafs = leafs.concat(parseText(n.children, strongLeaf));
+    }
+    if (n.type === 'emphasis') {
+      const emphasisLeaf = { ...leaf, italic: true };
+      // 如果 emphasis 节点有 finished 属性，传递到文本节点
+      if ((n as any).finished !== undefined) {
+        if (!emphasisLeaf.otherProps) {
+          emphasisLeaf.otherProps = {};
+        }
+        (emphasisLeaf.otherProps as any).finished = (n as any).finished;
+      }
+      leafs = leafs.concat(parseText(n.children, emphasisLeaf));
+    }
     if (n.type === 'delete')
       leafs = leafs.concat(
         parseText(n.children, { ...leaf, strikethrough: true }),
       );
     if (n.type === 'link') {
-      leafs = leafs.concat(parseText(n.children, { ...leaf, url: n?.url }));
+      const linkLeaf = { ...leaf, url: n?.url };
+      leafs = leafs.concat(parseText(n.children, linkLeaf));
     }
     if (n.type === 'inlineCode')
       leafs.push({ ...leaf, text: (n as any).value, code: true });
@@ -556,6 +575,7 @@ const handleImage = (currentElement: any) => {
     'image',
     {
       alt: currentElement.alt,
+      finished: currentElement.finished,
     },
   );
 };
@@ -609,6 +629,7 @@ const handleList = (
     type: 'list',
     order: currentElement.ordered,
     start: currentElement.start,
+    finished: currentElement.finished,
     children: parseNodes(
       currentElement.children,
       plugins,
@@ -822,6 +843,7 @@ const processParagraphChildren = (
           'image',
           {
             alt: currentChild.alt,
+            finished: currentChild.finished,
           },
         ),
       );
@@ -1371,14 +1393,19 @@ export class MarkdownToSlateParser {
     // 先预处理 <think> 标签，然后预处理其他非标准 HTML 标签，最后处理表格换行
     const thinkProcessed = preprocessThinkTags(md || '');
     const nonStandardProcessed = preprocessNonStandardHtmlTags(thinkProcessed);
-    const processedMarkdown = mdastParser.parse(
+    // parse() 只执行 parser，需要 runSync() 来执行 transformer 插件
+    const ast = mdastParser.parse(
       preprocessMarkdownTableNewlines(nonStandardProcessed),
     ) as any;
+    const processedMarkdown = mdastParser.runSync(ast) as any;
 
     const markdownRoot = processedMarkdown.children;
 
     // 使用类的配置和插件，通过 this 访问
     const schema = this.parseNodes(markdownRoot, true, undefined) as Elements[];
+
+    console.log('markdownRoot', markdownRoot, schema);
+
     return {
       schema: schema?.filter((item) => {
         if (item.type === 'paragraph' && item.children?.length === 1) {
@@ -1580,6 +1607,7 @@ export class MarkdownToSlateParser {
       type: 'list',
       order: currentElement.ordered,
       start: currentElement.start,
+      finished: currentElement.finished,
       children: this.parseNodes(currentElement.children, false, currentElement),
     };
     el.task = el.children?.some((s: any) => typeof s.checked === 'boolean');
@@ -1668,6 +1696,7 @@ export class MarkdownToSlateParser {
             'image',
             {
               alt: currentChild.alt,
+              finished: currentChild.finished,
             },
           ),
         );
@@ -1760,7 +1789,11 @@ export class MarkdownToSlateParser {
         return { text: currentElement.value };
       }
 
-      const leaf: CustomLeaf = {};
+      const leaf: CustomLeaf = {
+        otherProps: {
+          finished: (currentElement as any).finished,
+        },
+      };
       this.applyInlineFormatting(leaf, currentElement);
       applyHtmlTagsToElement(leaf, htmlTag);
 
@@ -1795,20 +1828,42 @@ export class MarkdownToSlateParser {
    * 应用内联格式到叶子节点（类方法版本）
    */
   private applyInlineFormatting(leaf: CustomLeaf, currentElement: any) {
-    if (currentElement.type === 'strong') leaf.bold = true;
-    if (currentElement.type === 'emphasis') leaf.italic = true;
+    if (currentElement.type === 'strong') {
+      leaf.bold = true;
+      // 如果 strong 节点有 finished 属性，传递到文本节点
+      if ((currentElement as any).finished !== undefined) {
+        if (!leaf.otherProps) {
+          leaf.otherProps = {};
+        }
+        (leaf.otherProps as any).finished = (currentElement as any).finished;
+      }
+    }
+    if (currentElement.type === 'emphasis') {
+      leaf.italic = true;
+      // 如果 emphasis 节点有 finished 属性，传递到文本节点
+      if ((currentElement as any).finished !== undefined) {
+        if (!leaf.otherProps) {
+          leaf.otherProps = {};
+        }
+        (leaf.otherProps as any).finished = (currentElement as any).finished;
+      }
+    }
     if (currentElement.type === 'delete') leaf.strikethrough = true;
     if (currentElement.type === 'link') {
       try {
         leaf.url = currentElement?.url;
         // 如果配置了在新标签页打开链接，添加 target 和 rel 属性
-        if (this.config?.openLinksInNewTab) {
+        if (
+          this.config?.openLinksInNewTab ||
+          (currentElement as any).finished === false
+        ) {
           // 使用 otherProps 存储额外的链接属性
           if (!leaf.otherProps) {
             leaf.otherProps = {};
           }
           (leaf.otherProps as any).target = '_blank';
           (leaf.otherProps as any).rel = 'noopener noreferrer';
+          (leaf.otherProps as any).finished = (currentElement as any).finished;
         }
       } catch {
         leaf.url = currentElement?.url;

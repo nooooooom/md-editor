@@ -11,6 +11,7 @@ export type TableCustomElement =
 export interface TableNode {
   type: 'table';
   children: Array<TableHeadNode | TrNode | TableFooterNode>;
+  finished?: boolean;
   otherProps?: {
     mergeCells?: Array<{
       row: number;
