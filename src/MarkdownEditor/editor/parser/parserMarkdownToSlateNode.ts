@@ -6,39 +6,26 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 import json5 from 'json5';
-import type { Root, RootContent, Table } from 'mdast';
+import type { RootContent } from 'mdast';
 //@ts-ignore
-import rehypeKatex from 'rehype-katex';
-import rehypeRaw from 'rehype-raw';
-import { remark } from 'remark';
-import remarkFrontmatter from 'remark-frontmatter';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
-import remarkParse from 'remark-parse';
-import remarkRehype from 'remark-rehype';
 import { Element } from 'slate';
-import { fixStrongWithSpecialChars } from './remarkParse';
 
-import {
-  CardNode,
-  ChartNode,
-  CustomLeaf,
-  Elements,
-  InlineKatexNode,
-} from '../../el';
+import { CustomLeaf, Elements, InlineKatexNode } from '../../el';
 import { MarkdownEditorPlugin } from '../../plugin';
 import { htmlToFragmentList } from '../plugins/insertParsedHtmlNodes';
-import { TableNode, TrNode as TableRowNode } from '../types/Table';
 import { EditorUtils } from '../utils';
-import { isCodeBlockLikelyComplete } from '../utils/findMatchingClose';
 import partialJsonParse from './json-parse';
+import { handleCode, handleYaml } from './parse/parseCode';
+import {
+  parseTableOrChart,
+  preprocessMarkdownTableNewlines,
+} from './parse/parseTable';
 import mdastParser from './remarkParse';
 
 // 常量定义
 const EMPTY_LINE_DISTANCE_THRESHOLD = 4; // 两个元素之间的行距阈值
 const EMPTY_LINE_CALCULATION_OFFSET = 2; // 计算空行数量时的偏移量
 const EMPTY_LINE_DIVISOR = 2; // 计算空行数量的除数
-const MIN_TABLE_CELL_LENGTH = 5; // 表格单元格最小长度
 const INLINE_MATH_SUFFIX_PATTERN = '(?:%|[kKmMbB]|千|万|亿|兆|万亿|百万|亿万)?';
 const INLINE_MATH_CURRENCY_PATTERN = new RegExp(
   `^[+-]?\\d{1,3}(?:,\\d{3})*(?:\\.\\d+)?${INLINE_MATH_SUFFIX_PATTERN}$`,
@@ -46,11 +33,6 @@ const INLINE_MATH_CURRENCY_PATTERN = new RegExp(
 const INLINE_MATH_SIMPLE_NUMBER_PATTERN = new RegExp(
   `^[+-]?\\d+(?:\\.\\d+)?${INLINE_MATH_SUFFIX_PATTERN}$`,
 );
-
-// HTML 转义和代码块检测相关的常量
-const NOT_SPACE_START = /^\S*/;
-const ENDING_NEWLINE = /\n$/;
-const FENCED_CODE_REGEX = /^(`{3,}|~{3,})/;
 
 const shouldTreatInlineMathAsText = (rawValue: string): boolean => {
   const trimmedValue = rawValue.trim();
@@ -64,157 +46,6 @@ const shouldTreatInlineMathAsText = (rawValue: string): boolean => {
     INLINE_MATH_CURRENCY_PATTERN.test(trimmedValue) ||
     INLINE_MATH_SIMPLE_NUMBER_PATTERN.test(trimmedValue)
   );
-};
-
-// 类型定义
-type CodeElement = {
-  type: string;
-  language?: string | null;
-  render?: boolean;
-  value: any;
-  isConfig?: boolean;
-  children: Array<{ text: string }>;
-  otherProps?: Record<string, any>;
-};
-
-type LanguageHandler = (element: CodeElement, value: string) => CodeElement;
-
-// 处理schema类型语言的辅助函数
-const processSchemaLanguage = (
-  element: CodeElement,
-  value: string,
-): CodeElement => {
-  let json = [];
-  try {
-    json = json5.parse(value || '[]');
-  } catch (error) {
-    try {
-      json = partialJsonParse(value || '[]');
-    } catch (error) {
-      json = value as any;
-      console.error('parse schema error', error);
-    }
-  }
-  return {
-    ...element,
-    type: 'apaasify',
-    value: json,
-    children: [{ text: value }],
-  };
-};
-
-// 语言类型处理策略配置
-const LANGUAGE_HANDLERS: Record<string, LanguageHandler> = {
-  mermaid: (element) => ({
-    ...element,
-    type: 'mermaid',
-  }),
-  schema: processSchemaLanguage,
-  apaasify: processSchemaLanguage,
-  apassify: processSchemaLanguage,
-  katex: (element) => ({
-    ...element,
-    type: 'katex',
-  }),
-  'agentar-card': processSchemaLanguage,
-};
-
-const advancedNumericCheck = (value: string | number) => {
-  const numericPattern = /^[-+]?[0-9,]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
-  return (
-    typeof value === 'number' ||
-    (typeof value === 'string' && numericPattern.test(value))
-  );
-};
-const isNumericValue = (value: string | number) => {
-  return (
-    typeof value === 'number' ||
-    (!isNaN(parseFloat(value)) && isFinite(value as unknown as number)) ||
-    advancedNumericCheck(value)
-  );
-};
-
-/**
- * 判断是否包含不完整输入
- * 如果一行中包含可能尚未完成的数字输入，返回 true
- */
-const hasIncompleteNumericInput = (values: any[]): boolean => {
-  // 检查是否有可能是正在输入的不完整数字
-  // 例如: '12.' 或 '0.' 或 '-' 或 仅有一个数字字符的情况
-  return values.some((val) => {
-    if (typeof val !== 'string') return false;
-    return (
-      (val.endsWith('.') && /\d/.test(val)) || // 以小数点结尾
-      val === '-' || // 只有负号
-      val === '+' || // 只有正号
-      (val.length === 1 && /\d/.test(val)) // 只有一个数字
-    );
-  });
-};
-
-// 获取文件中定义的AlignType类型或声明一个等效类型
-type AlignType = 'left' | 'center' | 'right' | null;
-
-/**
- * 规范化字段名，统一处理转义字符
- * 将 `index\_value` 转换为 `index_value`，确保字段名一致
- * @param fieldName - 原始字段名
- * @returns 规范化后的字段名
- */
-const normalizeFieldName = (fieldName: string): string => {
-  if (!fieldName) return fieldName;
-  // 移除转义字符：将 `\_` 转换为 `_`，`\\` 转换为 `\`
-  return fieldName
-    .replace(/\\_/g, '_')
-    .replace(/\\\\/g, '\\')
-    .replace(/\\(?=")/g, '') // 移除转义的双引号
-    .trim();
-};
-
-const getColumnAlignment = (
-  data: any[],
-  columns: {
-    dataIndex: string;
-  }[],
-): AlignType[] => {
-  if (!data.length) return [];
-
-  // 缓存上一次的对齐结果，避免频繁切换
-  const prevAlignments: AlignType[] = [];
-
-  return columns.map((col, index) => {
-    const values = data
-      .map((row: { [x: string]: any }) => row[col.dataIndex])
-      .filter(Boolean);
-    values?.pop();
-    // 如果检测到可能正在输入的数字，保持当前对齐状态
-    if (hasIncompleteNumericInput(values)) {
-      return prevAlignments[index] || null;
-    }
-
-    const alignment: AlignType = values.every(isNumericValue) ? 'right' : null;
-    prevAlignments[index] = alignment;
-    return alignment;
-  });
-};
-
-const stringifyObj = remark()
-  .use(remarkParse)
-  .use(fixStrongWithSpecialChars)
-  .use(remarkMath as any, {
-    singleDollarTextMath: false,
-  })
-  .use(remarkRehype as any, { allowDangerousHtml: true })
-  .use(rehypeRaw)
-  .use(rehypeKatex as any)
-  .use(remarkGfm)
-  .use(remarkFrontmatter, ['yaml']);
-
-const myRemark = {
-  stringify: (obj: Root) => {
-    const mdStr = stringifyObj.stringify(obj);
-    return mdStr;
-  },
 };
 
 /**
@@ -449,190 +280,6 @@ const parseText = (
   return leafs;
 };
 
-const parseTableOrChart = (
-  table: Table,
-  preNode: RootContent,
-  plugins: MarkdownEditorPlugin[],
-  parserConfig?: ParserMarkdownToSlateNodeConfig,
-): CardNode | Element => {
-  const keyMap = new Map<string, string>();
-
-  // @ts-ignore
-  const config =
-    // @ts-ignore
-    preNode?.type === 'code' && // @ts-ignore
-    preNode?.language === 'html' && // @ts-ignore
-    preNode?.otherProps
-      ? // @ts-ignore
-        preNode?.otherProps
-      : {};
-
-  const tableHeader = table?.children?.at(0);
-  const columns =
-    tableHeader?.children
-      ?.map((node) => {
-        return myRemark
-          .stringify({
-            type: 'root',
-            children: [node],
-          })
-          ?.replace(/\n/g, '')
-          .trim();
-      })
-      .map((title) => {
-        // 先规范化字段名，统一处理转义字符
-        const normalizedTitle = normalizeFieldName(title || ' ');
-        return normalizedTitle;
-      })
-      .map((title, index) => {
-        if (keyMap.has(title)) {
-          keyMap.set(title, keyMap.get(title) + '_' + index);
-          return {
-            title: title,
-            dataIndex: title + '_' + index,
-            key: title + '_' + index,
-          };
-        }
-        keyMap.set(title, title);
-        return {
-          title: title,
-          dataIndex: title,
-          key: title,
-        };
-      }) || [];
-
-  const dataSource =
-    table?.children?.slice(1)?.map((row) => {
-      return row.children?.reduce((acc, cell, index) => {
-        // 如果数据列数超出表头列数，舍弃多余的数据
-        if (index >= columns.length) {
-          return acc;
-        }
-        acc[columns[index].dataIndex] = myRemark
-          .stringify({
-            type: 'root',
-            children: [cell],
-          })
-          ?.replace(/\n/g, '')
-          ?.replace(/\\(?=")/g, '')
-          ?.replace(/\\_/g, '')
-          ?.trim();
-        return acc;
-      }, {} as any);
-    }) || [];
-
-  if (table.align?.every((item) => !item)) {
-    const aligns = getColumnAlignment(dataSource, columns);
-    table.align = aligns;
-  }
-
-  const aligns = table.align;
-
-  const isChart = config?.chartType || config?.at?.(0)?.chartType;
-
-  /**
-   * 如果是分栏，将表格转换为分栏节点
-   */
-
-  // 计算合并单元格信息
-  const mergeCells = config.mergeCells || [];
-
-  // 创建合并单元格映射，用于快速查找
-  const mergeMap = new Map<
-    string,
-    { rowSpan: number; colSpan: number; hidden?: boolean }
-  >();
-  mergeCells?.forEach(
-    ({ row, col, rowSpan, rowspan, colSpan, colspan }: any) => {
-      let rawRowSpan = rowSpan || rowspan;
-      let rawColSpan = colSpan || colspan;
-      // 主单元格
-      mergeMap.set(`${row}-${col}`, {
-        rowSpan: rawRowSpan,
-        colSpan: rawColSpan,
-      });
-
-      // 被合并的单元格标记为隐藏
-      for (let r = row; r < row + rawRowSpan; r++) {
-        for (let c = col; c < col + rawColSpan; c++) {
-          if (r !== row || c !== col) {
-            mergeMap.set(`${r}-${c}`, { rowSpan: 1, colSpan: 1, hidden: true });
-          }
-        }
-      }
-    },
-  );
-
-  const children = table.children.map((r: { children: any[] }, l: number) => {
-    return {
-      type: 'table-row',
-      align: aligns?.[l] || undefined,
-      children: r.children.map(
-        (c: { children: string | any[] }, i: string | number) => {
-          const mergeInfo = mergeMap.get(`${l}-${i}`);
-          return {
-            type: 'table-cell',
-            align: aligns?.[i as number] || undefined,
-            title: l === 0,
-            rows: l,
-            cols: i,
-            // 直接设置 rowSpan 和 colSpan
-            ...(mergeInfo?.rowSpan && mergeInfo.rowSpan > 1
-              ? { rowSpan: mergeInfo.rowSpan }
-              : {}),
-            ...(mergeInfo?.colSpan && mergeInfo.colSpan > 1
-              ? { colSpan: mergeInfo.colSpan }
-              : {}),
-            // 如果是被合并的单元格，标记为隐藏
-            ...(mergeInfo?.hidden ? { hidden: true } : {}),
-            children: c.children?.length
-              ? [
-                  {
-                    type: 'paragraph',
-                    children: parseNodes(
-                      c.children as any,
-                      plugins,
-                      false,
-                      c as any,
-                      parserConfig,
-                    ),
-                  },
-                ]
-              : [
-                  {
-                    type: 'paragraph',
-                    children: [{ text: '' }],
-                  },
-                ],
-          };
-        },
-      ),
-    };
-  }) as TableRowNode[];
-
-  const otherProps = {
-    ...(isChart
-      ? {
-          config,
-        }
-      : config),
-    columns,
-    dataSource: dataSource.map((item) => {
-      delete item?.chartType;
-      return {
-        ...item,
-      };
-    }),
-  };
-
-  const node: TableNode | ChartNode = {
-    type: isChart ? 'chart' : 'table',
-    children: children,
-    otherProps,
-  } as any;
-  return EditorUtils.wrapperCardNode(node);
-};
-
 /**
  * 处理标题节点
  * @param currentElement - 当前处理的标题元素，包含depth和children属性
@@ -712,84 +359,66 @@ const handleHtml = (currentElement: any, parent: any, htmlTag: any[]) => {
 
   let el: any;
   if (!parent || ['listItem', 'blockquote'].includes(parent.type)) {
-    // 检查是否为不完整的图片标记
-    const incompleteImageMatch = currentElement.value.match(
-      /<incomplete-image\s+data-raw="([^"]+)"\s*\/?>/,
-    );
-    if (incompleteImageMatch) {
-      const rawMarkdown = decodeURIComponent(incompleteImageMatch[1]);
-      // 直接创建带有 loading 状态的图片节点（不通过 createMediaNode，因为 URL 为空）
-      el = EditorUtils.wrapperCardNode({
-        type: 'image',
-        url: '', // 空 URL 表示不完整的图片
-        mediaType: 'image',
-        alt: rawMarkdown,
-        loading: true,
-        rawMarkdown: rawMarkdown,
-        children: [{ text: '' }],
-      } as any);
+    // 检查是否为 <think> 标签
+    const thinkElement = findThinkElement(currentElement.value);
+    if (thinkElement) {
+      // 将 <think> 标签转换为 think 类型的代码块
+      el = {
+        type: 'code',
+        language: 'think',
+        value: thinkElement.content,
+        children: [
+          {
+            text: thinkElement.content,
+          },
+        ],
+      };
     } else {
-      // 检查是否为 <think> 标签
-      const thinkElement = findThinkElement(currentElement.value);
-      if (thinkElement) {
-        // 将 <think> 标签转换为 think 类型的代码块
-        el = {
-          type: 'code',
-          language: 'think',
-          value: thinkElement.content,
-          children: [
-            {
-              text: thinkElement.content,
-            },
-          ],
-        };
+      // 检查是否为 <answer> 标签
+      const answerElement = findAnswerElement(currentElement.value);
+      if (answerElement) {
+        // 将 <answer> 标签的内容作为普通文本
+        el = { text: answerElement.content };
       } else {
-        // 检查是否为 <answer> 标签
-        const answerElement = findAnswerElement(currentElement.value);
-        if (answerElement) {
-          // 将 <answer> 标签的内容作为普通文本
-          el = { text: answerElement.content };
+        const mediaElement = findImageElement(currentElement.value);
+        if (mediaElement) {
+          el = createMediaNodeFromElement(mediaElement);
+        } else if (currentElement.value === '<br/>') {
+          el = { type: 'paragraph', children: [{ text: '' }] };
+        } else if (currentElement.value.match(/^<\/(img|video|iframe)>/)) {
+          // 如果是媒体标签的结束标签，跳过处理
+          el = null;
         } else {
-          const mediaElement = findImageElement(currentElement.value);
-          if (mediaElement) {
-            el = createMediaNodeFromElement(mediaElement);
-          } else if (currentElement.value === '<br/>') {
-            el = { type: 'paragraph', children: [{ text: '' }] };
-          } else if (currentElement.value.match(/^<\/(img|video|iframe)>/)) {
-            // 如果是媒体标签的结束标签，跳过处理
-            el = null;
-          } else {
-            // 检查是否为注释（注释需要特殊处理以提取配置）
-            // 使用处理后的值进行判断
-            const commentValue = isUnclosedComment
-              ? processedValue
-              : currentElement.value;
-            const isComment =
-              commentValue.trim().startsWith('<!--') &&
-              commentValue.trim().endsWith('-->');
+          // 检查是否为注释（注释需要特殊处理以提取配置）
+          // 使用处理后的值进行判断
+          const commentValue = isUnclosedComment
+            ? processedValue
+            : currentElement.value;
+          const isComment =
+            commentValue.trim().startsWith('<!--') &&
+            commentValue.trim().endsWith('-->');
 
-            // 检查是否为标准 HTML 元素或注释
-            if (isComment || isStandardHtmlElement(commentValue)) {
-              // 标准 HTML 元素或注释：按原逻辑处理
-              el = commentValue.match(
-                /<\/?(table|div|ul|li|ol|p|strong)[^\n>]*?>/,
-              )
-                ? htmlToFragmentList(commentValue, '')
-                : {
-                    type: 'code',
-                    language: 'html',
-                    render: true,
-                    value: commentValue,
-                    children: [
-                      {
-                        text: commentValue,
-                      },
-                    ],
-                  };
-            } else {
-              // 非标准元素（如自定义标签）：当作普通文本处理
-              el = { text: currentElement.value };
-            }
+          // 检查是否为标准 HTML 元素或注释
+          if (isComment || isStandardHtmlElement(commentValue)) {
+            // 标准 HTML 元素或注释：按原逻辑处理
+            el = commentValue.match(
+              /<\/?(table|div|ul|li|ol|p|strong)[^\n>]*?>/,
+            )
+              ? htmlToFragmentList(commentValue, '')
+              : {
+                  type: 'code',
+                  language: 'html',
+                  render: true,
+                  value: commentValue,
+                  children: [
+                    {
+                      text: commentValue,
+                    },
+                  ],
+                };
+          } else {
+            // 非标准元素（如自定义标签）：当作普通文本处理
+            el = { text: currentElement.value };
           }
         }
       }
@@ -831,24 +460,6 @@ const processInlineHtml = (currentElement: any, htmlTag: any[]) => {
   if (answerElement) {
     // 将 <answer> 标签的内容作为普通文本
     return { text: answerElement.content };
-  }
-
-  // 检查是否为不完整的图片标记
-  const incompleteImageMatch = currentElement.value.match(
-    /<incomplete-image\s+data-raw="([^"]+)"\s*\/?>/,
-  );
-  if (incompleteImageMatch) {
-    const rawMarkdown = decodeURIComponent(incompleteImageMatch[1]);
-    // 直接创建带有 loading 状态的图片节点（不通过 createMediaNode，因为 URL 为空）
-    return EditorUtils.wrapperCardNode({
-      type: 'image',
-      url: '', // 空 URL 表示不完整的图片
-      mediaType: 'image',
-      alt: rawMarkdown,
-      loading: true,
-      rawMarkdown: rawMarkdown,
-      children: [{ text: '' }],
-    } as any);
   }
 
   // 检查是否为非标准 HTML 元素，如果是则直接当作文本
@@ -1328,107 +939,6 @@ const handleThematicBreak = () => {
 };
 
 /**
- * 处理代码块节点
- * @param currentElement - 当前处理的代码块元素，包含语言和内容
- * @returns 返回格式化的代码块节点对象，根据语言类型进行特殊处理
- */
-const handleCode = (currentElement: any) => {
-  const rawValue = currentElement.value || '';
-  const langString =
-    (currentElement.lang || '').match(NOT_SPACE_START)?.[0] || '';
-  const code = `${rawValue.replace(ENDING_NEWLINE, '')}\n`;
-
-  // 检查代码块是否完整
-  // 如果是缩进代码块，认为是完整的（因为没有结束标记）
-  const isIndentedCode = currentElement.meta === 'indented';
-
-  // 使用更智能的方法判断代码块是否完整
-  let streamStatus: 'loading' | 'done' = 'loading';
-
-  if (isIndentedCode) {
-    // 缩进代码块没有结束标记，认为是完整的
-    streamStatus = 'done';
-  } else {
-    // 对于围栏代码块，使用多种方法判断
-    const endsWithNewline = code.match(ENDING_NEWLINE);
-
-    // 如果代码以换行结尾，可能是完整的
-    if (endsWithNewline) {
-      // 进一步检查代码内容是否完整（特别是对于 Mermaid 等需要完整语法的情况）
-      const isLikelyComplete = isCodeBlockLikelyComplete(
-        rawValue,
-        currentElement.lang,
-      );
-      streamStatus = isLikelyComplete ? 'done' : 'loading';
-    } else {
-      // 没有换行结尾，肯定不完整
-      streamStatus = 'loading';
-    }
-  }
-
-  // 如果已经在 parseNodes 中设置了 finish（基于是否是最后一个节点），优先使用它
-  // 否则使用 streamStatus 判断
-  const finishValue =
-    currentElement.otherProps?.finish !== undefined
-      ? currentElement.otherProps.finish
-      : streamStatus === 'done';
-
-  const baseCodeElement = {
-    type: 'code',
-    language:
-      currentElement.lang === 'apaasify' ? 'apaasify' : currentElement.lang,
-    render: currentElement.meta === 'render',
-    value: currentElement.value,
-    isConfig: currentElement?.value.trim()?.startsWith('<!--'),
-    children: [{ text: currentElement.value }],
-    // 添加流式状态支持
-    otherProps: {
-      ...(currentElement.otherProps || {}),
-      'data-block': 'true',
-      'data-state': streamStatus,
-      // 优先使用 parseNodes 中设置的 finish，否则使用 streamStatus 判断
-      finish: finishValue,
-      ...(langString ? { 'data-language': langString } : {}),
-    },
-  };
-
-  const handler =
-    LANGUAGE_HANDLERS[currentElement.lang as keyof typeof LANGUAGE_HANDLERS];
-
-  const result = handler
-    ? handler(baseCodeElement, currentElement.value)
-    : baseCodeElement;
-
-  // 确保 otherProps 被保留
-  const resultWithProps = result as CodeElement;
-  if (baseCodeElement.otherProps && !resultWithProps.otherProps) {
-    resultWithProps.otherProps = baseCodeElement.otherProps;
-  } else if (baseCodeElement.otherProps && resultWithProps.otherProps) {
-    resultWithProps.otherProps = {
-      ...resultWithProps.otherProps,
-      ...baseCodeElement.otherProps,
-    };
-  }
-
-  return resultWithProps;
-};
-
-/**
- * 处理YAML节点
- * @param currentElement - 当前处理的YAML元素
- * @returns 返回格式化的YAML代码块节点对象
- */
-const handleYaml = (currentElement: any) => {
-  return {
-    type: 'code',
-    language: 'yaml',
-    value: currentElement.value,
-    frontmatter: true,
-    children: [{ text: currentElement.value }],
-  };
-};
-
-/**
  * 处理引用块节点
  * @param currentElement - 当前处理的引用块元素
  * @returns 返回格式化的引用块节点对象
@@ -1598,7 +1108,7 @@ const elementHandlers: Record<string, ElementHandler> = {
   blockquote: { handler: (el, plugins) => handleBlockquote(el, plugins) },
   table: {
     handler: (el, plugins, config, parent, htmlTag, preElement) =>
-      parseTableOrChart(el, preElement, plugins),
+      parseTableOrChart(el, preElement, plugins, parseNodes, undefined),
   },
   definition: { handler: (el) => handleDefinition(el) },
 };
@@ -1622,8 +1132,6 @@ const parseNodes = (
   const parser = new MarkdownToSlateParser(parserConfig || {}, plugins || []);
   return (parser as any).parseNodes(nodes, top, parent);
 };
-
-const tableRegex = /^\|.*\|\s*\n\|[-:| ]+\|/m;
 
 /**
  * 标准 HTML 元素列表
@@ -1730,8 +1238,6 @@ const STANDARD_HTML_ELEMENTS = new Set([
   'menuitem',
   // 字体
   'font',
-  // 自定义标签（用于流式渲染）
-  'incomplete-image',
 ]);
 
 /**
@@ -1790,88 +1296,6 @@ function preprocessThinkTags(markdown: string): string {
 }
 
 /**
- * 检测不完整的图片标记
- * 参考 useStreaming 中的逻辑，检测类似 ![ 或 ![text]( 的不完整图片语法
- * @param markdown - 要检测的 Markdown 字符串
- * @returns 是否为不完整的图片标记
- */
-function isIncompleteImage(markdown: string): boolean {
-  // 匹配不完整的图片语法：
-  // 1. ![ 开始但还没有 ]
-  // 2. ![text] 开始但还没有 (
-  // 3. ![text]( 开始但还没有 )
-  const incompleteImagePatterns = [
-    /^!\[[^\]\r\n]{0,1000}$/, // ![ 或 ![text 但没有 ]
-    /^!\[[^\r\n]{0,1000}\]\(*[^)\r\n]{0,1000}$/, // ![text]( 或 ![text](url 但没有 )
-  ];
-  return incompleteImagePatterns.some((pattern) => pattern.test(markdown));
-}
-
-/**
- * 预处理不完整的图片标记，将其转换为特殊的 HTML 标签
- * @param markdown - 原始 Markdown 字符串
- * @returns 处理后的 Markdown 字符串
- */
-function preprocessIncompleteImages(markdown: string): string {
-  if (!markdown) return markdown;
-
-  // 按行处理，避免在代码块中处理
-  const lines = markdown.split('\n');
-  let inCodeBlock = false;
-  let codeBlockFence = '';
-  let codeBlockFenceLen = 0;
-
-  const processedLines = lines.map((line) => {
-    // 检测代码块开始/结束
-    const fenceMatch = line.match(FENCED_CODE_REGEX);
-    if (fenceMatch) {
-      const currentFence = fenceMatch[1];
-      const char = currentFence[0];
-      const len = currentFence.length;
-
-      if (!inCodeBlock) {
-        inCodeBlock = true;
-        codeBlockFence = char;
-        codeBlockFenceLen = len;
-      } else if (char === codeBlockFence && len >= codeBlockFenceLen) {
-        inCodeBlock = false;
-        codeBlockFence = '';
-        codeBlockFenceLen = 0;
-      }
-      return line;
-    }
-
-    // 如果在代码块中，不处理
-    if (inCodeBlock) {
-      return line;
-    }
-
-    // 检测不完整的图片标记
-    // 匹配行尾的不完整图片语法（避免匹配完整的图片）
-    const trimmedLine = line.trim();
-
-    // 如果整行就是一个不完整的图片标记
-    if (isIncompleteImage(trimmedLine)) {
-      const encodedRaw = encodeURIComponent(trimmedLine);
-      return `<incomplete-image data-raw="${encodedRaw}" />`;
-    }
-
-    // 检测行内不完整的图片标记（在行尾）
-    // 使用负向前瞻确保不是完整图片的一部分
-    return line.replace(/(!\[[^\]]*\]?\(?[^)]*)$/, (match) => {
-      // 检查是否是不完整的图片
-      if (isIncompleteImage(match.trim())) {
-        const encodedRaw = encodeURIComponent(match.trim());
-        return `<incomplete-image data-raw="${encodedRaw}" />`;
-      }
-      return match;
-    });
-  });
-
-  return processedLines.join('\n');
-}
-
-/**
  * 预处理所有非标准 HTML 标签，提取其内容（删除标签本身）
  * @param markdown - 原始 Markdown 字符串
  * @returns 处理后的 Markdown 字符串
@@ -1885,14 +1309,9 @@ function preprocessNonStandardHtmlTags(markdown: string): string {
     const before = result;
 
     // 匹配所有 HTML 标签对：<tagname>content</tagname>
-    // 注意：跳过 incomplete-image 标签（它是自闭合标签，需要特殊处理）
     result = result.replace(
       /<(\w+)>([\s\S]*?)<\/\1>/g,
       (match, tagName, content) => {
-        // 保护 incomplete-image 标签（虽然它是自闭合的，但为了安全起见）
-        if (tagName.toLowerCase() === 'incomplete-image') {
-          return match;
-        }
         // 检查是否为标准 HTML 元素
         if (STANDARD_HTML_ELEMENTS.has(tagName.toLowerCase())) {
           // 标准元素保持不变
@@ -1908,42 +1327,6 @@ function preprocessNonStandardHtmlTags(markdown: string): string {
   }
 
   return result;
-}
-
-function preprocessMarkdownTableNewlines(markdown: string) {
-  // 检查是否包含表格
-  if (!tableRegex.test(markdown)) return markdown; // 如果没有表格，直接返回原始字符串
-
-  // 处理表格结尾的换行符：
-  // 1. 如果只有一个换行符，改成两个
-  // 2. 如果有两个以上换行符，改成两个
-  // 3. 如果已经是两个换行符，保持不变
-  let processedMarkdown = markdown
-    .replace(
-      /(\|[^|\n]*\|)\n(?!\n|\|)/g, // 匹配表格行后面跟着单个换行符（不是两个），但下一行不是表格行
-      '$1\n\n', // 替换为两个换行符
-    )
-    .replace(
-      /(\|[^|\n]*\|)\n{3,}(?!\|)/g, // 匹配表格行后面跟着3个或更多换行符，但下一行不是表格行
-      '$1\n\n', // 替换为两个换行符
-    );
-
-  // 如果包含表格，处理换行符
-  return processedMarkdown
-    ?.split('\n\n')
-    .map((line) => {
-      if (line.includes('```')) return line; // 如果包含代码块，直接返回原始字符串
-      // 检查是否包含表格
-      if (!tableRegex.test(line)) return line; // 如果没有表格，直接返回原始字符串
-      // 匹配所有表格的行（确保我们在表格行内匹配换行符）
-      return line.replace(/\|([^|]+)\|/g, (match) => {
-        if (match.replaceAll('\n', '')?.length < MIN_TABLE_CELL_LENGTH)
-          return match;
-        // 只替换每个表格单元格内的换行符
-        return match.split('\n').join('<br>');
-      });
-    })
-    .join('\n\n');
 }
 
 /**
@@ -1986,12 +1369,9 @@ export class MarkdownToSlateParser {
     schema: Elements[];
     links: { path: number[]; target: string }[];
   } {
-    // 先预处理 <think> 标签，再预处理不完整的图片，然后预处理其他非标准 HTML 标签，最后处理表格换行
+    // 先预处理 <think> 标签，然后预处理其他非标准 HTML 标签，最后处理表格换行
     const thinkProcessed = preprocessThinkTags(md || '');
-    const incompleteImageProcessed = preprocessIncompleteImages(thinkProcessed);
-    const nonStandardProcessed = preprocessNonStandardHtmlTags(
-      incompleteImageProcessed,
-    );
+    const nonStandardProcessed = preprocessNonStandardHtmlTags(thinkProcessed);
     const processedMarkdown = mdastParser.parse(
       preprocessMarkdownTableNewlines(nonStandardProcessed),
     ) as any;
@@ -2149,9 +1529,13 @@ export class MarkdownToSlateParser {
       } else if (elementType === 'paragraph') {
         handlerResult = this.handleParagraph(currentElement, config);
       } else if (elementType === 'table') {
-        handlerResult = this.parseTableOrChart(
+        handlerResult = parseTableOrChart(
           currentElement,
           preElement || (parent as any),
+          this.plugins,
+          (nodes, plugins, top, parentNode) =>
+            this.parseNodes(nodes, top, parentNode),
+          this.config,
         );
       } else {
         // 使用默认的 handler 调用
@@ -2427,198 +1811,10 @@ export class MarkdownToSlateParser {
           (leaf.otherProps as any).target = '_blank';
           (leaf.otherProps as any).rel = 'noopener noreferrer';
         }
-      } catch (error) {
+      } catch {
         leaf.url = currentElement?.url;
       }
     }
-  }
-
-  /**
-   * 解析表格或图表（类方法版本）
-   */
-  private parseTableOrChart(
-    table: Table,
-    preNode: RootContent,
-  ): CardNode | Element {
-    const keyMap = new Map<string, string>();
-
-    // @ts-ignore
-    const config =
-      // @ts-ignore
-      preNode?.type === 'code' && // @ts-ignore
-      preNode?.language === 'html' && // @ts-ignore
-      preNode?.otherProps
-        ? // @ts-ignore
-          preNode?.otherProps
-        : {};
-
-    // 计算表格的总单元格数
-    const headerRow = table?.children?.at(0);
-    const headerCellCount = headerRow?.children?.length || 0;
-    const dataRows = table?.children?.slice(1) || [];
-    const dataCellCount = dataRows.reduce(
-      (sum, row) => sum + (row.children?.length || 0),
-      0,
-    );
-    const totalCellCount = headerCellCount + dataCellCount;
-
-    // 如果单元格数少于2个，返回普通段落节点
-    if (totalCellCount < 2) {
-      // 返回包含表格原始文本的段落节点
-      const tableMarkdown = myRemark.stringify({
-        type: 'root',
-        children: [table],
-      });
-      return {
-        type: 'paragraph',
-        children: [{ text: tableMarkdown }],
-      } as Element;
-    }
-
-    const tableHeader = table?.children?.at(0);
-    const columns =
-      tableHeader?.children
-        ?.map((node) => {
-          return myRemark
-            .stringify({
-              type: 'root',
-              children: [node],
-            })
-            .trim();
-        })
-        .map((key) => {
-          // 规范化字段名，统一处理转义字符
-          const normalizedKey = normalizeFieldName(key);
-          const value = keyMap.get(normalizedKey) || normalizedKey;
-          return value;
-        })
-        .map((key) => ({ dataIndex: key })) || [];
-
-    const dataSource =
-      table?.children?.slice(1)?.map((row) => {
-        return row.children?.reduce((acc: any, cell: any, index: number) => {
-          const column = columns[index];
-          const key =
-            column?.dataIndex ||
-            (typeof column === 'string' ? column : undefined);
-          if (key) {
-            acc[key] = myRemark
-              .stringify({
-                type: 'root',
-                children: [cell],
-              })
-              .trim();
-          }
-          return acc;
-        }, {});
-      }) || [];
-
-    if (table.align?.every((item) => !item)) {
-      const aligns = getColumnAlignment(dataSource, columns);
-      table.align = aligns;
-    }
-
-    const aligns = table.align;
-
-    const isChart = config?.chartType || config?.at?.(0)?.chartType;
-
-    // 计算合并单元格信息
-    const mergeCells = config.mergeCells || [];
-
-    // 创建合并单元格映射，用于快速查找
-    const mergeMap = new Map<
-      string,
-      { rowSpan: number; colSpan: number; hidden?: boolean }
-    >();
-    mergeCells?.forEach(
-      ({ row, col, rowSpan, rowspan, colSpan, colspan }: any) => {
-        let rawRowSpan = rowSpan || rowspan;
-        let rawColSpan = colSpan || colspan;
-        // 主单元格
-        mergeMap.set(`${row}-${col}`, {
-          rowSpan: rawRowSpan,
-          colSpan: rawColSpan,
-        });
-
-        // 被合并的单元格标记为隐藏
-        for (let r = row; r < row + rawRowSpan; r++) {
-          for (let c = col; c < col + rawColSpan; c++) {
-            if (r !== row || c !== col) {
-              mergeMap.set(`${r}-${c}`, {
-                rowSpan: 1,
-                colSpan: 1,
-                hidden: true,
-              });
-            }
-          }
-        }
-      },
-    );
-
-    const children = table.children.map((r: { children: any[] }, l: number) => {
-      return {
-        type: 'table-row',
-        align: aligns?.[l] || undefined,
-        children: r.children.map(
-          (c: { children: string | any[] }, i: string | number) => {
-            const mergeInfo = mergeMap.get(`${l}-${i}`);
-            return {
-              type: 'table-cell',
-              align: aligns?.[i as number] || undefined,
-              title: l === 0,
-              rows: l,
-              cols: i,
-              ...(mergeInfo?.rowSpan && mergeInfo.rowSpan > 1
-                ? { rowSpan: mergeInfo.rowSpan }
-                : {}),
-              ...(mergeInfo?.colSpan && mergeInfo.colSpan > 1
-                ? { colSpan: mergeInfo.colSpan }
-                : {}),
-              ...(mergeInfo?.hidden ? { hidden: true } : {}),
-              children: c.children?.length
-                ? [
-                    {
-                      type: 'paragraph',
-                      children: this.parseNodes(
-                        c.children as any,
-                        false,
-                        c as any,
-                      ),
-                    },
-                  ]
-                : [
-                    {
-                      type: 'paragraph',
-                      children: [{ text: '' }],
-                    },
-                  ],
-            };
-          },
-        ),
-      };
-    }) as TableRowNode[];
-
-    const otherProps = {
-      ...(isChart
-        ? {
-            config,
-          }
-        : config),
-      columns: columns.map((col) => col.dataIndex),
-      dataSource: dataSource.map((item) => {
-        delete item?.chartType;
-        return {
-          ...item,
-        };
-      }),
-    };
-
-    const node: TableNode | ChartNode = {
-      type: isChart ? 'chart' : 'table',
-      children: children,
-      otherProps,
-    } as any;
-    return EditorUtils.wrapperCardNode(node);
   }
 }
 

@@ -97,6 +97,10 @@ export const RerenderMdDemo = () => {
           display: 'flex',
           alignItems: 'center',
           gap: '16px',
+          position: 'sticky',
+          top: 0,
+          zIndex: 999,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
         }}
       >
         <Space>
