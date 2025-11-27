@@ -467,29 +467,6 @@ const parseTableOrChart = (
         preNode?.otherProps
       : {};
 
-  // 计算表格的总单元格数
-  const headerRow = table?.children?.at(0);
-  const headerCellCount = headerRow?.children?.length || 0;
-  const dataRows = table?.children?.slice(1) || [];
-  const dataCellCount = dataRows.reduce(
-    (sum, row) => sum + (row.children?.length || 0),
-    0,
-  );
-  const totalCellCount = headerCellCount + dataCellCount;
-
-  // 如果单元格数少于2个，返回普通段落节点
-  if (totalCellCount < 2) {
-    // 返回包含表格原始文本的段落节点
-    const tableMarkdown = myRemark.stringify({
-      type: 'root',
-      children: [table],
-    });
-    return {
-      type: 'paragraph',
-      children: [{ text: tableMarkdown }],
-    } as Element;
-  }
-
   const tableHeader = table?.children?.at(0);
   const columns =
     tableHeader?.children
