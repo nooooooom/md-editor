@@ -7,7 +7,6 @@
 
 import json5 from 'json5';
 import type { RootContent } from 'mdast';
-//@ts-ignore
 import { Element } from 'slate';
 
 import { CustomLeaf, Elements, InlineKatexNode } from '../../el';
