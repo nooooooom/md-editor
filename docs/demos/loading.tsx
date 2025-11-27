@@ -1,4 +1,8 @@
-import { Loading } from '@ant-design/agentic-ui';
+import {
+  CreativeRecommendationLoading,
+  CreativeSparkLoading,
+  Loading,
+} from '@ant-design/agentic-ui';
 import React from 'react';
 
 const DemoCard = ({
@@ -88,13 +92,13 @@ export default () => {
         }}
       >
         <DemoCard title="loading" description="默认">
-          <Loading type="loading" size={48} />
+          <Loading size={48} />
         </DemoCard>
         <DemoCard title="spark" description="创意生成中火花">
-          <Loading type="spark" size={48} />
+          <CreativeSparkLoading size={48} />
         </DemoCard>
         <DemoCard title="recommendation" description="创意推荐闪动">
-          <Loading type="recommendation" size={48} />
+          <CreativeRecommendationLoading size={48} />
         </DemoCard>
       </div>
 
