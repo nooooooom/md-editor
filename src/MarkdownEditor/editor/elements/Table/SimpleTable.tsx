@@ -2,7 +2,6 @@ import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import React, { useContext, useMemo } from 'react';
 import { ReactEditor, RenderElementProps, useSlate } from 'slate-react';
-import { Loading } from '../../../../Components/Loading';
 import { TableNode } from '../../types/Table';
 import { useTableStyle } from './style';
 import { SlateTable } from './Table';
@@ -23,9 +22,6 @@ export const SimpleTable = (props: RenderElementProps) => {
     [props.element],
   );
 
-  // 检查表格是否未闭合
-  const isUnclosed = props.element?.otherProps?.finish === false;
-
   return wrapSSR(
     <TablePropsProvider
       tablePath={tablePath}
@@ -34,24 +30,10 @@ export const SimpleTable = (props: RenderElementProps) => {
       <div
         {...props.attributes}
         data-be={'table'}
-        data-is-unclosed={isUnclosed}
         draggable={false}
         className={classNames(`${baseCls}-container`, hashId)}
         style={{ position: 'relative' }}
       >
-        {/* 未闭合表格的 loading 指示器 */}
-        {isUnclosed && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '8px',
-              right: '8px',
-              zIndex: 10,
-            }}
-          >
-            <Loading />
-          </div>
-        )}
         <SlateTable {...props} hashId={hashId}>
           {props.children}
         </SlateTable>

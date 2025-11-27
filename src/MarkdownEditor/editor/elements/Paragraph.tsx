@@ -1,4 +1,3 @@
-import { Skeleton } from 'antd';
 import classNames from 'classnames';
 import React, { useContext } from 'react';
 import { Node } from 'slate';
@@ -30,74 +29,6 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
         ? true
         : undefined;
 
-    // 检查是否是表格加载占位符
-    const isTablePlaceholder =
-      props.element?.otherProps?.placeholder === true &&
-      props.element?.otherProps?.loading === true;
-
-    // 如果是表格占位符，显示表格样式的 Skeleton
-    if (isTablePlaceholder) {
-      return (
-        <div
-          {...props.attributes}
-          data-be={'paragraph'}
-          data-drag-el
-          data-placeholder="table-skeleton"
-          style={{
-            padding: '16px',
-            margin: '8px 0',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            backgroundColor: '#ffffff',
-          }}
-        >
-          {/* 表头 Skeleton */}
-          <div
-            style={{
-              display: 'flex',
-              gap: 8,
-              marginBottom: 12,
-              paddingBottom: 12,
-              borderBottom: '1px solid #e5e7eb',
-            }}
-          >
-            {Array.from({ length: 3 }).map((_, colIndex) => (
-              <Skeleton.Input
-                key={colIndex}
-                active
-                style={{
-                  flex: 1,
-                  height: 20,
-                }}
-              />
-            ))}
-          </div>
-          {/* 表格行 Skeleton */}
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div
-              key={index}
-              style={{
-                display: 'flex',
-                gap: 8,
-                marginBottom: 8,
-              }}
-            >
-              {Array.from({ length: 3 }).map((_, colIndex) => (
-                <Skeleton.Input
-                  key={colIndex}
-                  active
-                  style={{
-                    flex: 1,
-                    height: 20,
-                  }}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
     return (
       <div
         {...props.attributes}
@@ -127,8 +58,6 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
   }, [
     props.element.children,
     props.element.align,
-    props.element?.otherProps?.placeholder,
-    props.element?.otherProps?.loading,
     readonly,
     selected,
     markdownEditorRef.current?.children.length,

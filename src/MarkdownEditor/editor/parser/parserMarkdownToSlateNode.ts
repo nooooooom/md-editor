@@ -467,15 +467,6 @@ const parseTableOrChart = (
         preNode?.otherProps
       : {};
 
-  // 检查上一个节点是否是配置节点
-  const isPreNodeConfig =
-    // @ts-ignore
-    preNode?.type === 'code' &&
-    // @ts-ignore
-    preNode?.language === 'html' &&
-    // @ts-ignore
-    preNode?.isConfig === true;
-
   // 计算表格的总单元格数
   const headerRow = table?.children?.at(0);
   const headerCellCount = headerRow?.children?.length || 0;
@@ -486,26 +477,9 @@ const parseTableOrChart = (
   );
   const totalCellCount = headerCellCount + dataCellCount;
 
-  // 检查表格是否完成
-  const tableIsFinished =
-    (table as any)?.otherProps?.finish !== undefined
-      ? (table as any).otherProps.finish
-      : false;
-
   // 如果单元格数少于2个，返回普通段落节点
   if (totalCellCount < 2) {
-    // 如果上一个节点是配置节点且表格未完成，返回占位符段落节点（显示 Skeleton）
-    if (isPreNodeConfig && !tableIsFinished) {
-      return {
-        type: 'paragraph',
-        children: [{ text: '' }],
-        otherProps: {
-          placeholder: true,
-          loading: true,
-        },
-      } as Element;
-    }
-    // 否则返回包含表格原始文本的段落节点
+    // 返回包含表格原始文本的段落节点
     const tableMarkdown = myRemark.stringify({
       type: 'root',
       children: [table],
@@ -658,12 +632,6 @@ const parseTableOrChart = (
       ),
     };
   }) as TableRowNode[];
-  // 检查表格是否完成（未闭合）
-  // 如果 table 节点有 otherProps.finish，使用它；否则默认为 false（未完成）
-  const isFinished =
-    (table as any)?.otherProps?.finish !== undefined
-      ? (table as any).otherProps.finish
-      : false;
 
   const otherProps = {
     ...(isChart
@@ -678,20 +646,7 @@ const parseTableOrChart = (
         ...item,
       };
     }),
-    finish: isFinished, // 标记表格是否完成（未闭合时为 false）
   };
-
-  // 如果上一个节点是配置节点且表格未完成，返回占位符段落节点（显示 Skeleton）
-  if (isPreNodeConfig && !tableIsFinished) {
-    return {
-      type: 'paragraph',
-      children: [{ text: '' }],
-      otherProps: {
-        placeholder: true,
-        loading: true,
-      },
-    } as Element;
-  }
 
   const node: TableNode | ChartNode = {
     type: isChart ? 'chart' : 'table',
@@ -2135,26 +2090,6 @@ export class MarkdownToSlateParser {
       if (!pluginHandled) {
         const isLastNode = i === nodes.length - 1;
 
-        // 如果是 table 节点，检查是否是最后一个节点，设置 finish 属性
-        if (currentElement.type === 'table') {
-          // 如果 table 不是最后一个节点，finish 设置为 true
-          if (!isLastNode) {
-            if (!(currentElement as any).otherProps) {
-              (currentElement as any).otherProps = {};
-            }
-            (currentElement as any).otherProps.finish = true;
-          } else {
-            // 如果是最后一个节点，且 typing=false，finish 设置为 true
-            if (this.config.typing === false) {
-              if (!(currentElement as any).otherProps) {
-                (currentElement as any).otherProps = {};
-              }
-              (currentElement as any).otherProps.finish = true;
-            }
-            // 否则保持原逻辑（在 parseTableOrChart 中处理，默认为 false）
-          }
-        }
-
         // 如果是 code 节点，检查是否是最后一个节点，设置 finish 属性
         if (currentElement.type === 'code') {
           // 如果 code 不是最后一个节点，finish 设置为 true
@@ -2540,15 +2475,6 @@ export class MarkdownToSlateParser {
           preNode?.otherProps
         : {};
 
-    // 检查上一个节点是否是配置节点
-    const isPreNodeConfig =
-      // @ts-ignore
-      preNode?.type === 'code' &&
-      // @ts-ignore
-      preNode?.language === 'html' &&
-      // @ts-ignore
-      preNode?.isConfig === true;
-
     // 计算表格的总单元格数
     const headerRow = table?.children?.at(0);
     const headerCellCount = headerRow?.children?.length || 0;
@@ -2559,26 +2485,9 @@ export class MarkdownToSlateParser {
     );
     const totalCellCount = headerCellCount + dataCellCount;
 
-    // 检查表格是否完成
-    const tableIsFinished =
-      (table as any)?.otherProps?.finish !== undefined
-        ? (table as any).otherProps.finish
-        : false;
-
     // 如果单元格数少于2个，返回普通段落节点
     if (totalCellCount < 2) {
-      // 如果上一个节点是配置节点且表格未完成，返回占位符段落节点（显示 Skeleton）
-      if (isPreNodeConfig && !tableIsFinished) {
-        return {
-          type: 'paragraph',
-          children: [{ text: '' }],
-          otherProps: {
-            placeholder: true,
-            loading: true,
-          },
-        } as Element;
-      }
-      // 否则返回包含表格原始文本的段落节点
+      // 返回包含表格原始文本的段落节点
       const tableMarkdown = myRemark.stringify({
         type: 'root',
         children: [table],
@@ -2712,13 +2621,6 @@ export class MarkdownToSlateParser {
       };
     }) as TableRowNode[];
 
-    // 检查表格是否完成（未闭合）
-    // 如果 table 节点有 otherProps.finish，使用它；否则默认为 false（未完成）
-    const isFinished =
-      (table as any)?.otherProps?.finish !== undefined
-        ? (table as any).otherProps.finish
-        : false;
-
     const otherProps = {
       ...(isChart
         ? {
@@ -2732,20 +2634,7 @@ export class MarkdownToSlateParser {
           ...item,
         };
       }),
-      finish: isFinished, // 标记表格是否完成（未闭合时为 false）
     };
-
-    // 如果上一个节点是配置节点且表格未完成，返回占位符段落节点（显示 Skeleton）
-    if (isPreNodeConfig && !tableIsFinished) {
-      return {
-        type: 'paragraph',
-        children: [{ text: '' }],
-        otherProps: {
-          placeholder: true,
-          loading: true,
-        },
-      } as Element;
-    }
 
     const node: TableNode | ChartNode = {
       type: isChart ? 'chart' : 'table',
