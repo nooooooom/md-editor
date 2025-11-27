@@ -3,7 +3,7 @@
  * 封装代码编辑器的所有渲染逻辑
  */
 
-import { ConfigProvider, theme as antdTheme } from 'antd';
+import { ConfigProvider, Skeleton, theme as antdTheme } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { MarkdownEditor } from '../../../MarkdownEditor';
 import { useEditorStore } from '../../../MarkdownEditor/editor/store';
@@ -123,8 +123,21 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
 
   // 渲染组件
   return useMemo(() => {
-    // 隐藏配置型 HTML 代码块
+    // 配置型 HTML 代码块：如果未完成且内容较长，显示 skeleton
     if (shouldHideConfigHtml) {
+      const isUnclosed = props.element?.otherProps?.finish === false;
+      const contentLength = props.element?.value?.length || 0;
+      const isLongContent = contentLength > 100; // 内容超过 100 字符视为较长
+
+      // 如果未完成且内容较长，显示 skeleton
+      if (isUnclosed && isLongContent) {
+        return (
+          <div {...props.attributes} style={{ padding: '20px' }}>
+            <Skeleton active paragraph={{ rows: 3 }} />
+          </div>
+        );
+      }
+
       return null;
     }
 

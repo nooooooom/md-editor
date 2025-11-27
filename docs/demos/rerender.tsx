@@ -904,7 +904,8 @@ const Mdlist = [
     type: 'data',
   },
 ];
-export default () => {
+// md 逐字符渲染 demo
+export const RerenderMdDemo = () => {
   const instance = useRef<MarkdownEditorInstance>();
   const { containerRef } = useAutoScroll();
   useEffect(() => {
@@ -928,17 +929,6 @@ export default () => {
           }, 1);
         });
       }
-      Mdlist?.forEach((item, index) => {
-        if (index === 0) {
-          instance.current?.store?.setMDContent?.('');
-          return;
-        }
-        setTimeout(() => {
-          instance.current?.store.updateNodeList(
-            parserMarkdownToSlateNode(item.data.content).schema,
-          );
-        }, 160 * index);
-      });
     };
     run();
   }, []);
@@ -1022,3 +1012,5 @@ export default () => {
     </div>
   );
 };
+
+export default RerenderMdDemo;

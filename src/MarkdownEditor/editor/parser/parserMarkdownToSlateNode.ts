@@ -454,7 +454,7 @@ const parseTableOrChart = (
   preNode: RootContent,
   plugins: MarkdownEditorPlugin[],
   parserConfig?: ParserMarkdownToSlateNodeConfig,
-): CardNode => {
+): CardNode | Element => {
   const keyMap = new Map<string, string>();
 
   // @ts-ignore
@@ -466,6 +466,55 @@ const parseTableOrChart = (
       ? // @ts-ignore
         preNode?.otherProps
       : {};
+
+  // 检查上一个节点是否是配置节点
+  const isPreNodeConfig =
+    // @ts-ignore
+    preNode?.type === 'code' &&
+    // @ts-ignore
+    preNode?.language === 'html' &&
+    // @ts-ignore
+    preNode?.isConfig === true;
+
+  // 计算表格的总单元格数
+  const headerRow = table?.children?.at(0);
+  const headerCellCount = headerRow?.children?.length || 0;
+  const dataRows = table?.children?.slice(1) || [];
+  const dataCellCount = dataRows.reduce(
+    (sum, row) => sum + (row.children?.length || 0),
+    0,
+  );
+  const totalCellCount = headerCellCount + dataCellCount;
+
+  // 检查表格是否完成
+  const tableIsFinished =
+    (table as any)?.otherProps?.finish !== undefined
+      ? (table as any).otherProps.finish
+      : false;
+
+  // 如果单元格数少于2个，返回普通段落节点
+  if (totalCellCount < 2) {
+    // 如果上一个节点是配置节点且表格未完成，返回占位符段落节点（显示 Skeleton）
+    if (isPreNodeConfig && !tableIsFinished) {
+      return {
+        type: 'paragraph',
+        children: [{ text: '' }],
+        otherProps: {
+          placeholder: true,
+          loading: true,
+        },
+      } as Element;
+    }
+    // 否则返回包含表格原始文本的段落节点
+    const tableMarkdown = myRemark.stringify({
+      type: 'root',
+      children: [table],
+    });
+    return {
+      type: 'paragraph',
+      children: [{ text: tableMarkdown }],
+    } as Element;
+  }
 
   const tableHeader = table?.children?.at(0);
   const columns =
@@ -632,6 +681,18 @@ const parseTableOrChart = (
     finish: isFinished, // 标记表格是否完成（未闭合时为 false）
   };
 
+  // 如果上一个节点是配置节点且表格未完成，返回占位符段落节点（显示 Skeleton）
+  if (isPreNodeConfig && !tableIsFinished) {
+    return {
+      type: 'paragraph',
+      children: [{ text: '' }],
+      otherProps: {
+        placeholder: true,
+        loading: true,
+      },
+    } as Element;
+  }
+
   const node: TableNode | ChartNode = {
     type: isChart ? 'chart' : 'table',
     children: children,
@@ -682,15 +743,25 @@ export const decodeURIComponentUrl = (url: string) => {
  * @returns 返回包含解析后元素和上下文属性的对象
  */
 const handleHtml = (currentElement: any, parent: any, htmlTag: any[]) => {
+  // 检查是否为未闭合的 HTML 注释（只有 <!-- 而没有 -->）
+  const trimmedValue = currentElement?.value?.trim() || '';
+  const isUnclosedComment =
+    trimmedValue.startsWith('<!--') && !trimmedValue.endsWith('-->');
+
+  // 如果是未闭合的注释，自动补全闭合标签
+  let processedValue = currentElement?.value || '';
+  if (isUnclosedComment) {
+    processedValue = trimmedValue + '-->';
+  }
+
   const value =
-    currentElement?.value?.replace('<!--', '').replace('-->', '').trim() ||
-    '{}';
+    processedValue?.replace('<!--', '').replace('-->', '').trim() || '{}';
 
   let contextProps = {};
   if (
     value &&
-    currentElement?.value?.trim()?.endsWith('-->') &&
-    currentElement?.value.trim()?.startsWith('<!--')
+    processedValue?.trim()?.endsWith('-->') &&
+    processedValue.trim()?.startsWith('<!--')
   ) {
     try {
       contextProps = json5.parse(value);
@@ -757,25 +828,29 @@ const handleHtml = (currentElement: any, parent: any, htmlTag: any[]) => {
             el = null;
           } else {
             // 检查是否为注释（注释需要特殊处理以提取配置）
+            // 使用处理后的值进行判断
+            const commentValue = isUnclosedComment
+              ? processedValue
+              : currentElement.value;
             const isComment =
-              currentElement.value.trim().startsWith('<!--') &&
-              currentElement.value.trim().endsWith('-->');
+              commentValue.trim().startsWith('<!--') &&
+              commentValue.trim().endsWith('-->');
 
             // 检查是否为标准 HTML 元素或注释
-            if (isComment || isStandardHtmlElement(currentElement.value)) {
+            if (isComment || isStandardHtmlElement(commentValue)) {
               // 标准 HTML 元素或注释：按原逻辑处理
-              el = currentElement.value.match(
+              el = commentValue.match(
                 /<\/?(table|div|ul|li|ol|p|strong)[^\n>]*?>/,
               )
-                ? htmlToFragmentList(currentElement.value, '')
+                ? htmlToFragmentList(commentValue, '')
                 : {
                     type: 'code',
                     language: 'html',
                     render: true,
-                    value: currentElement.value,
+                    value: commentValue,
                     children: [
                       {
-                        text: currentElement.value,
+                        text: commentValue,
                       },
                     ],
                   };
@@ -794,8 +869,13 @@ const handleHtml = (currentElement: any, parent: any, htmlTag: any[]) => {
   if (el && !Array.isArray(el)) {
     // 只有非文本节点才设置 isConfig 和 otherProps
     if (!('text' in el && Object.keys(el).length === 1)) {
-      el.isConfig = currentElement?.value?.trim()?.startsWith('<!--');
+      // 使用处理后的值判断是否为配置注释
+      const valueToCheck = isUnclosedComment
+        ? processedValue
+        : currentElement?.value;
+      el.isConfig = valueToCheck?.trim()?.startsWith('<!--');
       el.otherProps = contextProps;
+      el.otherProps.finish = isUnclosedComment ? false : true;
     }
   }
 
@@ -2444,7 +2524,10 @@ export class MarkdownToSlateParser {
   /**
    * 解析表格或图表（类方法版本）
    */
-  private parseTableOrChart(table: Table, preNode: RootContent): CardNode {
+  private parseTableOrChart(
+    table: Table,
+    preNode: RootContent,
+  ): CardNode | Element {
     const keyMap = new Map<string, string>();
 
     // @ts-ignore
@@ -2456,6 +2539,55 @@ export class MarkdownToSlateParser {
         ? // @ts-ignore
           preNode?.otherProps
         : {};
+
+    // 检查上一个节点是否是配置节点
+    const isPreNodeConfig =
+      // @ts-ignore
+      preNode?.type === 'code' &&
+      // @ts-ignore
+      preNode?.language === 'html' &&
+      // @ts-ignore
+      preNode?.isConfig === true;
+
+    // 计算表格的总单元格数
+    const headerRow = table?.children?.at(0);
+    const headerCellCount = headerRow?.children?.length || 0;
+    const dataRows = table?.children?.slice(1) || [];
+    const dataCellCount = dataRows.reduce(
+      (sum, row) => sum + (row.children?.length || 0),
+      0,
+    );
+    const totalCellCount = headerCellCount + dataCellCount;
+
+    // 检查表格是否完成
+    const tableIsFinished =
+      (table as any)?.otherProps?.finish !== undefined
+        ? (table as any).otherProps.finish
+        : false;
+
+    // 如果单元格数少于2个，返回普通段落节点
+    if (totalCellCount < 2) {
+      // 如果上一个节点是配置节点且表格未完成，返回占位符段落节点（显示 Skeleton）
+      if (isPreNodeConfig && !tableIsFinished) {
+        return {
+          type: 'paragraph',
+          children: [{ text: '' }],
+          otherProps: {
+            placeholder: true,
+            loading: true,
+          },
+        } as Element;
+      }
+      // 否则返回包含表格原始文本的段落节点
+      const tableMarkdown = myRemark.stringify({
+        type: 'root',
+        children: [table],
+      });
+      return {
+        type: 'paragraph',
+        children: [{ text: tableMarkdown }],
+      } as Element;
+    }
 
     const tableHeader = table?.children?.at(0);
     const columns =
@@ -2602,6 +2734,18 @@ export class MarkdownToSlateParser {
       }),
       finish: isFinished, // 标记表格是否完成（未闭合时为 false）
     };
+
+    // 如果上一个节点是配置节点且表格未完成，返回占位符段落节点（显示 Skeleton）
+    if (isPreNodeConfig && !tableIsFinished) {
+      return {
+        type: 'paragraph',
+        children: [{ text: '' }],
+        otherProps: {
+          placeholder: true,
+          loading: true,
+        },
+      } as Element;
+    }
 
     const node: TableNode | ChartNode = {
       type: isChart ? 'chart' : 'table',
