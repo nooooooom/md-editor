@@ -53,12 +53,13 @@ export function convertParagraphToImage() {
       (paragraphNode: any, index: number | undefined, parent: any) => {
         const textContent = extractParagraphText(paragraphNode);
 
-        if (!textContent) {
+        if (!textContent || !index || !parent) {
           return;
         }
+        const nextNode = parent?.children?.[index + 1];
 
         // 检查是否以 ! 开头（图片）
-        if (textContent.startsWith('!')) {
+        if (textContent.startsWith('!') && !nextNode) {
           // 提取 URL（去掉开头的 !）
           const imageUrl = textContent.slice(1).trim();
 
@@ -84,8 +85,11 @@ export function convertParagraphToImage() {
         }
 
         // 检查是否以 | 开头（表格）
-        if (textContent.startsWith('|')) {
-          // 创建不完整的表格节点
+        // 注意：如果 remark-gfm 已经正确解析了表格，表格节点应该是 'table' 类型，不会进入这里
+        // 这里只处理未被解析的表格行（通常是不完整的表格输入）
+        if (textContent.startsWith('|') && !nextNode) {
+          // 只有不完整的表格输入（比如只有 | 开头，没有结束）才转换为表格节点
+          // 创建不完整的表格节点（用于不完整的表格输入）
           const tableNode = {
             type: 'table',
             finished: false,
@@ -123,27 +127,27 @@ export function convertParagraphToImage() {
           }
           return;
         }
-
-        // 检查是否以 [ 开头（链接）
-        if (textContent.startsWith('[')) {
-          // 创建不完整的链接节点
-          const linkNode = {
-            type: 'link',
-            url: '',
-            finished: false,
-            children: paragraphNode.children,
-          };
-
-          // 替换父节点中的 paragraph 节点为 link 节点
-          if (
-            parent &&
-            Array.isArray(parent.children) &&
-            typeof index === 'number'
-          ) {
-            parent.children[index] = linkNode;
+        if (textContent.startsWith('[') && !nextNode) {
+          // 检查是否匹配 [内容](url) 格式
+          const linkPattern = /^\[([^\]]+)\]\(([^)]+)\)$/;
+          const match = textContent.match(linkPattern);
+          if (match) {
+            const linkNode = {
+              type: 'link',
+              url: match[2],
+              finished: false,
+              children: paragraphNode.children,
+            };
+            if (
+              parent &&
+              Array.isArray(parent.children) &&
+              typeof index === 'number'
+            ) {
+              parent.children[index] = linkNode;
+            }
           }
-          return;
         }
+        return;
       },
     );
   };

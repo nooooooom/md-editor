@@ -88,12 +88,19 @@ export const parseText = (
     }
 
     if (n.type === 'link') {
-      const linkLeaf = { ...leaf, url: n?.url };
-      const linkResult = parseText(n.children, linkLeaf);
-      leafs = leafs.concat(linkResult);
-      // 如果处理完嵌套节点后没有生成任何节点，且 leaf 有格式属性，生成空文本节点以保留格式
-      if (linkResult.length === 0 && hasFormattingProps(linkLeaf)) {
-        leafs.push({ ...linkLeaf, text: '' });
+      // 只有当 link 节点有 URL 时才处理为链接，否则按普通文本处理
+      if (n?.url) {
+        const linkLeaf = { ...leaf, url: n?.url };
+        const linkResult = parseText(n.children, linkLeaf);
+        leafs = leafs.concat(linkResult);
+        // 如果处理完嵌套节点后没有生成任何节点，且 leaf 有格式属性，生成空文本节点以保留格式
+        if (linkResult.length === 0 && hasFormattingProps(linkLeaf)) {
+          leafs.push({ ...linkLeaf, text: '' });
+        }
+      } else {
+        // 没有 URL，按普通文本处理
+        const textResult = parseText(n.children, leaf);
+        leafs = leafs.concat(textResult);
       }
       continue;
     }

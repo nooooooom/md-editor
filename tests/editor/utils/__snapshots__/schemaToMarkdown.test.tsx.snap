@@ -1883,6 +1883,9 @@ exports[`should convert markdown to schema in ### 二、其他遍历 chunk 1`] =
               {
                 "bold": true,
                 "code": true,
+                "initialValue": undefined,
+                "placeholder": undefined,
+                "tag": false,
                 "text": "while",
               },
               {
@@ -5434,6 +5437,9 @@ exports[`should convert markdown to schema in 3. **同时获取索 chunk 1`] = `
               {
                 "bold": true,
                 "code": true,
+                "initialValue": undefined,
+                "placeholder": undefined,
+                "tag": false,
                 "text": "enumerate",
               },
               {

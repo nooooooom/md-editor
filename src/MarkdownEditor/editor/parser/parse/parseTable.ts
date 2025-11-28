@@ -227,7 +227,44 @@ export const parseTableOrChart = (
 
   const aligns = table.align;
 
-  const isChart = config?.chartType || config?.at?.(0)?.chartType;
+  /**
+   * 将对象转换为数组（处理 {0: {...}, 1: {...}} 这种错误格式）
+   * @param obj - 要转换的对象
+   * @returns 转换后的数组，如果不是数字键对象则返回原对象
+   */
+  const convertObjectToArray = (obj: any): any => {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+      return obj;
+    }
+
+    const keys = Object.keys(obj);
+    // 检查是否所有键都是数字字符串（如 "0", "1", "2"）
+    const allNumericKeys =
+      keys.length > 0 && keys.every((key) => /^\d+$/.test(key));
+
+    if (allNumericKeys) {
+      // 按数字顺序排序并转换为数组
+      const sortedKeys = keys.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+      return sortedKeys.map((key) => obj[key]);
+    }
+
+    return obj;
+  };
+
+  // 如果 config 对象包含 config 属性（数组格式的配置），使用它
+  // 否则使用 config 本身（对象格式的配置）
+  let chartConfig = Array.isArray(config?.config)
+    ? config.config
+    : config?.config || config;
+
+  // 如果 chartConfig 是对象且键都是数字（如 {0: {...}}），转换为数组
+  chartConfig = convertObjectToArray(chartConfig);
+
+  const isChart =
+    chartConfig?.chartType ||
+    (Array.isArray(chartConfig) && chartConfig?.[0]?.chartType) ||
+    config?.chartType ||
+    config?.at?.(0)?.chartType;
 
   // 计算合并单元格信息
   const mergeCells = config.mergeCells || [];
@@ -308,7 +345,7 @@ export const parseTableOrChart = (
   const otherProps = {
     ...(isChart
       ? {
-          config,
+          config: chartConfig,
         }
       : config),
     columns,

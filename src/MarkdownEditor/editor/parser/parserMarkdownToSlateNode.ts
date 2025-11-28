@@ -363,5 +363,6 @@ export const parserMarkdownToSlateNode = (
   links: { path: number[]; target: string }[];
 } => {
   const parser = new MarkdownToSlateParser(config || {}, plugins || []);
+
   return parser.parse(md);
 };
