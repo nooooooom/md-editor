@@ -96,7 +96,6 @@ describe('parserMarkdownToSlateNode', () => {
         children: [
           { text: 'Normal ' },
           { text: 'bold and italic', bold: true, italic: true },
-          { text: '', italic: true },
           { text: ' text' },
         ],
       });

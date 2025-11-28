@@ -239,7 +239,7 @@ const findAttachment = (str: string) => {
  * 设置节点的 finished 属性
  */
 const setFinishedProp = (leaf: CustomLeaf, finished: any): CustomLeaf => {
-  if (finished === undefined) {
+  if (finished !== false) {
     return leaf;
   }
 
@@ -250,6 +250,20 @@ const setFinishedProp = (leaf: CustomLeaf, finished: any): CustomLeaf => {
       finished,
     },
   };
+};
+
+/**
+ * 检查 leaf 是否有格式属性需要保留
+ */
+const hasFormattingProps = (leaf: CustomLeaf): boolean => {
+  return !!(
+    leaf.bold ||
+    leaf.italic ||
+    leaf.strikethrough ||
+    leaf.url ||
+    leaf.code ||
+    leaf.otherProps?.finished === false
+  );
 };
 
 const parseText = (
@@ -265,7 +279,12 @@ const parseText = (
         { ...leaf, bold: true },
         (n as any).finished,
       );
-      leafs = leafs.concat(parseText(n.children, strongLeaf));
+      const strongResult = parseText(n.children, strongLeaf);
+      leafs = leafs.concat(strongResult);
+      // 如果处理完嵌套节点后没有生成任何节点，且 leaf 有格式属性，生成空文本节点以保留格式
+      if (strongResult.length === 0 && hasFormattingProps(strongLeaf)) {
+        leafs.push({ ...strongLeaf, text: '' });
+      }
       continue;
     }
 
@@ -274,20 +293,34 @@ const parseText = (
         { ...leaf, italic: true },
         (n as any).finished,
       );
-      leafs = leafs.concat(parseText(n.children, emphasisLeaf));
+      const emphasisResult = parseText(n.children, emphasisLeaf);
+      leafs = leafs.concat(emphasisResult);
+      // 如果处理完嵌套节点后没有生成任何节点，且 leaf 有格式属性，生成空文本节点以保留格式
+      if (emphasisResult.length === 0 && hasFormattingProps(emphasisLeaf)) {
+        leafs.push({ ...emphasisLeaf, text: '' });
+      }
       continue;
     }
 
     if (n.type === 'delete') {
-      leafs = leafs.concat(
-        parseText(n.children, { ...leaf, strikethrough: true }),
-      );
+      const deleteLeaf = { ...leaf, strikethrough: true };
+      const deleteResult = parseText(n.children, deleteLeaf);
+      leafs = leafs.concat(deleteResult);
+      // 如果处理完嵌套节点后没有生成任何节点，且 leaf 有格式属性，生成空文本节点以保留格式
+      if (deleteResult.length === 0 && hasFormattingProps(deleteLeaf)) {
+        leafs.push({ ...deleteLeaf, text: '' });
+      }
       continue;
     }
 
     if (n.type === 'link') {
       const linkLeaf = { ...leaf, url: n?.url };
-      leafs = leafs.concat(parseText(n.children, linkLeaf));
+      const linkResult = parseText(n.children, linkLeaf);
+      leafs = leafs.concat(linkResult);
+      // 如果处理完嵌套节点后没有生成任何节点，且 leaf 有格式属性，生成空文本节点以保留格式
+      if (linkResult.length === 0 && hasFormattingProps(linkLeaf)) {
+        leafs.push({ ...linkLeaf, text: '' });
+      }
       continue;
     }
 
@@ -464,13 +497,16 @@ const applyElementConfig = (
     ? processedValue
     : currentElement?.value;
 
+  const otherProps: any = { ...contextProps };
+  // 只有当 finished === false 时才设置 finished 属性，否则删除
+  if (isUnclosedComment) {
+    otherProps.finished = false;
+  }
+
   return {
     ...el,
     isConfig: valueToCheck?.trim()?.startsWith('<!--'),
-    otherProps: {
-      ...contextProps,
-      finish: !isUnclosedComment,
-    },
+    otherProps: Object.keys(otherProps).length > 0 ? otherProps : undefined,
   };
 };
 
@@ -1229,10 +1265,13 @@ const handleTextAndInlineElementsPure = (
     'inlineCode',
   ];
   if (inlineElementTypes.includes(elementType)) {
+    const finished = (currentElement as any).finished;
     const leaf: CustomLeaf = {
-      otherProps: {
-        finished: (currentElement as any).finished,
-      },
+      ...(finished === false && {
+        otherProps: {
+          finished,
+        },
+      }),
     };
     const formattedLeaf = applyInlineFormattingFn(leaf, currentElement);
     const leafWithHtmlTags = applyHtmlTagsToElement(formattedLeaf, htmlTag);
@@ -1650,14 +1689,9 @@ export class MarkdownToSlateParser {
       preprocessMarkdownTableNewlines(nonStandardProcessed),
     ) as any;
     const processedMarkdown = mdastParser.runSync(ast) as any;
-
     const markdownRoot = processedMarkdown.children;
-
     // 使用类的配置和插件，通过 this 访问
     const schema = this.parseNodes(markdownRoot, true, undefined) as Elements[];
-
-    console.log('markdownRoot', markdownRoot, schema);
-
     return {
       schema: schema?.filter((item) => {
         if (item.type === 'paragraph' && item.children?.length === 1) {
@@ -1725,14 +1759,14 @@ export class MarkdownToSlateParser {
       if (!pluginHandled) {
         const isLastNode = i === nodes.length - 1;
 
-        // 如果是 code 节点，检查是否是最后一个节点，设置 finish 属性
+        // 如果是 code 节点，检查是否是最后一个节点，设置 finished 属性
         if (currentElement.type === 'code') {
           // 如果 code 不是最后一个节点，finish 设置为 true
           if (!isLastNode) {
             if (!(currentElement as any).otherProps) {
               (currentElement as any).otherProps = {};
             }
-            (currentElement as any).otherProps.finish = true;
+            delete (currentElement as any).otherProps.finished;
           }
           // 如果是最后一个节点，保持原逻辑（在 handleCode 中处理）
         }
@@ -1749,6 +1783,10 @@ export class MarkdownToSlateParser {
         el = result.el;
         if (result.contextProps) {
           contextProps = { ...contextProps, ...result.contextProps };
+        }
+        // 更新 htmlTag 数组，以便后续节点可以使用
+        if (result.htmlTag) {
+          htmlTag = result.htmlTag;
         }
       }
 
@@ -1775,7 +1813,7 @@ export class MarkdownToSlateParser {
     parent: RootContent | undefined,
     htmlTag: { tag: string; color?: string; url?: string }[],
     preElement: Element | null,
-  ): { el: Element | Element[] | null; contextProps?: any } {
+  ): { el: Element | Element[] | null; contextProps?: any; htmlTag?: any[] } {
     const elementType = currentElement.type;
     const handlerInfo = elementHandlers[elementType];
 
@@ -1784,6 +1822,7 @@ export class MarkdownToSlateParser {
       return {
         el: htmlResult.el,
         contextProps: htmlResult.contextProps,
+        htmlTag: htmlResult.htmlTag,
       };
     }
 
@@ -2060,7 +2099,9 @@ export class MarkdownToSlateParser {
           }
           (result.otherProps as any).target = '_blank';
           (result.otherProps as any).rel = 'noopener noreferrer';
-          (result.otherProps as any).finished = finished;
+          if (finished === false) {
+            (result.otherProps as any).finished = finished;
+          }
         }
       } catch {
         result.url = currentElement?.url;

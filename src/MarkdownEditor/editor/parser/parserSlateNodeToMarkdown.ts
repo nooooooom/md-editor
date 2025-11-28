@@ -312,6 +312,7 @@ export const parserSlateNodeToMarkdown = (
 
       delete configProps['columns'];
       delete configProps['dataSource'];
+      delete configProps['finished'];
 
       if (node.type === 'link-card') {
         configProps.type = 'card';
@@ -337,12 +338,31 @@ export const parserSlateNodeToMarkdown = (
       });
 
       // 只有当 configProps 不为空对象时才生成注释
-      if (Object.keys(configProps).length > 0) {
-        const propsToSerialize =
+      // 检查 configProps 是否为空对象（删除 finished 后可能变成空对象）
+      const hasValidProps = Object.keys(configProps).length > 0;
+      if (hasValidProps) {
+        const nodeConfig =
           node.type === 'chart' && configProps.config
             ? configProps.config
             : configProps;
-        str += `<!--${JSON.stringify(propsToSerialize)}-->\n`;
+        // 过滤掉 undefined 值，但保留 false 值
+        const propsToSerialize = Object.keys(nodeConfig).reduce(
+          (acc, key) => {
+            if (nodeConfig[key] !== undefined) {
+              acc[key] = nodeConfig[key];
+            }
+            return acc;
+          },
+          {} as Record<string, any>,
+        );
+        if (
+          propsToSerialize &&
+          typeof propsToSerialize === 'object' &&
+          !Array.isArray(propsToSerialize) &&
+          Object.keys(propsToSerialize).length > 0
+        ) {
+          str += `<!--${JSON.stringify(propsToSerialize)}-->\n`;
+        }
       }
     }
     const p = parent.at(-1) || ({} as any);

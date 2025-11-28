@@ -105,12 +105,25 @@ export const handleCode = (currentElement: any): CodeElement => {
     }
   }
 
-  // 如果已经在 parseNodes 中设置了 finish（基于是否是最后一个节点），优先使用它
+  // 如果已经在 parseNodes 中设置了 finished（基于是否是最后一个节点），优先使用它
   // 否则使用 streamStatus 判断
   const finishValue =
-    currentElement.otherProps?.finish !== undefined
-      ? currentElement.otherProps.finish
+    currentElement.otherProps?.finished !== undefined
+      ? currentElement.otherProps.finished
       : streamStatus === 'done';
+
+  const otherProps = {
+    ...(currentElement.otherProps || {}),
+    'data-block': 'true',
+    'data-state': streamStatus,
+    // 优先使用 parseNodes 中设置的 finish，否则使用 streamStatus 判断
+    finished: finishValue,
+    ...(langString ? { 'data-language': langString } : {}),
+  };
+
+  if (finishValue !== false) {
+    delete otherProps.finished;
+  }
 
   const baseCodeElement: CodeElement = {
     type: 'code',
@@ -121,14 +134,7 @@ export const handleCode = (currentElement: any): CodeElement => {
     isConfig: currentElement?.value.trim()?.startsWith('<!--'),
     children: [{ text: currentElement.value }],
     // 添加流式状态支持
-    otherProps: {
-      ...(currentElement.otherProps || {}),
-      'data-block': 'true',
-      'data-state': streamStatus,
-      // 优先使用 parseNodes 中设置的 finish，否则使用 streamStatus 判断
-      finish: finishValue,
-      ...(langString ? { 'data-language': langString } : {}),
-    },
+    otherProps,
   };
 
   const handler =

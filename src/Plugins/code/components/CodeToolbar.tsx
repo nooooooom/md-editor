@@ -90,8 +90,8 @@ export const CodeToolbar = (props: CodeToolbarProps) => {
 
   // 检查代码块是否未闭合 - 使用 useMemo 确保正确响应变化
   const isUnclosed = useMemo(() => {
-    return element?.otherProps?.finish === false;
-  }, [element?.otherProps?.finish]);
+    return element?.otherProps?.finished === false;
+  }, [element?.otherProps?.finished]);
 
   return (
     <div
