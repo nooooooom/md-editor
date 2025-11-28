@@ -235,6 +235,23 @@ const findAttachment = (str: string) => {
   }
 };
 
+/**
+ * 设置节点的 finished 属性
+ */
+const setFinishedProp = (leaf: CustomLeaf, finished: any): CustomLeaf => {
+  if (finished === undefined) {
+    return leaf;
+  }
+
+  return {
+    ...leaf,
+    otherProps: {
+      ...leaf.otherProps,
+      finished,
+    },
+  };
+};
+
 const parseText = (
   els: RootContent[],
   leaf: CustomLeaf = {
@@ -244,54 +261,56 @@ const parseText = (
   let leafs: CustomLeaf[] = [];
   for (let n of els) {
     if (n.type === 'strong') {
-      const strongLeaf = { ...leaf, bold: true };
-      // 如果 strong 节点有 finished 属性，传递到文本节点
-      if ((n as any).finished !== undefined) {
-        if (!strongLeaf.otherProps) {
-          strongLeaf.otherProps = {};
-        }
-        (strongLeaf.otherProps as any).finished = (n as any).finished;
-      }
+      const strongLeaf = setFinishedProp(
+        { ...leaf, bold: true },
+        (n as any).finished,
+      );
       leafs = leafs.concat(parseText(n.children, strongLeaf));
+      continue;
     }
+
     if (n.type === 'emphasis') {
-      const emphasisLeaf = { ...leaf, italic: true };
-      // 如果 emphasis 节点有 finished 属性，传递到文本节点
-      if ((n as any).finished !== undefined) {
-        if (!emphasisLeaf.otherProps) {
-          emphasisLeaf.otherProps = {};
-        }
-        (emphasisLeaf.otherProps as any).finished = (n as any).finished;
-      }
+      const emphasisLeaf = setFinishedProp(
+        { ...leaf, italic: true },
+        (n as any).finished,
+      );
       leafs = leafs.concat(parseText(n.children, emphasisLeaf));
+      continue;
     }
-    if (n.type === 'delete')
+
+    if (n.type === 'delete') {
       leafs = leafs.concat(
         parseText(n.children, { ...leaf, strikethrough: true }),
       );
+      continue;
+    }
+
     if (n.type === 'link') {
       const linkLeaf = { ...leaf, url: n?.url };
       leafs = leafs.concat(parseText(n.children, linkLeaf));
+      continue;
     }
-    if (n.type === 'inlineCode')
+
+    if (n.type === 'inlineCode') {
       leafs.push({ ...leaf, text: (n as any).value, code: true });
+      continue;
+    }
+
     if (n.type === 'inlineMath') {
       const inlineMathValue =
-        typeof (n as any).value === 'string'
-          ? ((n as any).value as string)
-          : '';
+        typeof (n as any).value === 'string' ? (n as any).value : '';
       if (shouldTreatInlineMathAsText(inlineMathValue)) {
         leafs.push({ ...leaf, text: `$${inlineMathValue}$` });
-        continue;
+      } else {
+        leafs.push({
+          ...leaf,
+          type: 'inline-katex',
+          children: [{ text: inlineMathValue }],
+        } as any);
       }
-      // 处理内联数学公式，返回一个特殊的节点而不是叶子节点
-      leafs.push({
-        ...leaf,
-        type: 'inline-katex',
-        children: [{ text: inlineMathValue }],
-      } as any);
-      continue; // 跳过后面的默认处理
+      continue;
     }
+
     // @ts-ignore
     leafs.push({ ...leaf, text: (n as any).value || '' });
   }
@@ -333,6 +352,129 @@ export const decodeURIComponentUrl = (url: string) => {
 };
 
 /**
+ * 解析 HTML 注释中的上下文属性
+ */
+const parseCommentContextProps = (
+  value: string,
+  processedValue: string,
+): any => {
+  const isComment =
+    value &&
+    processedValue?.trim()?.endsWith('-->') &&
+    processedValue.trim()?.startsWith('<!--');
+
+  if (!isComment) {
+    return {};
+  }
+
+  try {
+    return json5.parse(value);
+  } catch (e) {
+    try {
+      return partialJsonParse(value);
+    } catch (parseError) {
+      console.warn('Failed to parse HTML comment as JSON or partial JSON:', {
+        value,
+        error: parseError,
+      });
+    }
+    console.warn('HTML comment parse fallback attempted:', e);
+  }
+  return {};
+};
+
+/**
+ * 处理块级 HTML 元素
+ */
+const handleBlockHtml = (
+  currentElement: any,
+  processedValue: string,
+  isUnclosedComment: boolean,
+): any => {
+  const thinkElement = findThinkElement(currentElement.value);
+  if (thinkElement) {
+    return {
+      type: 'code',
+      language: 'think',
+      value: thinkElement.content,
+      children: [{ text: thinkElement.content }],
+    };
+  }
+
+  const answerElement = findAnswerElement(currentElement.value);
+  if (answerElement) {
+    return { text: answerElement.content };
+  }
+
+  const mediaElement = findImageElement(currentElement.value);
+  if (mediaElement) {
+    return createMediaNodeFromElement(mediaElement);
+  }
+
+  if (currentElement.value === '<br/>') {
+    return { type: 'paragraph', children: [{ text: '' }] };
+  }
+
+  if (currentElement.value.match(/^<\/(img|video|iframe)>/)) {
+    return null;
+  }
+
+  const commentValue = isUnclosedComment
+    ? processedValue
+    : currentElement.value;
+  const isComment =
+    commentValue.trim().startsWith('<!--') &&
+    commentValue.trim().endsWith('-->');
+
+  if (isComment || isStandardHtmlElement(commentValue)) {
+    return commentValue.match(/<\/?(table|div|ul|li|ol|p|strong)[^\n>]*?>/)
+      ? htmlToFragmentList(commentValue, '')
+      : {
+          type: 'code',
+          language: 'html',
+          render: true,
+          value: commentValue,
+          children: [{ text: commentValue }],
+        };
+  }
+
+  return { text: currentElement.value };
+};
+
+/**
+ * 应用元素配置属性（纯函数版本）
+ */
+const applyElementConfig = (
+  el: any,
+  contextProps: any,
+  processedValue: string,
+  isUnclosedComment: boolean,
+  currentElement: any,
+): any => {
+  if (!el || Array.isArray(el)) {
+    return el;
+  }
+
+  const isPlainText = 'text' in el && Object.keys(el).length === 1;
+  if (isPlainText) {
+    return el;
+  }
+
+  const valueToCheck = isUnclosedComment
+    ? processedValue
+    : currentElement?.value;
+
+  return {
+    ...el,
+    isConfig: valueToCheck?.trim()?.startsWith('<!--'),
+    otherProps: {
+      ...contextProps,
+      finish: !isUnclosedComment,
+    },
+  };
+};
+
+/**
  * 处理HTML节点
  * @param currentElement - 当前处理的HTML元素
  * @param parent - 父级元素，用于判断上下文
@@ -340,228 +482,179 @@ export const decodeURIComponentUrl = (url: string) => {
  * @returns 返回包含解析后元素和上下文属性的对象
  */
 const handleHtml = (currentElement: any, parent: any, htmlTag: any[]) => {
-  // 检查是否为未闭合的 HTML 注释（只有 <!-- 而没有 -->）
   const trimmedValue = currentElement?.value?.trim() || '';
   const isUnclosedComment =
     trimmedValue.startsWith('<!--') && !trimmedValue.endsWith('-->');
 
-  // 如果是未闭合的注释，自动补全闭合标签
-  let processedValue = currentElement?.value || '';
-  if (isUnclosedComment) {
-    processedValue = trimmedValue + '-->';
-  }
+  const processedValue = isUnclosedComment
+    ? trimmedValue + '-->'
+    : currentElement?.value || '';
 
   const value =
     processedValue?.replace('<!--', '').replace('-->', '').trim() || '{}';
 
-  let contextProps = {};
-  if (
-    value &&
-    processedValue?.trim()?.endsWith('-->') &&
-    processedValue.trim()?.startsWith('<!--')
-  ) {
-    try {
-      contextProps = json5.parse(value);
-    } catch (e) {
-      try {
-        contextProps = partialJsonParse(value);
-      } catch (parseError) {
-        console.warn('Failed to parse HTML comment as JSON or partial JSON:', {
-          value,
-          error: parseError,
-        });
-      }
-      console.warn('HTML comment parse fallback attempted:', e);
-    }
-  }
+  const contextProps = parseCommentContextProps(value, processedValue);
+
+  const isBlockLevel =
+    !parent || ['listItem', 'blockquote'].includes(parent.type);
 
   let el: any;
-  if (!parent || ['listItem', 'blockquote'].includes(parent.type)) {
-    // 检查是否为 <think> 标签
-    const thinkElement = findThinkElement(currentElement.value);
-    if (thinkElement) {
-      // 将 <think> 标签转换为 think 类型的代码块
-      el = {
-        type: 'code',
-        language: 'think',
-        value: thinkElement.content,
-        children: [
-          {
-            text: thinkElement.content,
-          },
-        ],
-      };
-    } else {
-      // 检查是否为 <answer> 标签
-      const answerElement = findAnswerElement(currentElement.value);
-      if (answerElement) {
-        // 将 <answer> 标签的内容作为普通文本
-        el = { text: answerElement.content };
-      } else {
-        const mediaElement = findImageElement(currentElement.value);
-        if (mediaElement) {
-          el = createMediaNodeFromElement(mediaElement);
-        } else if (currentElement.value === '<br/>') {
-          el = { type: 'paragraph', children: [{ text: '' }] };
-        } else if (currentElement.value.match(/^<\/(img|video|iframe)>/)) {
-          // 如果是媒体标签的结束标签，跳过处理
-          el = null;
-        } else {
-          // 检查是否为注释（注释需要特殊处理以提取配置）
-          // 使用处理后的值进行判断
-          const commentValue = isUnclosedComment
-            ? processedValue
-            : currentElement.value;
-          const isComment =
-            commentValue.trim().startsWith('<!--') &&
-            commentValue.trim().endsWith('-->');
+  let updatedHtmlTag = htmlTag;
 
-          // 检查是否为标准 HTML 元素或注释
-          if (isComment || isStandardHtmlElement(commentValue)) {
-            // 标准 HTML 元素或注释：按原逻辑处理
-            el = commentValue.match(
-              /<\/?(table|div|ul|li|ol|p|strong)[^\n>]*?>/,
-            )
-              ? htmlToFragmentList(commentValue, '')
-              : {
-                  type: 'code',
-                  language: 'html',
-                  render: true,
-                  value: commentValue,
-                  children: [
-                    {
-                      text: commentValue,
-                    },
-                  ],
-                };
-          } else {
-            // 非标准元素（如自定义标签）：当作普通文本处理
-            el = { text: currentElement.value };
-          }
-        }
-      }
-    }
+  if (isBlockLevel) {
+    el = handleBlockHtml(currentElement, processedValue, isUnclosedComment);
   } else {
-    el = processInlineHtml(currentElement, htmlTag);
+    const inlineResult = processInlineHtml(currentElement, htmlTag);
+    el = inlineResult.el;
+    updatedHtmlTag = inlineResult.htmlTag;
   }
 
-  if (el && !Array.isArray(el)) {
-    // 只有非文本节点才设置 isConfig 和 otherProps
-    if (!('text' in el && Object.keys(el).length === 1)) {
-      // 使用处理后的值判断是否为配置注释
-      const valueToCheck = isUnclosedComment
-        ? processedValue
-        : currentElement?.value;
-      el.isConfig = valueToCheck?.trim()?.startsWith('<!--');
-      el.otherProps = contextProps;
-      el.otherProps.finish = isUnclosedComment ? false : true;
-    }
-  }
-
-  return { el, contextProps };
-};
-
-/**
- * 处理内联HTML元素
- * @param currentElement - 当前处理的HTML元素
- * @param htmlTag - HTML标签栈
- * @returns 返回处理后的元素对象，如果是标签则返回null
- */
-const processInlineHtml = (currentElement: any, htmlTag: any[]) => {
-  const breakMatch = currentElement.value.match(/<br\/?>/);
-  if (breakMatch) {
-    return { type: 'break', children: [{ text: '\n' }] };
-  }
-
-  // 检查是否为 <answer> 标签（内联场景）
-  const answerElement = findAnswerElement(currentElement.value);
-  if (answerElement) {
-    // 将 <answer> 标签的内容作为普通文本
-    return { text: answerElement.content };
-  }
-
-  // 检查是否为非标准 HTML 元素，如果是则直接当作文本
-  if (!isStandardHtmlElement(currentElement.value)) {
-    return { text: currentElement.value };
-  }
-
-  const htmlMatch = currentElement.value.match(
-    /<\/?(b|i|del|font|code|span|sup|sub|strong|a)[^\n>]*?>/,
+  const configuredEl = applyElementConfig(
+    el,
+    contextProps,
+    processedValue,
+    isUnclosedComment,
+    currentElement,
   );
 
-  if (htmlMatch) {
-    const [str, tag] = htmlMatch;
-    if (
-      str.startsWith('</') &&
-      htmlTag.length &&
-      htmlTag[htmlTag.length - 1].tag === tag
-    ) {
-      htmlTag.pop();
-    }
-    if (!str.startsWith('</')) {
-      processHtmlTag(str, tag, htmlTag);
-    }
-    return null;
-  } else {
-    const mediaElement = findImageElement(currentElement.value);
-    if (mediaElement) {
-      return createMediaNodeFromElement(mediaElement);
-    } else {
-      return { text: currentElement.value };
-    }
-  }
+  return { el: configuredEl, contextProps, htmlTag: updatedHtmlTag };
 };
 
 /**
- * 处理HTML标签并添加到标签栈中
+ * 处理内联HTML元素（纯函数版本）
+ * @param currentElement - 当前处理的HTML元素
+ * @param htmlTag - HTML标签栈
+ * @returns 返回处理后的元素对象和新的标签栈，如果是标签则返回null
+ */
+const processInlineHtml = (
+  currentElement: any,
+  htmlTag: any[],
+): { el: any; htmlTag: any[] } => {
+  const value = currentElement.value;
+
+  if (value.match(/<br\/?>/)) {
+    return { el: { type: 'break', children: [{ text: '\n' }] }, htmlTag };
+  }
+
+  const answerElement = findAnswerElement(value);
+  if (answerElement) {
+    return { el: { text: answerElement.content }, htmlTag };
+  }
+
+  if (!isStandardHtmlElement(value)) {
+    return { el: { text: value }, htmlTag };
+  }
+
+  const htmlMatch = value.match(
+    /<\/?(b|i|del|font|code|span|sup|sub|strong|a)[^\n>]*?>/,
+  );
+  if (htmlMatch) {
+    const [str, tag] = htmlMatch;
+    const isClosingTag = str.startsWith('</');
+    const isMatchingTag =
+      isClosingTag && htmlTag.length && htmlTag[htmlTag.length - 1].tag === tag;
+
+    let newHtmlTag = htmlTag;
+    if (isMatchingTag) {
+      newHtmlTag = htmlTag.slice(0, -1);
+    }
+    if (!isClosingTag) {
+      newHtmlTag = processHtmlTag(str, tag, newHtmlTag);
+    }
+    return { el: null, htmlTag: newHtmlTag };
+  }
+
+  const mediaElement = findImageElement(value);
+  return {
+    el: mediaElement
+      ? createMediaNodeFromElement(mediaElement)
+      : { text: value },
+    htmlTag,
+  };
+};
+
+/**
+ * 处理 span 标签的样式属性（纯函数版本）
+ */
+const processSpanTag = (str: string, tag: string, htmlTag: any[]): any[] => {
+  try {
+    const styles = str.match(/style="([^"\n]+)"/);
+    if (!styles) {
+      return htmlTag;
+    }
+
+    const stylesMap = new Map(
+      styles[1]
+        .split(';')
+        .map((item: string) =>
+          item.split(':').map((item: string) => item.trim()),
+        ) as [string, string][],
+    );
+
+    const color = stylesMap.get('color');
+    if (color) {
+      return [...htmlTag, { tag, color }];
+    }
+  } catch (e) {
+    console.warn('Failed to parse span style attribute:', { str, error: e });
+  }
+  return htmlTag;
+};
+
+/**
+ * 处理 a 标签的链接属性（纯函数版本）
+ */
+const processATag = (str: string, tag: string, htmlTag: any[]): any[] => {
+  const url = str.match(/href="([\w:./_\-#\\]+)"/);
+  if (url) {
+    return [...htmlTag, { tag, url: url[1] }];
+  }
+  return htmlTag;
+};
+
+/**
+ * 处理 font 标签的颜色属性（纯函数版本）
+ */
+const processFontTag = (str: string, tag: string, htmlTag: any[]): any[] => {
+  const colorMatch =
+    str.match(/color="([^"\n]+)"/) || str.match(/color=([^"\n]+)/);
+  if (colorMatch) {
+    return [
+      ...htmlTag,
+      {
+        tag,
+        color: colorMatch[1].replaceAll('>', ''),
+      },
+    ];
+  }
+  return htmlTag;
+};
+
+/**
+ * HTML 标签处理器映射表
+ */
+const htmlTagProcessors: Record<
+  string,
+  (str: string, tag: string, htmlTag: any[]) => any[]
+> = {
+  span: processSpanTag,
+  a: processATag,
+  font: processFontTag,
+};
+
+/**
+ * 处理HTML标签并添加到标签栈中（纯函数版本）
  * @param str - HTML标签字符串
  * @param tag - 标签名称
  * @param htmlTag - HTML标签栈
+ * @returns 返回新的标签栈数组
  */
-const processHtmlTag = (str: string, tag: string, htmlTag: any[]) => {
-  if (tag === 'span') {
-    try {
-      const styles = str.match(/style="([^"\n]+)"/);
-      if (styles) {
-        const stylesMap = new Map(
-          styles[1]
-            .split(';')
-            .map((item: string) =>
-              item.split(':').map((item: string) => item.trim()),
-            ) as [string, string][],
-        );
-        if (stylesMap.get('color')) {
-          htmlTag.push({
-            tag: tag,
-            color: stylesMap.get('color') as string,
-          });
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to parse span style attribute:', { str, error: e });
-    }
-  } else if (tag === 'a') {
-    const url = str.match(/href="([\w:./_\-#\\]+)"/);
-    if (url) {
-      htmlTag.push({
-        tag: tag,
-        url: url[1],
-      });
-    }
-  } else if (tag === 'font') {
-    let color = str.match(/color="([^"\n]+)"/);
-    if (!color) {
-      color = str.match(/color=([^"\n]+)/);
-    }
-    if (color) {
-      htmlTag.push({
-        tag: tag,
-        color: color[1].replaceAll('>', ''),
-      });
-    }
-  } else {
-    htmlTag.push({ tag: tag });
+const processHtmlTag = (str: string, tag: string, htmlTag: any[]): any[] => {
+  const processor = htmlTagProcessors[tag];
+  if (processor) {
+    return processor(str, tag, htmlTag);
   }
+  return [...htmlTag, { tag }];
 };
 
 /**
@@ -685,7 +778,7 @@ const handleFootnoteDefinition = (
 };
 
 /**
- * 处理列表项节点
+ * 处理列表项节点（纯函数版本）
  * @param currentElement - 当前处理的列表项元素
  * @returns 返回格式化的列表项节点对象，包含复选框状态和提及信息
  */
@@ -705,11 +798,13 @@ const handleListItem = (
     : ([{ type: 'paragraph', children: [{ text: '' }] }] as any);
 
   let mentions = undefined;
+  let processedChildren = [...children];
+
   if (
     currentElement.children?.[0]?.children?.[0]?.type === 'link' &&
     currentElement.children?.[0]?.children?.length > 1
   ) {
-    const item = children?.[0]?.children?.[0] as any;
+    const item = processedChildren?.[0]?.children?.[0] as any;
     const label = item?.text;
     if (label) {
       mentions = [
@@ -721,23 +816,43 @@ const handleListItem = (
             undefined,
         },
       ];
-      delete children?.[0]?.children?.[0];
-      if (children?.[0]?.children) {
-        children[0].children = children?.[0]?.children?.filter(Boolean);
+      const firstChild = processedChildren[0];
+      if (firstChild && firstChild.children) {
+        processedChildren = [
+          {
+            ...firstChild,
+            children: firstChild.children.filter(
+              (_: any, idx: number) => idx !== 0,
+            ),
+          },
+          ...processedChildren.slice(1),
+        ];
       }
     }
   }
 
-  if (children[0].type === 'paragraph' && children[0].children[0]?.text) {
-    const text = children[0].children[0]?.text;
+  if (
+    processedChildren[0]?.type === 'paragraph' &&
+    processedChildren[0]?.children?.[0]?.text
+  ) {
+    const text = processedChildren[0].children[0].text;
     const m = text.match(/^\[([x\s])]/);
 
     if (m) {
-      children[0].children[0].text = text.replace(/^\[([x\s])]/, '');
+      const updatedFirstChild = {
+        ...processedChildren[0],
+        children: [
+          {
+            ...processedChildren[0].children[0],
+            text: text.replace(/^\[([x\s])]/, ''),
+          },
+          ...processedChildren[0].children.slice(1),
+        ],
+      };
       return {
         type: 'list-item',
         checked: m ? m[1] === 'x' : undefined,
-        children: children,
+        children: [updatedFirstChild, ...processedChildren.slice(1)],
         mentions,
       };
     }
@@ -746,7 +861,7 @@ const handleListItem = (
   return {
     type: 'list-item',
     checked: currentElement.checked,
-    children: children,
+    children: processedChildren,
     mentions,
   };
 };
@@ -810,6 +925,74 @@ const handleLinkCard = (currentElement: any, config: any) => {
 };
 
 /**
+ * 处理段落中的图片子元素（纯函数版本）
+ */
+const processImageChild = (
+  currentChild: any,
+  textNodes: any[],
+  elements: any[],
+  currentElement: any,
+  plugins: MarkdownEditorPlugin[],
+  parserConfig?: ParserMarkdownToSlateNodeConfig,
+): { elements: any[]; textNodes: any[] } => {
+  let newElements = [...elements];
+  let newTextNodes = [...textNodes];
+
+  if (textNodes.length) {
+    newElements.push({
+      type: 'paragraph',
+      children: parseNodes(
+        textNodes,
+        plugins,
+        false,
+        currentElement,
+        parserConfig,
+      ),
+    });
+    newTextNodes = [];
+  }
+
+  newElements.push(
+    EditorUtils.createMediaNode(
+      decodeURIComponentUrl(currentChild?.url),
+      'image',
+      {
+        alt: currentChild.alt,
+        finished: currentChild.finished,
+      },
+    ),
+  );
+
+  return { elements: newElements, textNodes: newTextNodes };
+};
+
+/**
+ * 处理段落中的 HTML 子元素（纯函数版本）
+ */
+const processHtmlChild = (
+  currentChild: any,
+  textNodes: any[],
+  elements: any[],
+): { elements: any[]; textNodes: any[] } => {
+  if (currentChild.value.match(/^<\/(img|video|iframe)>/)) {
+    return { elements, textNodes };
+  }
+
+  const mediaElement = findImageElement(currentChild.value);
+  if (mediaElement) {
+    const node = createMediaNodeFromElement(mediaElement);
+    if (node) {
+      return { elements: [...elements, node], textNodes };
+    }
+  }
+
+  return {
+    elements,
+    textNodes: [...textNodes, { type: 'html', value: currentChild.value }],
+  };
+};
+
+/**
  * 处理段落中的子元素
  */
 const processParagraphChildren = (
@@ -817,57 +1000,30 @@ const processParagraphChildren = (
   plugins: MarkdownEditorPlugin[],
   parserConfig?: ParserMarkdownToSlateNodeConfig,
 ) => {
-  const elements = [];
+  let elements: any[] = [];
   let textNodes: any[] = [];
 
   for (let currentChild of currentElement.children || []) {
     if (currentChild.type === 'image') {
-      // 将累积的文本节点生成段落
-      if (textNodes.length) {
-        elements.push({
-          type: 'paragraph',
-          children: parseNodes(
-            textNodes,
-            plugins,
-            false,
-            currentElement,
-            parserConfig,
-          ),
-        });
-        textNodes = [];
-      }
-      // 添加图片节点
-      elements.push(
-        EditorUtils.createMediaNode(
-          decodeURIComponentUrl(currentChild?.url),
-          'image',
-          {
-            alt: currentChild.alt,
-            finished: currentChild.finished,
-          },
-        ),
+      const result = processImageChild(
+        currentChild,
+        textNodes,
+        elements,
+        currentElement,
+        plugins,
+        parserConfig,
       );
+      elements = result.elements;
+      textNodes = result.textNodes;
     } else if (currentChild.type === 'html') {
-      // 跳过媒体标签的结束标签
-      if (currentChild.value.match(/^<\/(img|video|iframe)>/)) {
-        continue;
-      }
-
-      const mediaElement = findImageElement(currentChild.value);
-      if (mediaElement) {
-        const node = createMediaNodeFromElement(mediaElement);
-        if (node) {
-          elements.push(node);
-        }
-      } else {
-        textNodes.push({ type: 'html', value: currentChild.value });
-      }
+      const result = processHtmlChild(currentChild, textNodes, elements);
+      elements = result.elements;
+      textNodes = result.textNodes;
     } else {
-      textNodes.push(currentChild);
+      textNodes = [...textNodes, currentChild];
     }
   }
 
-  // 处理剩余的文本节点
   if (textNodes.length) {
     elements.push({
       type: 'paragraph',
@@ -876,7 +1032,7 @@ const processParagraphChildren = (
         plugins,
         false,
         currentElement,
-        undefined, // parserConfig not available in processParagraphChildren
+        undefined,
       ),
     });
   }
@@ -1002,88 +1158,184 @@ const handleDefinition = (currentElement: any) => {
 };
 
 /**
- * 应用HTML标签样式到元素
+ * 应用HTML标签样式到元素（纯函数版本）
  * @param el - 目标元素对象
  * @param htmlTag - HTML标签数组，包含样式信息
+ * @returns 返回应用了样式的新元素对象
  */
-const applyHtmlTagsToElement = (el: any, htmlTag: any[]) => {
+const applyHtmlTagsToElement = (el: any, htmlTag: any[]): any => {
+  if (!htmlTag.length) {
+    return el;
+  }
+
+  const result = { ...el };
+
   for (let t of htmlTag) {
     if (t.tag === 'font') {
-      el.color = t.color;
+      result.color = t.color;
     }
-    if (t.tag === 'sup') el.identifier = el.text;
-    if (t.tag === 'sub') el.identifier = el.text;
-    if (t.tag === 'code') el.code = true;
-    if (t.tag === 'i') el.italic = true;
-    if (t.tag === 'b' || t.tag === 'strong') el.bold = true;
-    if (t.tag === 'del') el.strikethrough = true;
-    if ((t.tag === 'span' || t.tag === 'font') && t.color)
-      el.highColor = t.color;
+    if (t.tag === 'sup') result.identifier = el.text;
+    if (t.tag === 'sub') result.identifier = el.text;
+    if (t.tag === 'code') result.code = true;
+    if (t.tag === 'i') result.italic = true;
+    if (t.tag === 'b' || t.tag === 'strong') result.bold = true;
+    if (t.tag === 'del') result.strikethrough = true;
+    if ((t.tag === 'span' || t.tag === 'font') && t.color) {
+      result.highColor = t.color;
+    }
     if (t.tag === 'a' && t?.url) {
-      el.url = t?.url;
+      result.url = t?.url;
     }
   }
+
+  return result;
 };
 
 /**
- * 应用上下文属性和配置到元素
+ * 处理文本和内联元素节点（纯函数版本）
+ * @param currentElement - 当前处理的元素
+ * @param htmlTag - HTML标签数组
+ * @param applyInlineFormattingFn - 应用内联格式的函数
+ * @param parseNodesFn - 解析节点的函数
+ * @returns 处理后的元素对象
+ */
+const handleTextAndInlineElementsPure = (
+  currentElement: any,
+  htmlTag: any[],
+  applyInlineFormattingFn: (leaf: CustomLeaf, element: any) => CustomLeaf,
+  parseNodesFn: (children: any[], top: boolean, parent: any) => any[],
+): any => {
+  const elementType = currentElement.type;
+
+  // 处理文本节点
+  if (elementType === 'text') {
+    const el = { text: currentElement.value };
+    return htmlTag.length > 0 && currentElement.value
+      ? applyHtmlTagsToElement(el, htmlTag)
+      : el;
+  }
+
+  // 处理换行
+  if (elementType === 'break') {
+    return { text: '\n' };
+  }
+
+  // 处理内联元素（strong, link, emphasis, delete, inlineCode）
+  const inlineElementTypes = [
+    'strong',
+    'link',
+    'emphasis',
+    'delete',
+    'inlineCode',
+  ];
+  if (inlineElementTypes.includes(elementType)) {
+    const leaf: CustomLeaf = {
+      otherProps: {
+        finished: (currentElement as any).finished,
+      },
+    };
+    const formattedLeaf = applyInlineFormattingFn(leaf, currentElement);
+    const leafWithHtmlTags = applyHtmlTagsToElement(formattedLeaf, htmlTag);
+
+    const hasHtmlChildren = (currentElement as any)?.children?.some(
+      (n: any) => n.type === 'html',
+    );
+
+    return hasHtmlChildren
+      ? {
+          ...parseNodesFn(
+            (currentElement as any)?.children,
+            false,
+            currentElement,
+          )?.at(0),
+          url: leafWithHtmlTags.url,
+        }
+      : parseText(
+          currentElement.children?.length
+            ? currentElement.children
+            : [{ value: leafWithHtmlTags?.url || '' }],
+          leafWithHtmlTags,
+        );
+  }
+
+  // 默认返回空文本
+  return { text: '' };
+};
+
+/**
+ * 应用上下文属性和配置到元素（纯函数版本）
  * @param el - 目标元素或元素数组
  * @param contextProps - 上下文属性对象
  * @param config - 配置对象
- * @returns 返回应用了属性和配置的元素
+ * @returns 返回应用了属性和配置的新元素
  */
 const applyContextPropsAndConfig = (
   el: any,
   contextProps: any,
   config: any,
 ) => {
+  const hasContextProps = Object.keys(contextProps || {}).length > 0;
+  const hasConfig = Object.keys(config || {}).length > 0;
+
   if (Array.isArray(el)) {
     return (el as Element[]).map((item) => {
-      if (Object.keys(contextProps || {}).length) {
-        item.contextProps = contextProps;
+      const result = { ...item };
+      if (hasContextProps) {
+        result.contextProps = contextProps;
       }
-      if (Object.keys(config || {}).length && !item.otherProps) {
-        item.otherProps = config;
+      if (hasConfig && !item.otherProps) {
+        result.otherProps = config;
       }
-      return item;
+      return result;
     }) as Element[];
-  } else {
-    if (Object.keys(contextProps || {}).length) {
-      el.contextProps = contextProps;
-    }
-    if (Object.keys(config || {}).length && !el.otherProps) {
-      el.otherProps = config;
-    }
-    return el;
   }
+
+  const result = { ...el };
+  if (hasContextProps) {
+    result.contextProps = contextProps;
+  }
+  if (hasConfig && !el.otherProps) {
+    result.otherProps = config;
+  }
+  return result;
 };
 
 /**
- * 根据行间距添加空行元素
+ * 根据行间距添加空行元素（纯函数版本）
  * @param els - 目标元素数组
  * @param preNode - 前一个节点
  * @param currentElement - 当前处理的元素
  * @param top - 是否为顶级解析
+ * @returns 返回添加了空行元素的新数组
  */
 const addEmptyLinesIfNeeded = (
   els: any[],
   preNode: any,
   currentElement: any,
   top: boolean,
-) => {
-  if (preNode && top) {
-    const distance =
-      (currentElement.position?.start.line || 0) -
-      (preNode.position?.end.line || 0);
-    if (distance >= EMPTY_LINE_DISTANCE_THRESHOLD) {
-      const lines = Math.floor(
-        (distance - EMPTY_LINE_CALCULATION_OFFSET) / EMPTY_LINE_DIVISOR,
-      );
-      Array.from(new Array(lines)).forEach(() => {
-        els.push({ type: 'paragraph', children: [{ text: '' }] });
-      });
-    }
+): any[] => {
+  if (!preNode || !top) {
+    return els;
   }
+
+  const distance =
+    (currentElement.position?.start.line || 0) -
+    (preNode.position?.end.line || 0);
+
+  if (distance < EMPTY_LINE_DISTANCE_THRESHOLD) {
+    return els;
+  }
+
+  const lines = Math.floor(
+    (distance - EMPTY_LINE_CALCULATION_OFFSET) / EMPTY_LINE_DIVISOR,
+  );
+
+  const emptyLines = Array.from({ length: lines }, () => ({
+    type: 'paragraph',
+    children: [{ text: '' }],
+  }));
+
+  return [...els, ...emptyLines];
 };
 
 /**
@@ -1500,11 +1752,11 @@ export class MarkdownToSlateParser {
         }
       }
 
-      addEmptyLinesIfNeeded(els, preNode, currentElement, top);
+      els = addEmptyLinesIfNeeded(els, preNode, currentElement, top);
 
       if (el) {
         el = applyContextPropsAndConfig(el, contextProps, config);
-        Array.isArray(el) ? els.push(...el) : els.push(el);
+        els = Array.isArray(el) ? [...els, ...el] : [...els, el];
       }
 
       preNode = currentElement;
@@ -1527,7 +1779,6 @@ export class MarkdownToSlateParser {
     const elementType = currentElement.type;
     const handlerInfo = elementHandlers[elementType];
 
-    // 特殊处理 html 类型
     if (handlerInfo?.needsHtmlResult) {
       const htmlResult = handleHtml(currentElement, parent, htmlTag);
       return {
@@ -1536,54 +1787,48 @@ export class MarkdownToSlateParser {
       };
     }
 
-    // 使用处理器映射表
-    // 对于需要 parserConfig 的处理器，直接调用而不是通过 handler
-    if (handlerInfo) {
-      let handlerResult: Element | Element[] | null;
+    if (!handlerInfo) {
+      return {
+        el: this.handleTextAndInlineElements(currentElement, htmlTag),
+      };
+    }
 
-      // 特殊处理需要 parserConfig 的处理器，使用 this.config 和 this.plugins
-      if (elementType === 'heading') {
-        handlerResult = this.handleHeading(currentElement);
-      } else if (elementType === 'list') {
-        handlerResult = this.handleList(currentElement);
-      } else if (elementType === 'listItem') {
-        handlerResult = this.handleListItem(currentElement);
-      } else if (elementType === 'blockquote') {
-        handlerResult = this.handleBlockquote(currentElement);
-      } else if (elementType === 'footnoteDefinition') {
-        handlerResult = this.handleFootnoteDefinition(currentElement);
-      } else if (elementType === 'paragraph') {
-        handlerResult = this.handleParagraph(currentElement, config);
-      } else if (elementType === 'table') {
-        handlerResult = parseTableOrChart(
-          currentElement,
+    const classMethodHandlers: Record<
+      string,
+      (element: any) => Element | Element[] | null
+    > = {
+      heading: (el) => this.handleHeading(el),
+      list: (el) => this.handleList(el),
+      listItem: (el) => this.handleListItem(el),
+      blockquote: (el) => this.handleBlockquote(el),
+      footnoteDefinition: (el) => this.handleFootnoteDefinition(el),
+      paragraph: (el) => this.handleParagraph(el, config),
+      table: (el) =>
+        parseTableOrChart(
+          el,
           preElement || (parent as any),
           this.plugins,
           (nodes, plugins, top, parentNode) =>
             this.parseNodes(nodes, top, parentNode),
           this.config,
-        );
-      } else {
-        // 使用默认的 handler 调用
-        handlerResult = handlerInfo.handler(
-          currentElement,
-          this.plugins,
-          config,
-          parent,
-          htmlTag,
-          preElement,
-        );
-      }
+        ),
+    };
 
-      return {
-        el: handlerResult,
-      };
+    const classMethodHandler = classMethodHandlers[elementType];
+    if (classMethodHandler) {
+      return { el: classMethodHandler(currentElement) };
     }
 
-    // 默认处理
-    return {
-      el: this.handleTextAndInlineElements(currentElement, htmlTag),
-    };
+    const handlerResult = handlerInfo.handler(
+      currentElement,
+      this.plugins,
+      config,
+      parent,
+      htmlTag,
+      preElement,
+    );
+
+    return { el: handlerResult };
   }
 
   /**
@@ -1772,103 +2017,58 @@ export class MarkdownToSlateParser {
    * 处理文本和内联元素节点（类方法版本）
    */
   private handleTextAndInlineElements(currentElement: any, htmlTag: any[]) {
-    if (currentElement.type === 'text' && htmlTag.length) {
-      const el = { text: currentElement.value };
-      if (currentElement.value) {
-        applyHtmlTagsToElement(el, htmlTag);
-      }
-      return el;
-    }
-
-    if (
-      ['strong', 'link', 'text', 'emphasis', 'delete', 'inlineCode'].includes(
-        currentElement.type,
-      )
-    ) {
-      if (currentElement.type === 'text') {
-        return { text: currentElement.value };
-      }
-
-      const leaf: CustomLeaf = {
-        otherProps: {
-          finished: (currentElement as any).finished,
-        },
-      };
-      this.applyInlineFormatting(leaf, currentElement);
-      applyHtmlTagsToElement(leaf, htmlTag);
-
-      if (
-        (currentElement as any)?.children?.some((n: any) => n.type === 'html')
-      ) {
-        return {
-          ...this.parseNodes(
-            (currentElement as any)?.children,
-            false,
-            currentElement,
-          )?.at(0),
-          url: leaf.url,
-        };
-      } else {
-        return parseText(
-          currentElement.children?.length
-            ? currentElement.children
-            : [{ value: leaf?.url || '' }],
-          leaf,
-        );
-      }
-    }
-    if (currentElement.type === 'break') {
-      return { text: '\n' };
-    }
-
-    return { text: '' };
+    return handleTextAndInlineElementsPure(
+      currentElement,
+      htmlTag,
+      (leaf, element) => this.applyInlineFormatting(leaf, element),
+      (children, top, parent) => this.parseNodes(children, top, parent),
+    );
   }
 
   /**
    * 应用内联格式到叶子节点（类方法版本）
    */
-  private applyInlineFormatting(leaf: CustomLeaf, currentElement: any) {
-    if (currentElement.type === 'strong') {
-      leaf.bold = true;
-      // 如果 strong 节点有 finished 属性，传递到文本节点
-      if ((currentElement as any).finished !== undefined) {
-        if (!leaf.otherProps) {
-          leaf.otherProps = {};
-        }
-        (leaf.otherProps as any).finished = (currentElement as any).finished;
-      }
+  private applyInlineFormatting(
+    leaf: CustomLeaf,
+    currentElement: any,
+  ): CustomLeaf {
+    const result: CustomLeaf = { ...leaf };
+    const elementType = currentElement.type;
+    const finished = (currentElement as any).finished;
+
+    if (elementType === 'strong') {
+      return setFinishedProp({ ...result, bold: true }, finished);
     }
-    if (currentElement.type === 'emphasis') {
-      leaf.italic = true;
-      // 如果 emphasis 节点有 finished 属性，传递到文本节点
-      if ((currentElement as any).finished !== undefined) {
-        if (!leaf.otherProps) {
-          leaf.otherProps = {};
-        }
-        (leaf.otherProps as any).finished = (currentElement as any).finished;
-      }
+
+    if (elementType === 'emphasis') {
+      return setFinishedProp({ ...result, italic: true }, finished);
     }
-    if (currentElement.type === 'delete') leaf.strikethrough = true;
-    if (currentElement.type === 'link') {
+
+    if (elementType === 'delete') {
+      result.strikethrough = true;
+      return result;
+    }
+
+    if (elementType === 'link') {
       try {
-        leaf.url = currentElement?.url;
-        // 如果配置了在新标签页打开链接，添加 target 和 rel 属性
-        if (
-          this.config?.openLinksInNewTab ||
-          (currentElement as any).finished === false
-        ) {
-          // 使用 otherProps 存储额外的链接属性
-          if (!leaf.otherProps) {
-            leaf.otherProps = {};
+        result.url = currentElement?.url;
+        const shouldOpenInNewTab =
+          this.config?.openLinksInNewTab || finished === false;
+        if (shouldOpenInNewTab) {
+          if (!result.otherProps) {
+            result.otherProps = {};
           }
-          (leaf.otherProps as any).target = '_blank';
-          (leaf.otherProps as any).rel = 'noopener noreferrer';
-          (leaf.otherProps as any).finished = (currentElement as any).finished;
+          (result.otherProps as any).target = '_blank';
+          (result.otherProps as any).rel = 'noopener noreferrer';
+          (result.otherProps as any).finished = finished;
         }
       } catch {
-        leaf.url = currentElement?.url;
+        result.url = currentElement?.url;
       }
+      return result;
     }
+
+    return result;
   }
 }
 
