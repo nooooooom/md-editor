@@ -594,10 +594,19 @@ const textStyle = (t: Text) => {
   if (t.code && !t.tag) {
     str = `\`${str}\``;
   } else if (t.tag) {
-    if ((t as any).value) {
-      str = `\`${`\${placeholder:${(t as any)?.placeholder || '-'},value:${(t as any).value}}` || ''}\``;
+    // 如果是 tag，优先使用 text，如果没有 text 则使用 placeholder
+    if (str && str.trim()) {
+      // 有 text，直接使用 text
+      str = `\`${str}\``;
+    } else if ((t as any).value) {
+      // 有 value，使用 value 和 placeholder
+      str = `\`\${placeholder:${(t as any)?.placeholder || '-'},value:${(t as any).value}}\``;
+    } else if ((t as any).placeholder) {
+      // 没有 text，使用 placeholder
+      str = `\`\${placeholder:${(t as any).placeholder}}\``;
     } else {
-      str = `\`${str || `\${placeholder:${(t as any)?.placeholder || '-'}}` || ''}\``;
+      // 都没有，使用默认值
+      str = `\`\${placeholder:-}\``;
     }
   }
 

@@ -136,6 +136,82 @@ describe('parserMarkdownToSlateNode', () => {
         ],
       });
     });
+
+    it('should handle tag with placeholder', () => {
+      const markdown = 'Select `${placeholder:目标场景}`';
+      const result = parserMarkdownToSlateNode(markdown);
+
+      expect(result.schema).toHaveLength(1);
+      const paragraph = result.schema[0] as any;
+      const tagNode = paragraph.children.find(
+        (child: any) => child?.tag === true,
+      );
+
+      expect(tagNode).toMatchObject({
+        code: true,
+        tag: true,
+        text: ' ',
+        placeholder: '目标场景',
+        initialValue: undefined,
+      });
+    });
+
+    it('should handle tag with initialValue', () => {
+      const markdown = 'Value `${placeholder:目标场景,initialValue:已选择}`';
+      const result = parserMarkdownToSlateNode(markdown);
+
+      expect(result.schema).toHaveLength(1);
+      const paragraph = result.schema[0] as any;
+      const tagNode = paragraph.children.find(
+        (child: any) => child?.tag === true,
+      );
+
+      expect(tagNode).toMatchObject({
+        code: true,
+        tag: true,
+        text: '已选择',
+        placeholder: '目标场景',
+        initialValue: '已选择',
+      });
+    });
+
+    it('should handle tag with only placeholder (empty text)', () => {
+      const markdown = 'Empty `${placeholder:请选择}` tag';
+      const result = parserMarkdownToSlateNode(markdown);
+
+      expect(result.schema).toHaveLength(1);
+      const paragraph = result.schema[0] as any;
+      const tagNode = paragraph.children.find(
+        (child: any) => child?.tag === true,
+      );
+
+      expect(tagNode).toMatchObject({
+        code: true,
+        tag: true,
+        text: ' ',
+        placeholder: '请选择',
+        initialValue: undefined,
+      });
+    });
+
+    it('should handle normal inline code (not tag)', () => {
+      const markdown = 'Code `const x = 1` here';
+      const result = parserMarkdownToSlateNode(markdown);
+
+      expect(result.schema).toHaveLength(1);
+      const paragraph = result.schema[0] as any;
+      const codeNode = paragraph.children.find(
+        (child: any) => child?.code === true,
+      );
+
+      expect(codeNode).toMatchObject({
+        code: true,
+        tag: false,
+        text: 'const x = 1',
+        placeholder: undefined,
+        initialValue: undefined,
+      });
+    });
   });
 
   describe('handleHeading', () => {
