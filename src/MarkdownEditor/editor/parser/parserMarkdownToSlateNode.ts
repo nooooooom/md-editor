@@ -168,20 +168,6 @@ export class MarkdownToSlateParser {
 
       // 如果插件没有处理，使用默认处理逻辑
       if (!pluginHandled) {
-        const isLastNode = i === nodes.length - 1;
-
-        // 如果是 code 节点，检查是否是最后一个节点，设置 finished 属性
-        if (currentElement.type === 'code') {
-          // 如果 code 不是最后一个节点，finish 设置为 true
-          if (!isLastNode) {
-            if (!(currentElement as any).otherProps) {
-              (currentElement as any).otherProps = {};
-            }
-            delete (currentElement as any).otherProps.finished;
-          }
-          // 如果是最后一个节点，保持原逻辑（在 handleCode 中处理）
-        }
-
         // 使用统一的处理函数，通过 this 访问配置和插件
         const result = this.handleSingleElement(
           currentElement,
