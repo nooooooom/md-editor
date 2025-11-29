@@ -69,12 +69,20 @@ const LANGUAGE_HANDLERS: Record<string, LanguageHandler> = {
 /**
  * 处理代码块节点
  * @param currentElement - 当前处理的代码块元素，包含语言和内容
+ * @param config - 可选的配置对象，可能包含从 HTML 注释中解析的属性
  * @returns 返回格式化的代码块节点对象，根据语言类型进行特殊处理
  */
-export const handleCode = (currentElement: any): CodeElement => {
+export const handleCode = (currentElement: any, config?: any): CodeElement => {
   const rawValue = currentElement.value || '';
-  const langString =
-    (currentElement.lang || '').match(NOT_SPACE_START)?.[0] || '';
+
+  // 如果 config 中包含 data-language，优先使用它来恢复语言类型
+  const configLanguage = config?.['data-language'];
+  // 保持原有的行为：如果没有语言，应该使用 null 而不是空字符串
+  const effectiveLang = configLanguage || currentElement.lang || null;
+  const langString = effectiveLang
+    ? effectiveLang.match(NOT_SPACE_START)?.[0] || ''
+    : '';
+
   const code = `${rawValue.replace(ENDING_NEWLINE, '')}\n`;
 
   // 检查代码块是否完整
@@ -127,8 +135,7 @@ export const handleCode = (currentElement: any): CodeElement => {
 
   const baseCodeElement: CodeElement = {
     type: 'code',
-    language:
-      currentElement.lang === 'apaasify' ? 'apaasify' : currentElement.lang,
+    language: effectiveLang === 'apaasify' ? 'apaasify' : effectiveLang || null,
     render: currentElement.meta === 'render',
     value: currentElement.value,
     isConfig: currentElement?.value.trim()?.startsWith('<!--'),
@@ -138,20 +145,29 @@ export const handleCode = (currentElement: any): CodeElement => {
   };
 
   const handler =
-    LANGUAGE_HANDLERS[currentElement.lang as keyof typeof LANGUAGE_HANDLERS];
+    LANGUAGE_HANDLERS[effectiveLang as keyof typeof LANGUAGE_HANDLERS];
 
   const result = handler
     ? handler(baseCodeElement, currentElement.value)
     : baseCodeElement;
 
-  // 确保 otherProps 被保留
+  // 确保 otherProps 被保留，并合并 config 中的属性
   const resultWithProps = result as CodeElement;
   if (baseCodeElement.otherProps && !resultWithProps.otherProps) {
-    resultWithProps.otherProps = baseCodeElement.otherProps;
+    resultWithProps.otherProps = {
+      ...baseCodeElement.otherProps,
+      ...(config || {}),
+    };
   } else if (baseCodeElement.otherProps && resultWithProps.otherProps) {
     resultWithProps.otherProps = {
       ...resultWithProps.otherProps,
       ...baseCodeElement.otherProps,
+      ...(config || {}),
+    };
+  } else if (config && Object.keys(config).length > 0) {
+    resultWithProps.otherProps = {
+      ...(resultWithProps.otherProps || {}),
+      ...config,
     };
   }
 

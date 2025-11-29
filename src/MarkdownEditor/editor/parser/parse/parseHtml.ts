@@ -391,6 +391,30 @@ const handleBlockHtml = (
     commentValue.trim().startsWith('<!--') &&
     commentValue.trim().endsWith('-->');
 
+  // 检查是否是 otherProps 序列化生成的 JSON 注释
+  // 这些注释应该被跳过，不应该被解析为 HTML 代码块
+  if (isComment) {
+    try {
+      const commentContent = commentValue
+        .replace('<!--', '')
+        .replace('-->', '')
+        .trim();
+      const parsed = JSON.parse(commentContent);
+      // 如果能够成功解析为 JSON 对象，且是对象类型（不是数组或基本类型），
+      // 则认为是 otherProps 序列化生成的注释，应该返回 null 或空文本
+      // 这些注释应该在 parserMarkdownToSlateNode 中被跳过
+      if (
+        typeof parsed === 'object' &&
+        parsed !== null &&
+        !Array.isArray(parsed)
+      ) {
+        return { text: '' };
+      }
+    } catch (e) {
+      // 解析失败，不是 JSON 格式的注释，继续正常处理
+    }
+  }
+
   if (isComment || isStandardHtmlElement(commentValue)) {
     return commentValue.match(/<\/?(table|div|ul|li|ol|p|strong)[^\n>]*?>/)
       ? htmlToFragmentList(commentValue, '')

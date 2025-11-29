@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { parserMarkdownToSlateNode } from '../parserMarkdownToSlateNode';
 
+import { parserSlateNodeToMarkdown } from '../parserSlateNodeToMarkdown';
+
 describe('parserMarkdownToSlateNode', () => {
   describe('handleParagraph', () => {
     it('should handle simple paragraph', () => {
@@ -271,7 +273,7 @@ describe('parserMarkdownToSlateNode', () => {
       });
       // 验证 otherProps 存在并包含预期的属性
       expect(codeNode).toHaveProperty('otherProps');
-      expect(codeNode.otherProps).toMatchObject({
+      expect((codeNode as any).otherProps).toMatchObject({
         'data-block': 'true',
       });
     });
@@ -292,7 +294,7 @@ describe('parserMarkdownToSlateNode', () => {
       });
       // 验证 otherProps 存在并包含预期的属性
       expect(codeNode).toHaveProperty('otherProps');
-      expect(codeNode.otherProps).toMatchObject({
+      expect((codeNode as any).otherProps).toMatchObject({
         'data-block': 'true',
       });
     });
@@ -316,7 +318,7 @@ describe('parserMarkdownToSlateNode', () => {
       });
       // 验证 otherProps 存在并包含预期的属性
       expect(codeNode).toHaveProperty('otherProps');
-      expect(codeNode.otherProps).toMatchObject({
+      expect((codeNode as any).otherProps).toMatchObject({
         'data-block': 'true',
         'data-language': 'python',
       });
@@ -1131,6 +1133,279 @@ console.log('测试代码');
         type: 'paragraph',
         children: [{ text: '答案：这是一个包含特殊字符的答案！@#$%' }],
       });
+    });
+  });
+
+  describe('round-trip conversion with apaasify', () => {
+    it('should maintain apaasify node type through round-trip conversion', () => {
+      // 原始 Markdown 字符串，包含 apaasify 代码块
+      const originalMarkdown = `好的
+
+\`\`\`apaasify
+[
+  {
+    "componentPath": "CrowdSelectionCard",
+    "name": "人群选择卡片",
+    "componentProps": {
+      "instId": "CRCBANK",
+      "data": {
+        "itemList": [
+          {
+            "title": "ap_crowd.crowd_ok15a8z9o_alipay_id_dd",
+            "checked": true,
+            "id": "ap_crowd.crowd_ok15a8z9o_alipay_id_dd",
+            "type": "ODPS_TABLE"
+          }
+        ]
+      }
+    }
+  }
+]
+\`\`\``;
+
+      // 第一次转换：Markdown -> AST
+      const firstAst = parserMarkdownToSlateNode(originalMarkdown);
+      expect(firstAst.schema).toHaveLength(2);
+      expect(firstAst.schema[0].type).toBe('paragraph');
+      expect(firstAst.schema[1].type).toBe('apaasify');
+      expect((firstAst.schema[1] as any).language).toBe('apaasify');
+
+      // 第二次转换：AST -> Markdown
+      const markdownString = parserSlateNodeToMarkdown(firstAst.schema);
+      expect(markdownString).toContain('```apaasify');
+      expect(markdownString).toContain('CrowdSelectionCard');
+
+      // 第三次转换：Markdown -> AST（第二次）
+      const secondAst = parserMarkdownToSlateNode(markdownString);
+
+      // 验证节点数量保持一致（应该是 2 个节点，而不是 3 个）
+      expect(secondAst.schema).toHaveLength(2);
+
+      // 验证第一个节点仍然是段落
+      expect(secondAst.schema[0].type).toBe('paragraph');
+
+      // 验证第二个节点仍然是 apaasify 类型，而不是 code 类型
+      expect(secondAst.schema[1].type).toBe('apaasify');
+      expect((secondAst.schema[1] as any).language).toBe('apaasify');
+
+      // 验证不应该有 HTML 代码节点
+      const htmlCodeNodes = secondAst.schema.filter(
+        (node: any) => node.type === 'code' && node.language === 'html',
+      );
+      expect(htmlCodeNodes).toHaveLength(0);
+    });
+
+    it('should handle apaasify node with otherProps through round-trip', () => {
+      // 创建一个包含 otherProps 的 apaasify 节点
+      const randomId = Math.random().toString(36).substring(7);
+      const componentName = `Component${randomId}`;
+      const templateText = `Sample template ${Math.floor(Math.random() * 1000)}`;
+      const actionType = `ACTION_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+      const apaasifyNode = {
+        type: 'apaasify',
+        language: 'apaasify',
+        render: false,
+        value: [
+          {
+            componentPath: componentName,
+            componentProps: {
+              data: {
+                template: templateText,
+              },
+              extraPayload: {
+                intentionType: actionType,
+              },
+            },
+          },
+        ],
+        isConfig: false,
+        children: [
+          {
+            text: JSON.stringify([
+              {
+                componentPath: componentName,
+                componentProps: {
+                  data: {
+                    template: templateText,
+                  },
+                  extraPayload: {
+                    intentionType: actionType,
+                  },
+                },
+              },
+            ]),
+          },
+        ],
+        otherProps: {
+          'data-block': 'true',
+          'data-state': 'loading',
+          finish: false,
+          'data-language': 'apaasify',
+        },
+      };
+
+      // AST -> Markdown
+      const markdownString = parserSlateNodeToMarkdown([apaasifyNode]);
+      expect(markdownString).toContain('```apaasify');
+      expect(markdownString).toContain(componentName);
+
+      // Markdown -> AST
+      const ast = parserMarkdownToSlateNode(markdownString);
+
+      // 验证节点类型正确
+      expect(ast.schema.length).toBeGreaterThan(0);
+      const codeNode = ast.schema.find(
+        (node: any) => node.type === 'apaasify' || node.type === 'code',
+      );
+      expect(codeNode).toBeDefined();
+      expect(codeNode?.type).toBe('apaasify');
+      expect((codeNode as any).language).toBe('apaasify');
+
+      // 验证不应该有独立的 HTML 注释节点
+      const htmlNodes = ast.schema.filter(
+        (node: any) => node.type === 'code' && node.language === 'html',
+      );
+      expect(htmlNodes.length).toBe(0);
+    });
+
+    it('should handle multiple apaasify blocks in sequence', () => {
+      const markdown = `First paragraph
+
+\`\`\`apaasify
+[{"test": "first"}]
+\`\`\`
+
+Second paragraph
+
+\`\`\`apaasify
+[{"test": "second"}]
+\`\`\``;
+
+      // 第一次转换
+      const firstAst = parserMarkdownToSlateNode(markdown);
+      const apaasifyNodes = firstAst.schema.filter(
+        (node: any) => node.type === 'apaasify',
+      );
+      expect(apaasifyNodes.length).toBe(2);
+
+      // 往返转换
+      const markdownString = parserSlateNodeToMarkdown(firstAst.schema);
+      const secondAst = parserMarkdownToSlateNode(markdownString);
+
+      // 验证节点数量一致
+      expect(secondAst.schema.length).toBe(firstAst.schema.length);
+
+      // 验证所有 apaasify 节点都保持正确类型
+      const secondApaasifyNodes = secondAst.schema.filter(
+        (node: any) => node.type === 'apaasify',
+      );
+      expect(secondApaasifyNodes.length).toBe(2);
+
+      // 验证没有 HTML 代码节点
+      const htmlNodes = secondAst.schema.filter(
+        (node: any) => node.type === 'code' && node.language === 'html',
+      );
+      expect(htmlNodes.length).toBe(0);
+    });
+
+    it('should not accumulate HTML code nodes through multiple round-trip conversions', () => {
+      // 原始 Markdown，包含 apaasify 代码块
+      const randomId = Math.random().toString(36).substring(7);
+      const componentName = `TestComponent${randomId}`;
+      const templateValue = `Template ${Math.floor(Math.random() * 10000)}`;
+
+      const originalMarkdown = `\`\`\`apaasify
+[
+  {
+    "componentPath": "${componentName}",
+    "componentProps": {
+      "data": {
+        "template": "${templateValue}"
+      }
+    }
+  }
+]
+\`\`\``;
+
+      let currentMarkdown = originalMarkdown;
+      let previousNodeCount = 0;
+
+      // 执行多次往返转换（5次）
+      for (let round = 1; round <= 5; round++) {
+        // Markdown -> AST
+        const ast = parserMarkdownToSlateNode(currentMarkdown);
+        const nodeCount = ast.schema.length;
+
+        // 第一次转换后记录节点数量
+        if (round === 1) {
+          previousNodeCount = nodeCount;
+        }
+
+        // 验证节点数量不应该增加
+        expect(nodeCount).toBe(previousNodeCount);
+
+        // 统计 HTML 代码节点数量
+        const htmlCodeNodes = ast.schema.filter(
+          (node: any) => node.type === 'code' && node.language === 'html',
+        );
+
+        // 验证不应该有 HTML 代码节点累积
+        expect(htmlCodeNodes.length).toBe(0);
+
+        // 验证 apaasify 节点仍然存在
+        const apaasifyNodes = ast.schema.filter(
+          (node: any) => node.type === 'apaasify',
+        );
+        expect(apaasifyNodes.length).toBe(1);
+
+        // AST -> Markdown
+        currentMarkdown = parserSlateNodeToMarkdown(ast.schema);
+      }
+    });
+
+    it('should skip standalone HTML comment with metadata props', () => {
+      // 包含独立 HTML 注释的 Markdown（模拟多次转换后的情况）
+      const markdown = `<!--{"data-block":"true","data-state":"loading","data-language":"apaasify"}-->
+
+\`\`\`apaasify
+[{"test": "value"}]
+\`\`\``;
+
+      const ast = parserMarkdownToSlateNode(markdown);
+
+      // 验证 HTML 注释被跳过，不应该生成独立的 HTML 代码节点
+      const htmlCodeNodes = ast.schema.filter(
+        (node: any) => node.type === 'code' && node.language === 'html',
+      );
+      expect(htmlCodeNodes.length).toBe(0);
+
+      // 验证只有一个 apaasify 节点
+      const apaasifyNodes = ast.schema.filter(
+        (node: any) => node.type === 'apaasify',
+      );
+      expect(apaasifyNodes.length).toBe(1);
+    });
+
+    it('should skip HTML comment with metadata even without following code block', () => {
+      // HTML 注释后面没有代码块的情况（多次转换后可能出现）
+      const markdown = `<!--{"data-block":"true","data-state":"loading","data-language":"apaasify"}-->
+
+Some text here.`;
+
+      const ast = parserMarkdownToSlateNode(markdown);
+
+      // 验证 HTML 注释被跳过，不应该生成独立的 HTML 代码节点
+      const htmlCodeNodes = ast.schema.filter(
+        (node: any) => node.type === 'code' && node.language === 'html',
+      );
+      expect(htmlCodeNodes.length).toBe(0);
+
+      // 应该只有段落节点
+      const paragraphNodes = ast.schema.filter(
+        (node: any) => node.type === 'paragraph',
+      );
+      expect(paragraphNodes.length).toBeGreaterThan(0);
     });
   });
 });
