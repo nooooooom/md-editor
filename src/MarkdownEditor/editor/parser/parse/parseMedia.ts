@@ -74,4 +74,3 @@ export const handleLinkCard = (currentElement: any, config: any) => {
     name: link.title,
   };
 };
-

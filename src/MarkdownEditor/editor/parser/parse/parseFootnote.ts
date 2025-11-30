@@ -10,4 +10,3 @@ export const handleFootnoteReference = (currentElement: any) => {
     type: 'footnoteReference',
   };
 };
-
