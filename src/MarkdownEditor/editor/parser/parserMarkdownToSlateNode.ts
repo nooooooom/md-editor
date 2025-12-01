@@ -708,7 +708,13 @@ const handleHtml = (currentElement: any, parent: any, htmlTag: any[]) => {
   }
 
   let el: any;
-  if (!parent || ['listItem', 'blockquote'].includes(parent.type)) {
+  // 检查是否为注释（注释需要特殊处理以提取配置）
+  const isComment =
+    currentElement.value.trim().startsWith('<!--') &&
+    currentElement.value.trim().endsWith('-->');
+
+  // 注释应该始终被创建为块级节点，即使 parent 存在
+  if (!parent || ['listItem', 'blockquote'].includes(parent.type) || isComment) {
     // 检查是否为不完整的图片标记
     const incompleteImageMatch = currentElement.value.match(
       /<incomplete-image\s+data-raw="([^"]+)"\s*\/?>/,
@@ -756,11 +762,6 @@ const handleHtml = (currentElement: any, parent: any, htmlTag: any[]) => {
             // 如果是媒体标签的结束标签，跳过处理
             el = null;
           } else {
-            // 检查是否为注释（注释需要特殊处理以提取配置）
-            const isComment =
-              currentElement.value.trim().startsWith('<!--') &&
-              currentElement.value.trim().endsWith('-->');
-
             // 检查是否为标准 HTML 元素或注释
             if (isComment || isStandardHtmlElement(currentElement.value)) {
               // 标准 HTML 元素或注释：按原逻辑处理
