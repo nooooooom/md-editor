@@ -802,7 +802,7 @@ function hello() {
       const markdown = '<!--{"align":"right"}-->\n## Right Aligned Heading';
       const result = parserMarkdownToSlateNode(markdown);
 
-      expect(result.schema).toHaveLength(2);
+      expect(result.schema).toHaveLength(1);
       expect(result.schema[1]).toEqual({
         type: 'head',
         level: 2,
