@@ -310,7 +310,7 @@ const MLeafComponent = (
     tagInputProps: MarkdownEditorProps['tagInputProps'];
   },
 ) => {
-  const { markdownEditorRef, markdownContainerRef, readonly, setShowComment } =
+  const { markdownEditorRef, markdownContainerRef, setShowComment } =
     useEditorStore();
   const context = useContext(ConfigProvider.ConfigContext);
   const { locale } = useContext(I18nContext);
@@ -455,46 +455,6 @@ const MLeafComponent = (
       }
     } catch (e) {}
   };
-  if (leaf?.url && readonly) {
-    const renderDom = (
-      <span
-        data-be="link"
-        draggable={false}
-        onDragStart={dragStart}
-        data-url={leaf?.url ? 'url' : undefined}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          if (e.metaKey || e.ctrlKey || readonly) {
-            if (!leaf?.url) return;
-            if (typeof window === 'undefined') return;
-            window.open(leaf?.url);
-          } else if (e.detail === 2) {
-            selectFormat();
-          }
-        }}
-        id={leaf?.url}
-        data-slate-inline={true}
-        {...props.attributes}
-      >
-        {children}
-      </span>
-    );
-
-    if (!props.leaf.comment) return renderDom;
-    return (
-      <CommentView
-        id={`comment-${props.leaf?.id}`}
-        comment={props.comment}
-        hashId={props.hashId}
-        selection={leaf?.selection}
-        commentItem={props.leaf?.comment ? (props.leaf.data as any) : null}
-        setShowComment={setShowComment}
-      >
-        {renderDom}
-      </CommentView>
-    );
-  }
 
   const fncClassName = classNames(prefixClassName?.trim(), props.hashId, {
     [`${mdEditorBaseClass}-fnc`]: leaf.fnc,
