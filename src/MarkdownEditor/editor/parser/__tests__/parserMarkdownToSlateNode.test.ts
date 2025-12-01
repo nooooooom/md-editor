@@ -789,8 +789,8 @@ function hello() {
         '<!--{"align":"center"}-->\nThis is a centered paragraph';
       const result = parserMarkdownToSlateNode(markdown);
 
-      expect(result.schema).toHaveLength(2);
-      expect(result.schema[1]).toEqual({
+      expect(result.schema).toHaveLength(1);
+      expect(result.schema[0]).toEqual({
         type: 'paragraph',
         contextProps: { align: 'center' },
         otherProps: { align: 'center' },
@@ -803,7 +803,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[1]).toEqual({
+      expect(result.schema[0]).toEqual({
         type: 'head',
         level: 2,
         contextProps: { align: 'right' },
