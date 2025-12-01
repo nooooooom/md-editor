@@ -156,7 +156,6 @@ export const parseTableOrChart = (
   parserConfig?: ParserMarkdownToSlateNodeConfig,
 ): CardNode | Elements => {
   const keyMap = new Map<string, string>();
-  console.log('parserConfig', parserConfig);
 
   const config =
     preNode?.type === 'code' &&
