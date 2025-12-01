@@ -1,7 +1,7 @@
 import type { RootContent } from 'mdast';
 import { Element } from 'slate';
 
-import { Elements } from '../../el';
+import { ChartTypeConfig, Elements } from '../../el';
 import { MarkdownEditorPlugin } from '../../plugin';
 import { applyContextPropsAndConfig } from './parse/applyContextPropsAndConfig';
 import {
@@ -33,7 +33,6 @@ import {
   preprocessMarkdownTableNewlines,
 } from './parse/parseTable';
 import mdastParser from './remarkParse';
-
 /**
  * 解析Markdown字符串的配置选项
  */
@@ -44,6 +43,8 @@ export interface ParserMarkdownToSlateNodeConfig {
   paragraphTag?: string;
   /** 是否正在输入中（打字机模式） */
   typing?: boolean;
+
+  config?: ChartTypeConfig[];
 }
 
 /**
@@ -71,7 +72,7 @@ type ElementHandler = {
  * 使用类形式可以避免在函数调用链中传递配置参数和插件。
  */
 export class MarkdownToSlateParser {
-  private readonly config: ParserMarkdownToSlateNodeConfig;
+  private config: ParserMarkdownToSlateNodeConfig;
   private readonly plugins: MarkdownEditorPlugin[];
 
   constructor(
@@ -173,6 +174,11 @@ export class MarkdownToSlateParser {
             // 对齐注释（如 {"align":"center"}）不包含这些属性，应该被保留
             isOtherPropsComment = hasCodeMetadataProps;
           }
+          if (Array.isArray(htmlCommentProps)) {
+            htmlCommentProps = {
+              config: htmlCommentProps as ChartTypeConfig[],
+            };
+          }
         } catch (e) {
           // 解析失败，不是 JSON 格式的注释，可能是真正的 HTML 注释
           isOtherPropsComment = false;
@@ -204,13 +210,25 @@ export class MarkdownToSlateParser {
 
       // 如果 HTML 注释不是代码块元数据注释，但包含 JSON 对象属性（如对齐注释），
       // 应该跳过注释本身，但将属性应用到下一个元素
-      if (isHtmlComment && !isOtherPropsComment && htmlCommentProps && Object.keys(htmlCommentProps).length > 0) {
-        // 将对齐注释等非代码块元数据注释的属性存储到 contextProps 中，供下一个元素使用
-        contextProps = { ...contextProps, ...htmlCommentProps };
-        // 同时将属性作为 config 传递，以便 applyContextPropsAndConfig 设置 otherProps
-        config = { ...config, ...htmlCommentProps };
-        // 跳过 HTML 注释本身，避免生成独立的 HTML 代码节点
-        continue;
+      if (
+        isHtmlComment &&
+        !isOtherPropsComment &&
+        htmlCommentProps &&
+        Object.keys(htmlCommentProps).length > 0
+      ) {
+        if (!Array.isArray(htmlCommentProps)) {
+          // 将对齐注释等非代码块元数据注释的属性存储到 contextProps 中，供下一个元素使用
+          contextProps = { ...contextProps, ...htmlCommentProps };
+          // 同时将属性作为 config 传递，以便 applyContextPropsAndConfig 设置 otherProps
+          config = { ...config, ...htmlCommentProps, ...contextProps };
+          // 跳过 HTML 注释本身，避免生成独立的 HTML 代码节点
+          continue;
+        } else {
+          config = {
+            ...config,
+            config: [...(config?.config || []), ...htmlCommentProps],
+          };
+        }
       }
 
       // 如果当前元素应该使用 contextProps 中的属性作为 config（用于设置 otherProps）
@@ -240,6 +258,9 @@ export class MarkdownToSlateParser {
           pluginHandled = true;
           break;
         }
+      }
+      if (Object.keys(config).length > 0) {
+        this.config = { ...this.config, ...config };
       }
 
       // 如果插件没有处理，使用默认处理逻辑
@@ -425,6 +446,6 @@ export const parserMarkdownToSlateNode = (
   links: { path: number[]; target: string }[];
 } => {
   const parser = new MarkdownToSlateParser(config || {}, plugins || []);
-
+  console.log('md', parser.parse(md).schema);
   return parser.parse(md);
 };

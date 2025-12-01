@@ -27,7 +27,14 @@ export type CodeNode<T = Record<string, any>> = {
     className?: string;
     language?: string;
     render?: boolean;
+    mergeCells?: Array<{
+      row: number;
+      col: number;
+      rowSpan: number;
+      colSpan: number;
+    }>;
     frontmatter?: boolean;
+    config?: Record<string, any>[];
   } & T;
   children: [{ text: string }];
   language?: string;

@@ -390,9 +390,9 @@ const handleBlockHtml = (
   const isComment =
     commentValue.trim().startsWith('<!--') &&
     commentValue.trim().endsWith('-->');
-
   // 检查是否是 otherProps 序列化生成的 JSON 注释
   // 这些注释应该被跳过，不应该被解析为 HTML 代码块
+  // 但是，如果注释包含图表配置（chartType），应该保留为 code 节点以便表格解析器使用
   if (isComment) {
     try {
       const commentContent = commentValue
@@ -400,15 +400,37 @@ const handleBlockHtml = (
         .replace('-->', '')
         .trim();
       const parsed = JSON.parse(commentContent);
-      // 如果能够成功解析为 JSON 对象，且是对象类型（不是数组或基本类型），
-      // 则认为是 otherProps 序列化生成的注释，应该返回 null 或空文本
-      // 这些注释应该在 parserMarkdownToSlateNode 中被跳过
+
+      // 检查是否是图表配置
+      const isChartConfig =
+        // 对象格式：{"chartType": ...}
+        (typeof parsed === 'object' &&
+          parsed !== null &&
+          !Array.isArray(parsed) &&
+          parsed.chartType) ||
+        // 数组格式：[{"chartType": ...}]
+        (Array.isArray(parsed) &&
+          parsed.length > 0 &&
+          typeof parsed[0] === 'object' &&
+          parsed[0]?.chartType);
+
+      // 如果能够成功解析为 JSON 对象，且是对象类型（不是数组或基本类型）
+      // 注意：对象格式的图表配置已经在 handleHtml 中转换为数组格式了
+      // 这里只处理非图表配置的对象格式注释
       if (
         typeof parsed === 'object' &&
         parsed !== null &&
         !Array.isArray(parsed)
       ) {
-        return { text: '' };
+        // 如果包含 chartType 字段，说明是图表配置，应该已经在 handleHtml 中转换为数组格式
+        // 这里不应该再匹配到对象格式的图表配置，继续正常处理
+        if (isChartConfig && parsed.chartType) {
+          // 继续正常处理，创建 code 节点（此时应该已经是数组格式了）
+        } else {
+          // 否则认为是 otherProps 序列化生成的注释，应该返回空文本
+          // 这些注释应该在 parserMarkdownToSlateNode 中被跳过
+          return { text: '' };
+        }
       }
     } catch (e) {
       // 解析失败，不是 JSON 格式的注释，继续正常处理
@@ -644,9 +666,38 @@ export const handleHtml = (
   const isUnclosedComment =
     trimmedValue.startsWith('<!--') && !trimmedValue.endsWith('-->');
 
-  const processedValue = isUnclosedComment
+  let processedValue = isUnclosedComment
     ? trimmedValue + '-->'
     : currentElement?.value || '';
+
+  // 检查是否是对象格式的图表配置，如果是则转换为数组格式
+  const isComment =
+    processedValue.trim().startsWith('<!--') &&
+    processedValue.trim().endsWith('-->');
+  if (isComment) {
+    try {
+      const commentContent = processedValue
+        .replace('<!--', '')
+        .replace('-->', '')
+        .trim();
+      const parsed = JSON.parse(commentContent);
+      // 如果是对象格式且包含 chartType，转换为数组格式
+      if (
+        typeof parsed === 'object' &&
+        parsed !== null &&
+        !Array.isArray(parsed) &&
+        parsed.chartType
+      ) {
+        const arrayFormat = [parsed];
+        const convertedContent = JSON.stringify(arrayFormat);
+        processedValue = `<!--${convertedContent}-->`;
+        // 同时更新 currentElement.value，以便后续处理使用
+        currentElement.value = processedValue;
+      }
+    } catch (e) {
+      // 解析失败，不是 JSON 格式的注释，继续正常处理
+    }
+  }
 
   const value =
     processedValue?.replace('<!--', '').replace('-->', '').trim() || '{}';

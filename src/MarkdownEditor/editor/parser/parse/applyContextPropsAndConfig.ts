@@ -37,4 +37,3 @@ export const applyContextPropsAndConfig = (
   }
   return result;
 };
-

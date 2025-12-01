@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
+import { ChartTypeConfig } from '../../../el';
 import {
   convertParagraphToImage,
   fixStrongWithSpecialChars,
@@ -12,7 +13,7 @@ import {
 //@ts-ignore
 import rehypeKatex from 'rehype-katex';
 import remarkFrontmatter from 'remark-frontmatter';
-import { CardNode, ChartNode, Elements } from '../../../el';
+import { CardNode, ChartNode, CodeNode, Elements } from '../../../el';
 import { MarkdownEditorPlugin } from '../../../plugin';
 import { TableNode, TrNode as TableRowNode } from '../../types/Table';
 import { EditorUtils } from '../../utils';
@@ -155,16 +156,14 @@ export const parseTableOrChart = (
   parserConfig?: ParserMarkdownToSlateNodeConfig,
 ): CardNode | Elements => {
   const keyMap = new Map<string, string>();
+  console.log('parserConfig', parserConfig);
 
-  // @ts-ignore
   const config =
-    // @ts-ignore
-    preNode?.type === 'code' && // @ts-ignore
-    preNode?.language === 'html' && // @ts-ignore
-    preNode?.otherProps
-      ? // @ts-ignore
-        preNode?.otherProps
-      : {};
+    preNode?.type === 'code' &&
+    (preNode as CodeNode)?.language === 'html' &&
+    (preNode as CodeNode)?.otherProps
+      ? (preNode as CodeNode)?.otherProps
+      : parserConfig || {};
 
   const tableHeader = table?.children?.at(0);
   const columns =
@@ -261,13 +260,14 @@ export const parseTableOrChart = (
   chartConfig = convertObjectToArray(chartConfig);
 
   const isChart =
-    chartConfig?.chartType ||
-    (Array.isArray(chartConfig) && chartConfig?.[0]?.chartType) ||
-    config?.chartType ||
-    config?.at?.(0)?.chartType;
+    (chartConfig as ChartTypeConfig)?.chartType ||
+    (Array.isArray(chartConfig) &&
+      (chartConfig?.[0] as ChartTypeConfig)?.chartType) ||
+    (config as ChartTypeConfig)?.chartType ||
+    (config as ChartTypeConfig)?.at?.(0)?.chartType;
 
   // 计算合并单元格信息
-  const mergeCells = config.mergeCells || [];
+  const mergeCells = (config as CodeNode['otherProps'])?.mergeCells || [];
 
   // 创建合并单元格映射，用于快速查找
   const mergeMap = new Map<
