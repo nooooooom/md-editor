@@ -530,6 +530,9 @@ const MLeafComponent = (
         if (props.fncProps?.onOriginUrlClick) {
           props.fncProps.onOriginUrlClick(leaf?.identifier);
         }
+        if (leaf.url) {
+          window.open(leaf.url, '_blank');
+        }
       }}
       onTouchStart={hasFnc ? handleTouchStart : undefined}
       onTouchEnd={hasFnc ? handleTouchEnd : undefined}
