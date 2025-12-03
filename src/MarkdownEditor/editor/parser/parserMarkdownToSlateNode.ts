@@ -106,8 +106,14 @@ export class MarkdownToSlateParser {
     const schema = this.parseNodes(markdownRoot, true, undefined) as Elements[];
     return {
       schema: schema?.filter((item) => {
+        if (item.type === 'paragraph' && !item.children?.length) {
+          return false;
+        }
         if (item.type === 'paragraph' && item.children?.length === 1) {
-          if (item.children[0].text === '\n') {
+          if (
+            item.children[0].text === '\n' ||
+            item.children[0].text === undefined
+          ) {
             return false;
           }
           return true;
