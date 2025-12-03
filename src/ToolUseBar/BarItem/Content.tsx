@@ -2,7 +2,7 @@ import { Api, ChevronUp, X } from '@sofa-design/icons';
 import classnames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { memo, useCallback, useMemo } from 'react';
-import { ToolCall } from './ToolUseBarItem';
+import { ToolCall } from '.';
 
 interface ToolImageProps {
   tool: ToolCall;

@@ -15,7 +15,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react';
-import { useStyle } from './thinkStyle';
+import { useStyle } from './style';
 
 const getChevronStyle = (expanded: boolean): React.CSSProperties => ({
   transform: expanded ? 'rotate(0deg)' : 'rotate(-90deg)',
