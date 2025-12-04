@@ -309,6 +309,7 @@ const MLeafComponent = (
     comment: MarkdownEditorProps['comment'];
     fncProps: MarkdownEditorProps['fncProps'];
     tagInputProps: MarkdownEditorProps['tagInputProps'];
+    linkConfig: MarkdownEditorProps['linkConfig'];
   },
 ) => {
   const { markdownEditorRef, markdownContainerRef, setShowComment } =
@@ -530,8 +531,17 @@ const MLeafComponent = (
         if (props.fncProps?.onOriginUrlClick) {
           props.fncProps.onOriginUrlClick(leaf?.identifier);
         }
-        if (leaf.url) {
+        if (props.linkConfig?.onCLick) {
+          const res = props.linkConfig?.onCLick(leaf.url);
+          if (res === false) {
+            return;
+          }
+        }
+        if (leaf.url && props.linkConfig?.openInNewTab !== false) {
           window.open(leaf.url, '_blank');
+        }
+        if (leaf.url && props.linkConfig?.openInNewTab === false) {
+          window.location.href = leaf.url;
         }
       }}
       onTouchStart={hasFnc ? handleTouchStart : undefined}
