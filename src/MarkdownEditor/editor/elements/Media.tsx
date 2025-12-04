@@ -218,6 +218,7 @@ export function Media({
 }: ElementProps<MediaNode>) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, path] = useSelStatus(element);
+  const { editorProps } = useEditorStore();
   const { markdownEditorRef, readonly } = useEditorStore();
   const { locale } = useContext(I18nContext);
   const htmlRef = React.useRef<HTMLDivElement>(null);
@@ -411,9 +412,24 @@ export function Media({
       if (!state().loadSuccess) {
         return (
           <a
-            href={state()?.url || element?.url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!state()?.url) return;
+              e.stopPropagation();
+              e.preventDefault();
+              if (editorProps.linkConfig?.onClick) {
+                if (
+                  editorProps.linkConfig.onClick(state()?.url || '') === false
+                ) {
+                  return;
+                }
+              }
+              window.open(
+                state()?.url,
+                editorProps?.linkConfig?.openInNewTab ? '_blank' : '_self',
+              );
+            }}
             style={{
               color: '#1890ff',
               textDecoration: 'underline',
@@ -513,9 +529,26 @@ export function Media({
       if (!state().loadSuccess) {
         return (
           <a
-            href={state()?.url || element?.url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!(state()?.url || element?.url)) return;
+              e.stopPropagation();
+              e.preventDefault();
+              if (editorProps.linkConfig?.onClick) {
+                if (
+                  editorProps.linkConfig.onClick(
+                    state()?.url || element?.url || '',
+                  ) === false
+                ) {
+                  return;
+                }
+              }
+              window.open(
+                state()?.url || element?.url,
+                editorProps?.linkConfig?.openInNewTab ? '_blank' : '_self',
+              );
+            }}
             style={{
               color: '#1890ff',
               textDecoration: 'underline',

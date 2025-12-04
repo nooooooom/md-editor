@@ -48,9 +48,21 @@ export const ImageAndError: React.FC<ImageProps> = (props) => {
   if (error) {
     return (
       <a
-        href={props.src}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (editorProps.linkConfig?.onClick) {
+            if (editorProps.linkConfig.onClick(props.src || '') === false) {
+              return;
+            }
+          }
+          window.open(
+            props.src,
+            editorProps?.linkConfig?.openInNewTab ? '_blank' : '_self',
+          );
+        }}
         style={{
           color: '#1890ff',
           textDecoration: 'underline',
