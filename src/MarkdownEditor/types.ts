@@ -339,7 +339,7 @@ export type MarkdownEditorProps = {
    */
   markdownToHtmlOptions?: MarkdownToHtmlOptions;
 
-  linkConfig: {
+  linkConfig?: {
     /** 是否在新标签页打开链接 */
     openInNewTab?: boolean;
     /** 自定义链接渲染函数 */
