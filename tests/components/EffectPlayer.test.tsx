@@ -3,6 +3,11 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import EffectPlayer from '../../src/Components/effects/EffectPlayer';
 
+const getMockPlayer = async () => {
+  const { Player } = await import('@galacean/effects');
+  return (Player as any).mock.results[0].value;
+};
+
 // Mock @galacean/effects
 vi.mock('@galacean/effects', () => {
   const mockPlayer = {
@@ -66,7 +71,7 @@ describe('EffectPlayer Component', () => {
     const PlayerWithError = vi.fn().mockImplementation((config: any) => {
       if (config.onError) {
         // 触发错误回调
-        setTimeout(() => config.onError(), 0);
+        queueMicrotask(() => config.onError());
       }
       return mockPlayer;
     });
@@ -91,8 +96,7 @@ describe('EffectPlayer Component', () => {
     const sceneUrl2 = { url: 'test-scene-2.json' };
     const { rerender } = render(<EffectPlayer sceneUrl={sceneUrl1} />);
 
-    const { Player } = await import('@galacean/effects');
-    const mockPlayer = (Player as any).mock.results[0].value;
+    const mockPlayer = await getMockPlayer();
 
     rerender(<EffectPlayer sceneUrl={sceneUrl2} />);
 
@@ -109,8 +113,7 @@ describe('EffectPlayer Component', () => {
       <EffectPlayer sceneUrl={sceneUrl} autoplay={true} />,
     );
 
-    const { Player } = await import('@galacean/effects');
-    const mockPlayer = (Player as any).mock.results[0].value;
+    const mockPlayer = await getMockPlayer();
 
     rerender(<EffectPlayer sceneUrl={sceneUrl} autoplay={false} />);
 
@@ -129,8 +132,7 @@ describe('EffectPlayer Component', () => {
     const sceneUrl = { url: 'test-scene.json' };
     const { rerender } = render(<EffectPlayer sceneUrl={sceneUrl} size={64} />);
 
-    const { Player } = await import('@galacean/effects');
-    const mockPlayer = (Player as any).mock.results[0].value;
+    const mockPlayer = await getMockPlayer();
 
     rerender(<EffectPlayer sceneUrl={sceneUrl} size={128} />);
 
