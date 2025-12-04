@@ -343,7 +343,7 @@ export type MarkdownEditorProps = {
     /** 是否在新标签页打开链接 */
     openInNewTab?: boolean;
     /** 自定义链接渲染函数 */
-    onCLick?: (url?: string) => boolean | void;
+    onClick?: (url?: string) => boolean | void;
   };
 
   /**

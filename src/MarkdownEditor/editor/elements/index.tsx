@@ -531,8 +531,8 @@ const MLeafComponent = (
         if (props.fncProps?.onOriginUrlClick) {
           props.fncProps.onOriginUrlClick(leaf?.identifier);
         }
-        if (props.linkConfig?.onCLick) {
-          const res = props.linkConfig?.onCLick(leaf.url);
+        if (props.linkConfig?.onClick) {
+          const res = props.linkConfig?.onClick(leaf.url);
           if (res === false) {
             return;
           }
