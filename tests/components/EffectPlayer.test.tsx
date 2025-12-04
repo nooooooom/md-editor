@@ -55,16 +55,6 @@ describe('EffectPlayer Component', () => {
     expect(div.style.height).toBe('2em');
   });
 
-  it('should handle autoplay=false', () => {
-    const sceneUrl = { url: 'test-scene.json' };
-    const { container } = render(
-      <EffectPlayer sceneUrl={sceneUrl} autoplay={false} />,
-    );
-
-    // Component should render normally
-    expect(container.firstChild).toBeInTheDocument();
-  });
-
   it('should show fallback image when error occurs', async () => {
     const sceneUrl = { url: 'test-scene.json' };
     const downgradeImage = 'https://example.com/fallback.png';
@@ -88,15 +78,12 @@ describe('EffectPlayer Component', () => {
     );
 
     // Wait for error handling
-    await waitFor(
-      () => {
-        const img = screen.queryByAltText('fallback');
-        if (img) {
-          expect(img).toHaveAttribute('src', downgradeImage);
-        }
-      },
-      { timeout: 1000 },
-    );
+    await waitFor(() => {
+      expect(screen.getByAltText('fallback')).toHaveAttribute(
+        'src',
+        downgradeImage,
+      );
+    });
   });
 
   it('should reload scene when sceneUrl changes', async () => {

@@ -14,13 +14,6 @@ describe('CreativeSparkLottie Component', () => {
     expect(screen.getByTestId('lottie-animation')).toBeInTheDocument();
   });
 
-  it('should use default autoplay and loop values', () => {
-    render(<CreativeSparkLottie />);
-
-    const lottie = screen.getByTestId('lottie-animation');
-    expect(lottie).toBeInTheDocument();
-  });
-
   it('should handle autoplay=false', () => {
     render(<CreativeSparkLottie autoplay={false} />);
 
