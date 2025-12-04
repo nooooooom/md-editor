@@ -60,4 +60,3 @@ export const handleMath = (currentElement: any) => {
     children: [{ text: '' }],
   };
 };
-

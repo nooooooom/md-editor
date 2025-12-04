@@ -106,8 +106,14 @@ export class MarkdownToSlateParser {
     const schema = this.parseNodes(markdownRoot, true, undefined) as Elements[];
     return {
       schema: schema?.filter((item) => {
+        if (item.type === 'paragraph' && !item.children?.length) {
+          return false;
+        }
         if (item.type === 'paragraph' && item.children?.length === 1) {
-          if (item.children[0].text === '\n') {
+          if (
+            item.children[0].text === '\n' ||
+            item.children[0].text === undefined
+          ) {
             return false;
           }
           return true;
@@ -216,19 +222,12 @@ export class MarkdownToSlateParser {
         htmlCommentProps &&
         Object.keys(htmlCommentProps).length > 0
       ) {
-        if (!Array.isArray(htmlCommentProps)) {
-          // 将对齐注释等非代码块元数据注释的属性存储到 contextProps 中，供下一个元素使用
-          contextProps = { ...contextProps, ...htmlCommentProps };
-          // 同时将属性作为 config 传递，以便 applyContextPropsAndConfig 设置 otherProps
-          config = { ...config, ...htmlCommentProps, ...contextProps };
-          // 跳过 HTML 注释本身，避免生成独立的 HTML 代码节点
-          continue;
-        } else {
-          config = {
-            ...config,
-            config: [...(config?.config || []), ...htmlCommentProps],
-          };
-        }
+        // 将对齐注释等非代码块元数据注释的属性存储到 contextProps 中，供下一个元素使用
+        contextProps = { ...contextProps, ...htmlCommentProps };
+        // 同时将属性作为 config 传递，以便 applyContextPropsAndConfig 设置 otherProps
+        config = { ...config, ...htmlCommentProps };
+        // 跳过 HTML 注释本身，避免生成独立的 HTML 代码节点
+        continue;
       }
 
       // 如果当前元素应该使用 contextProps 中的属性作为 config（用于设置 otherProps）
