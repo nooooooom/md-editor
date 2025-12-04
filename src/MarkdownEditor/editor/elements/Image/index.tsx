@@ -43,7 +43,7 @@ import { getMediaType } from '../../utils/dom';
 export const ImageAndError: React.FC<ImageProps> = (props) => {
   const { editorProps } = useEditorStore();
   const [error, setError] = React.useState(false);
-
+  console.log(editorProps);
   // 图片加载失败时显示为链接
   if (error) {
     return (
@@ -137,6 +137,7 @@ export const ResizeImage = ({
   };
   selected?: boolean;
 }) => {
+  const { editorProps } = useEditorStore();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
   const radio = useRef<number>(1);
@@ -166,9 +167,21 @@ export const ResizeImage = ({
   if (error) {
     return (
       <a
-        href={props.src}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (editorProps.linkConfig?.onClick) {
+            if (editorProps.linkConfig.onClick(props.src || '') === false) {
+              return;
+            }
+          }
+          window.open(
+            props.src,
+            editorProps?.linkConfig?.openInNewTab ? '_blank' : '_self',
+          );
+        }}
         style={{
           color: '#1890ff',
           textDecoration: 'underline',
@@ -312,6 +325,7 @@ export function EditorImage({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, path] = useSelStatus(element);
   const { markdownEditorRef, readonly } = useEditorStore();
+
   const htmlRef = React.useRef<HTMLDivElement>(null);
   const [showAsText, setShowAsText] = useState(false);
   const [state, setState] = useGetSetState({

@@ -224,6 +224,8 @@ export function Media({
   const htmlRef = React.useRef<HTMLDivElement>(null);
   const [showAsText, setShowAsText] = useState(false);
 
+  console.log(editorProps);
+
   const [state, setState] = useGetSetState({
     height: element.height,
     dragging: false,

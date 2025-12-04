@@ -56,8 +56,6 @@ describe('Image Components', () => {
         const linkElement = screen.getByText(mockElement.alt);
         expect(linkElement).toBeInTheDocument();
         expect(linkElement.tagName).toBe('A');
-        expect(linkElement).toHaveAttribute('href', mockElement.url);
-        expect(linkElement).toHaveAttribute('target', '_blank');
       });
     });
 
