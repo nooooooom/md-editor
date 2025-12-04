@@ -506,7 +506,7 @@ describe('FileComponent', () => {
   });
 
   describe('预览功能', () => {
-    it('应该默认点击文件打开预览', () => {
+    it('应该默认点击文件打开预览', async () => {
       const nodes: FileNode[] = [
         {
           id: 'f1',
@@ -525,7 +525,9 @@ describe('FileComponent', () => {
       fireEvent.click(screen.getByText('test.txt'));
 
       // Preview should be opened (we'll see preview header)
-      expect(screen.getByLabelText('返回文件列表')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByLabelText('返回文件列表')).toBeInTheDocument();
+      });
     });
 
     it('应该触发自定义预览回调', async () => {
