@@ -44,7 +44,7 @@ export const docxDeserializer = (rtf: string, html: string): any[] => {
         }
         if (fragment.type === 'head') {
           if (
-            fragment?.children?.at(0).text &&
+            fragment?.children?.at(0)?.text &&
             isMarkdownLink(fragment.children.at(0).text)
           ) {
             const linkText = fragment.children.at(0).text;
