@@ -1,7 +1,7 @@
-import { createSchemaEditorBridge } from '@schema-editor/host-sdk/core';
 import type { SchemaValue } from '@schema-editor/host-sdk/core';
-import ReactDOM from 'react-dom/client';
+import { createSchemaEditorBridge } from '@schema-editor/host-sdk/core';
 import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { MarkdownEditor } from '../../MarkdownEditor';
 
 /**
@@ -14,7 +14,10 @@ export interface BubbleHandler {
   /** 设置内容 */
   setContent: (content: string) => void;
   /** 自定义预览渲染（可选） */
-  renderPreview?: (schema: SchemaValue, containerId: string) => (() => void) | void;
+  renderPreview?: (
+    schema: SchemaValue,
+    containerId: string,
+  ) => (() => void) | void;
 }
 
 /**
@@ -144,7 +147,7 @@ export class SchemaEditorBridgeManager {
     if (this.cleanup) return;
 
     this.cleanup = createSchemaEditorBridge({
-      getSchema: ((params: string) => {
+      getSchema: (params: string) => {
         const handler = this.registry.get(params);
         if (!handler) {
           // 返回 undefined 表示该元素不可编辑，插件将无法打开编辑器
@@ -154,7 +157,7 @@ export class SchemaEditorBridgeManager {
         // 记录当前编辑的 Bubble id，供 renderPreview 使用
         this.currentEditingId = params;
         return handler.getContent();
-      }),
+      },
 
       updateSchema: (schema: SchemaValue, params: string) => {
         const handler = this.registry.get(params);
@@ -256,4 +259,3 @@ export class SchemaEditorBridgeManager {
 }
 
 export default SchemaEditorBridgeManager;
-
