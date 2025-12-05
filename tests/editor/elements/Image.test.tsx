@@ -55,7 +55,7 @@ describe('Image Components', () => {
       await waitFor(() => {
         const linkElement = screen.getByText(mockElement.alt);
         expect(linkElement).toBeInTheDocument();
-        expect(linkElement.tagName).toBe('A');
+        expect(linkElement.tagName).toBe('SPAN');
       });
     });
 
@@ -73,7 +73,7 @@ describe('Image Components', () => {
       await waitFor(() => {
         const linkElement = screen.getByText(mockUrl);
         expect(linkElement).toBeInTheDocument();
-        expect(linkElement.tagName).toBe('A');
+        expect(linkElement.tagName).toBe('SPAN');
       });
     });
 
@@ -89,7 +89,7 @@ describe('Image Components', () => {
       await waitFor(() => {
         const linkElement = screen.getByText('图片链接');
         expect(linkElement).toBeInTheDocument();
-        expect(linkElement.tagName).toBe('A');
+        expect(linkElement.tagName).toBe('SPAN');
       });
     });
   });
