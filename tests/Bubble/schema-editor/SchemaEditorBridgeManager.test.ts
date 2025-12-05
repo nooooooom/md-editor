@@ -5,13 +5,6 @@ import {
 } from '../../../src/Bubble/schema-editor/SchemaEditorBridgeManager';
 import { createSchemaEditorBridge } from '@schema-editor/host-sdk/core';
 
-/** Mock @schema-editor/host-sdk */
-vi.mock('@schema-editor/host-sdk/core', () => ({
-  createSchemaEditorBridge: vi.fn(() => {
-    return vi.fn(); // 返回 cleanup 函数
-  }),
-}));
-
 describe('SchemaEditorBridgeManager', () => {
   beforeEach(() => {
     /** 每个测试前销毁单例，确保测试隔离 */

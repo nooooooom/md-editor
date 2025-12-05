@@ -3,11 +3,6 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { useSchemaEditorBridge } from '../../../src/Bubble/schema-editor/useSchemaEditorBridge';
 import { SchemaEditorBridgeManager } from '../../../src/Bubble/schema-editor/SchemaEditorBridgeManager';
 
-/** Mock @schema-editor/host-sdk */
-vi.mock('@schema-editor/host-sdk/core', () => ({
-  createSchemaEditorBridge: vi.fn(() => vi.fn()),
-}));
-
 describe('useSchemaEditorBridge', () => {
   /** 保存原始 NODE_ENV */
   const originalNodeEnv = process.env.NODE_ENV;
