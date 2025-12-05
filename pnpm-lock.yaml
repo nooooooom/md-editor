@@ -41,6 +41,9 @@ importers:
       '@juggle/resize-observer':
         specifier: ^3.4.0
         version: 3.4.0
+      '@schema-editor/host-sdk':
+        specifier: ^1.2.0
+        version: 1.2.0(react@18.3.1)
       '@sofa-design/icons':
         specifier: ^1.6.1
         version: 1.6.1(react@18.3.1)
@@ -2122,6 +2125,17 @@ packages:
 
   '@rushstack/ts-command-line@4.21.0':
     resolution: {integrity: sha512-z38FLUCn8M9FQf19gJ9eltdwkvc47PxvJmVZS6aKwbBAa3Pis3r3A+ZcBCVPNb9h/Tbga+i0tHdzoSGUoji9GQ==}
+
+  '@schema-editor/host-sdk@1.2.0':
+    resolution: {integrity: sha512-y7Hxe57LRFk4bnfUPBY+Fykd0o4p2mo+0MTyjJNVe4PC9tpcCG4AyH51YAhCl2Ck56dO5ILLdq/Ci7QKIitxtg==}
+    peerDependencies:
+      react: '>=17.0.0'
+      vue: '>=3.0.0'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      vue:
+        optional: true
 
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
@@ -11458,6 +11472,10 @@ snapshots:
       string-argv: 0.3.2
     transitivePeerDependencies:
       - '@types/node'
+
+  '@schema-editor/host-sdk@1.2.0(react@18.3.1)':
+    optionalDependencies:
+      react: 18.3.1
 
   '@selderee/plugin-htmlparser2@0.11.0':
     dependencies:
