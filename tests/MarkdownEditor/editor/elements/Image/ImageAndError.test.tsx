@@ -1,10 +1,18 @@
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ImageAndError } from '../../../../../src/MarkdownEditor/editor/elements/Image';
 import * as editorStore from '../../../../../src/MarkdownEditor/editor/store';
+import { createLinkConfigTestSuite } from '../__testUtils__/linkConfig.testUtils';
 
 vi.mock('../../../../../src/MarkdownEditor/editor/store.ts');
+
+// Mock window.open
+const mockWindowOpen = vi.fn();
+beforeEach(() => {
+  window.open = mockWindowOpen;
+  mockWindowOpen.mockClear();
+});
 
 describe('ImageAndError Component', () => {
   beforeEach(() => {
@@ -147,18 +155,67 @@ describe('ImageAndError Component', () => {
     expect(container).toBeDefined();
   });
 
-  it('失败链接应该在新标签页打开', () => {
+  it('失败链接应该在新标签页打开', async () => {
     const { container } = render(<ImageAndError src="invalid-url.jpg" />);
 
     const img = container.querySelector('img');
     if (img) {
       fireEvent.error(img);
 
-      const link = container.querySelector('a');
-      if (link) {
-        expect(link.getAttribute('target')).toBe('_blank');
-        expect(link.getAttribute('rel')).toBe('noopener noreferrer');
-      }
+      await waitFor(() => {
+        const link = container.querySelector('a');
+        if (link) {
+          expect(link.getAttribute('target')).toBe('_blank');
+          expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+        }
+      });
     }
+  });
+
+  describe('linkConfig 功能测试', () => {
+    let containerElement: HTMLElement | null = null;
+
+    const getErrorLink = async () => {
+      if (!containerElement) return null;
+      return containerElement.querySelector('a');
+    };
+
+    const triggerError = () => {
+      if (!containerElement) return;
+      const img = containerElement.querySelector('img');
+      if (img) {
+        fireEvent.error(img);
+      }
+    };
+
+    const updateEditorStore = (linkConfig: {
+      onClick?: (url: string) => boolean | void;
+      openInNewTab?: boolean;
+    }) => {
+      vi.mocked(editorStore.useEditorStore).mockReturnValue({
+        editorProps: {
+          linkConfig,
+        },
+      } as any);
+    };
+
+    beforeEach(() => {
+      mockWindowOpen.mockClear();
+      if (typeof window !== 'undefined') {
+        window.open = mockWindowOpen;
+      }
+      const { container } = render(
+        <ImageAndError src="invalid-url.jpg" alt="Test Image" />,
+      );
+      containerElement = container;
+    });
+
+    createLinkConfigTestSuite({
+      getErrorLink,
+      triggerError,
+      testUrl: 'invalid-url.jpg',
+      mockWindowOpen,
+      updateEditorStore,
+    });
   });
 });

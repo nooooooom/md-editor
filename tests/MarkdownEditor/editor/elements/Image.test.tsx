@@ -3,7 +3,7 @@
  */
 
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ConfigProvider } from 'antd';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,6 +14,7 @@ import {
 } from '../../../../src/MarkdownEditor/editor/elements/Image';
 import * as utils from '../../../../src/MarkdownEditor/editor/utils';
 import { MediaNode } from '../../../../src/MarkdownEditor/el';
+import { createLinkConfigTestSuite } from './__testUtils__/linkConfig.testUtils';
 import { TestSlateWrapper } from './TestSlateWrapper';
 
 // Mock dependencies
@@ -265,6 +266,102 @@ describe('Image', () => {
 
       // 图片在加载时是隐藏的，所以我们检查容器而不是图片本身
       expect(screen.getByAltText('Test Image')).toBeInTheDocument();
+    });
+
+    describe('ResizeImage linkConfig 功能测试', () => {
+      const mockWindowOpen = vi.fn();
+      let containerElement: HTMLElement | null = null;
+
+      const getErrorLink = async () => {
+        if (!containerElement) return null;
+        await screen.findByText('Test Image');
+        return containerElement.querySelector('a');
+      };
+
+      const triggerError = () => {
+        if (!containerElement) return;
+        const img = containerElement.querySelector('img');
+        if (img) {
+          fireEvent.error(img);
+        }
+      };
+
+      const updateEditorStore = async (linkConfig: {
+        onClick?: (url: string) => boolean | void;
+        openInNewTab?: boolean;
+      }) => {
+        const { useEditorStore } = await import(
+          '../../../../src/MarkdownEditor/editor/store'
+        );
+        vi.mocked(useEditorStore).mockReturnValue({
+          editorProps: {
+            linkConfig,
+          },
+        } as any);
+      };
+
+      beforeEach(async () => {
+        mockWindowOpen.mockClear();
+        if (typeof window !== 'undefined') {
+          window.open = mockWindowOpen;
+        }
+        await updateEditorStore({});
+        const { container } = renderWithProvider(
+          <ResizeImage {...mockResizeProps} src="invalid-url.jpg" />,
+        );
+        containerElement = container;
+      });
+
+      it('图片加载失败时应该显示链接', async () => {
+        triggerError();
+        await screen.findByText('Test Image');
+        const link = containerElement?.querySelector('a');
+        expect(link).toBeInTheDocument();
+      });
+
+      // 使用工具函数创建标准测试
+      // 注意：工具函数中的 updateEditorStore 需要支持 async
+      // 但当前实现是同步的，需要调整
+      it('应该调用 linkConfig.onClick 当点击失败链接时', async () => {
+        const onClick = vi.fn();
+        await updateEditorStore({ onClick });
+
+        triggerError();
+
+        const link = await waitFor(async () => {
+          const element = await getErrorLink();
+          if (!element) {
+            throw new Error('链接元素未找到');
+          }
+          return element;
+        });
+
+        fireEvent.click(link);
+        expect(onClick).toHaveBeenCalledWith('invalid-url.jpg');
+      });
+
+      it('当 linkConfig.onClick 返回 false 时应该阻止默认行为', async () => {
+        const onClick = vi.fn().mockReturnValue(false);
+        await updateEditorStore({ onClick });
+
+        triggerError();
+
+        const link = await waitFor(async () => {
+          const element = await getErrorLink();
+          if (!element) {
+            throw new Error('链接元素未找到');
+          }
+          return element;
+        });
+
+        fireEvent.click(link, {
+          preventDefault: vi.fn(),
+          stopPropagation: vi.fn(),
+        });
+
+        expect(onClick).toHaveBeenCalledWith('invalid-url.jpg');
+        expect(mockWindowOpen).not.toHaveBeenCalled();
+      });
     });
   });
 
