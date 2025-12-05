@@ -16,6 +16,7 @@ import React, {
 } from 'react';
 
 import { useDebounceFn } from '@ant-design/pro-components';
+import { SquareArrowUpRight } from '@sofa-design/icons';
 import { Rnd } from 'react-rnd';
 import { Transforms } from 'slate';
 import { ActionIconBox } from '../../../Components/ActionIconBox';
@@ -413,9 +414,7 @@ export function Media({
 
       if (!state().loadSuccess) {
         return (
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
+          <span
             onClick={(e) => {
               if (!state()?.url) return;
               e.stopPropagation();
@@ -448,7 +447,8 @@ export function Media({
           >
             <ExclamationCircleOutlined style={{ color: '#faad14' }} />
             {element.alt || state()?.url || element?.url || '视频链接'}
-          </a>
+            <SquareArrowUpRight />
+          </span>
         );
       }
       return (
@@ -530,9 +530,7 @@ export function Media({
 
       if (!state().loadSuccess) {
         return (
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
+          <span
             onClick={(e) => {
               if (!(state()?.url || element?.url)) return;
               e.stopPropagation();
@@ -567,7 +565,8 @@ export function Media({
           >
             <ExclamationCircleOutlined style={{ color: '#faad14' }} />
             {element.alt || state()?.url || element?.url || '音频链接'}
-          </a>
+            <SquareArrowUpRight />
+          </span>
         );
       }
       return (

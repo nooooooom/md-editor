@@ -16,6 +16,7 @@ import React, {
 } from 'react';
 
 import { useDebounceFn } from '@ant-design/pro-components';
+import { SquareArrowUpRight } from '@sofa-design/icons';
 import { Rnd } from 'react-rnd';
 import { Path, Transforms } from 'slate';
 import { ActionIconBox } from '../../../../Components/ActionIconBox';
@@ -47,9 +48,7 @@ export const ImageAndError: React.FC<ImageProps> = (props) => {
   // 图片加载失败时显示为链接
   if (error) {
     return (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
+      <span
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
@@ -79,7 +78,8 @@ export const ImageAndError: React.FC<ImageProps> = (props) => {
       >
         <ExclamationCircleOutlined style={{ color: '#faad14' }} />
         {props.alt || props.src || '图片链接'}
-      </a>
+        <SquareArrowUpRight />
+      </span>
     );
   }
 
@@ -166,9 +166,7 @@ export const ResizeImage = ({
   // 如果图片加载失败，显示为链接
   if (error) {
     return (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
+      <span
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
@@ -200,7 +198,8 @@ export const ResizeImage = ({
       >
         <ExclamationCircleOutlined style={{ color: '#faad14' }} />
         {props.alt || props.src}
-      </a>
+        <SquareArrowUpRight />
+      </span>
     );
   }
 
@@ -324,7 +323,7 @@ export function EditorImage({
 }: ElementProps<MediaNode>) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, path] = useSelStatus(element);
-  const { markdownEditorRef, readonly } = useEditorStore();
+  const { markdownEditorRef, readonly, editorProps } = useEditorStore();
 
   const htmlRef = React.useRef<HTMLDivElement>(null);
   const [showAsText, setShowAsText] = useState(false);
@@ -420,10 +419,7 @@ export function EditorImage({
     // 如果图片加载失败，显示为链接
     if (!state().loadSuccess) {
       return (
-        <a
-          href={state()?.url || element?.url}
-          target="_blank"
-          rel="noopener noreferrer"
+        <span
           style={{
             color: '#1890ff',
             textDecoration: 'underline',
@@ -439,10 +435,29 @@ export function EditorImage({
             fontSize: '13px',
             lineHeight: '1.5',
           }}
+          onClick={(e) => {
+            if (!(state()?.url || element?.url)) return;
+            e.stopPropagation();
+            e.preventDefault();
+            if (editorProps.linkConfig?.onClick) {
+              if (
+                editorProps.linkConfig.onClick(
+                  state()?.url || element?.url || '',
+                ) === false
+              ) {
+                return;
+              }
+            }
+            window.open(
+              state()?.url || element?.url,
+              editorProps?.linkConfig?.openInNewTab ? '_blank' : '_self',
+            );
+          }}
         >
           <ExclamationCircleOutlined style={{ color: '#faad14' }} />
           {element?.alt || state()?.url || element?.url || '图片链接'}
-        </a>
+          <SquareArrowUpRight />
+        </span>
       );
     }
 
