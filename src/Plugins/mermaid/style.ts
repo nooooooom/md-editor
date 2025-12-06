@@ -71,7 +71,23 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         padding: '0.5rem',
         position: 'relative',
         zIndex: 1,
-        fontStyle: 'italic',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '200px',
+
+        // Skeleton 样式优化
+        '& .ant-skeleton': {
+          width: '100%',
+          maxWidth: '800px',
+        },
+
+        '& .ant-skeleton-image': {
+          width: '100%',
+          minHeight: '200px',
+          borderRadius: '12px',
+        },
       },
 
       // 错误状态样式
@@ -103,6 +119,20 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         justifyContent: 'center',
         alignItems: 'center',
         color: '#6B7280',
+        width: '100%',
+        minHeight: '200px',
+
+        // Skeleton 样式优化
+        '& .ant-skeleton': {
+          width: '100%',
+          maxWidth: '800px',
+        },
+
+        '& .ant-skeleton-image': {
+          width: '100%',
+          minHeight: '200px',
+          borderRadius: '12px',
+        },
       },
 
       // SVG 渲染优化样式

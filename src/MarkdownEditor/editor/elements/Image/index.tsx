@@ -271,7 +271,7 @@ export function EditorImage({
 }: ElementProps<MediaNode>) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, path] = useSelStatus(element);
-  const { markdownEditorRef, readonly, editorProps } = useEditorStore();
+  const { markdownEditorRef, readonly } = useEditorStore();
 
   const htmlRef = React.useRef<HTMLDivElement>(null);
   const [showAsText, setShowAsText] = useState(false);
