@@ -1,6 +1,6 @@
 import React from 'react';
-import { BlockQuoteNode, ElementProps } from '../../el';
-import { useEditorStore } from '../store';
+import { BlockQuoteNode, ElementProps } from '../../../el';
+import { useEditorStore } from '../../store';
 
 /**
  * Blockquote 组件 - 引用块组件
@@ -49,3 +49,4 @@ export function Blockquote(props: ElementProps<BlockQuoteNode>) {
     [props.element.children],
   );
 }
+

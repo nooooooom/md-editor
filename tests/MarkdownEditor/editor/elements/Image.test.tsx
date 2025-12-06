@@ -14,7 +14,6 @@ import {
 } from '../../../../src/MarkdownEditor/editor/elements/Image';
 import * as utils from '../../../../src/MarkdownEditor/editor/utils';
 import { MediaNode } from '../../../../src/MarkdownEditor/el';
-import { createLinkConfigTestSuite } from './__testUtils__/linkConfig.testUtils';
 import { TestSlateWrapper } from './TestSlateWrapper';
 
 // Mock dependencies

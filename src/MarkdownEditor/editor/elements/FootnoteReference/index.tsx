@@ -1,9 +1,9 @@
-﻿import React from 'react';
+import React from 'react';
 import { Node } from 'slate';
-import { ElementProps, FootnoteDefinitionNode } from '../../el';
-import { useSelStatus } from '../../hooks/editor';
-import { useEditorStore } from '../store';
-import { DragHandle } from '../tools/DragHandle';
+import { ElementProps, FootnoteDefinitionNode } from '../../../el';
+import { useSelStatus } from '../../../hooks/editor';
+import { useEditorStore } from '../../store';
+import { DragHandle } from '../../tools/DragHandle';
 
 export const FootnoteReference = (
   props: ElementProps<FootnoteDefinitionNode>,
@@ -28,3 +28,4 @@ export const FootnoteReference = (
     );
   }, [props.element.children, selected]);
 };
+

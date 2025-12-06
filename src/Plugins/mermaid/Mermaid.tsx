@@ -1,8 +1,18 @@
-import React, { lazy, Suspense, useEffect, useMemo, useRef } from 'react';
+import { ConfigProvider } from 'antd';
+import classNames from 'classnames';
+import React, {
+  lazy,
+  Suspense,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useGetSetState } from 'react-use';
 import { useIntersectionOnce } from '../../Hooks/useIntersectionOnce';
 import { isCodeBlockLikelyComplete } from '../../MarkdownEditor/editor/utils/findMatchingClose';
 import { CodeNode } from '../../MarkdownEditor/el';
+import { useStyle } from './style';
 
 type MermaidApi = typeof import('mermaid').default;
 
@@ -54,6 +64,10 @@ const isCodeLikelyComplete = (code: string): boolean => {
 };
 
 const MermaidRendererImpl = (props: { element: CodeNode }) => {
+  const context = useContext(ConfigProvider.ConfigContext);
+  const baseCls =
+    context?.getPrefixCls('agentic-plugin-mermaid') || 'plugin-mermaid';
+  const { wrapSSR, hashId } = useStyle(baseCls);
   const [state, setState] = useGetSetState({
     code: '',
     error: '',
@@ -184,6 +198,8 @@ const MermaidRendererImpl = (props: { element: CodeNode }) => {
 
               // 创建隔离的容器包装 SVG
               const wrapper = document.createElement('div');
+              wrapper.setAttribute('data-mermaid-wrapper', 'true');
+              // 基础样式通过 CSS 类控制，这里只设置必要的内联样式
               wrapper.style.cssText = `
                 position: relative;
                 width: 100%;
@@ -194,7 +210,7 @@ const MermaidRendererImpl = (props: { element: CodeNode }) => {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                min-height: 200px; /* 保持最小高度，避免尺寸抖动 */
+                min-height: 200px;
               `;
 
               // 解析 SVG 并添加隔离属性
@@ -343,95 +359,39 @@ const MermaidRendererImpl = (props: { element: CodeNode }) => {
 
   const snapshot = state();
 
-  return (
+  return wrapSSR(
     <div
       ref={containerRef}
-      style={{
-        marginBottom: '0.75em',
-        cursor: 'default',
-        userSelect: 'none',
-        padding: '0.75rem 0',
-        borderRadius: '1em',
-        display: 'flex',
-        justifyContent: 'center',
-        // 增加隔离：防止内容溢出影响其他元素
-        position: 'relative',
-        isolation: 'isolate', // CSS isolation 属性，创建新的堆叠上下文
-        contain: 'layout style paint', // CSS containment，限制布局和样式的影响范围
-        overflow: 'hidden', // 防止内容溢出
-      }}
+      className={classNames(baseCls, hashId)}
       contentEditable={false}
     >
       {/* 渲染容器：增加多层隔离 */}
       <div
         contentEditable={false}
         ref={divRef}
+        className={classNames(hashId)}
         style={{
-          width: '100%',
-          maxWidth: '100%',
-          minHeight: '200px', // 保持最小高度，避免尺寸抖动
-          display: 'flex',
-          justifyContent: 'center',
           visibility: snapshot.code && !snapshot.error ? 'visible' : 'hidden',
-          // 增加隔离样式
-          position: 'relative',
-          isolation: 'isolate',
-          contain: 'layout style paint',
-          overflow: 'hidden',
-          // 防止 SVG 样式影响外部
           pointerEvents: snapshot.code && !snapshot.error ? 'auto' : 'none',
-          // 添加过渡效果，使更新更平滑
-          transition: 'opacity 0.3s ease-in-out, min-height 0.2s ease-in-out',
         }}
-        // 使用 data 属性标记，方便样式隔离
         data-mermaid-container="true"
       ></div>
       {/* 正在输入时显示提示，不显示错误 */}
       {snapshot.isTyping && !snapshot.code && (
-        <div
-          style={{
-            textAlign: 'center',
-            color: '#6B7280',
-            padding: '0.5rem',
-            position: 'relative',
-            zIndex: 1,
-            fontStyle: 'italic',
-          }}
-        >
+        <div className={classNames(`${baseCls}-loading`, hashId)}>
           正在加载...
         </div>
       )}
       {/* 只在非输入状态且确实有错误时显示错误 */}
       {snapshot.error && !snapshot.isTyping && (
-        <div
-          style={{
-            textAlign: 'center',
-            color: 'rgba(239, 68, 68, 0.8)',
-            padding: '0.5rem',
-            // 错误信息也增加隔离
-            position: 'relative',
-            zIndex: 1,
-            wordBreak: 'break-word',
-            maxWidth: '100%',
-          }}
-        >
+        <div className={classNames(`${baseCls}-error`, hashId)}>
           {snapshot.error}
         </div>
       )}
       {!snapshot.code && !snapshot.error && !snapshot.isTyping && (
-        <div
-          style={{
-            textAlign: 'center',
-            color: '#6B7280',
-            padding: '0.5rem',
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          Empty
-        </div>
+        <div className={classNames(`${baseCls}-empty`, hashId)}>Empty</div>
       )}
-    </div>
+    </div>,
   );
 };
 
@@ -447,20 +407,16 @@ const MermaidRenderer = lazy(async () => {
 /**
  * 加载中的占位组件
  */
-const MermaidFallback = () => (
-  <div
-    style={{
-      marginBottom: '0.75em',
-      padding: '0.75rem 0',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      color: '#6B7280',
-    }}
-  >
-    加载中...
-  </div>
-);
+const MermaidFallback = () => {
+  const context = useContext(ConfigProvider.ConfigContext);
+  const baseCls =
+    context?.getPrefixCls('agentic-plugin-mermaid') || 'agentic-plugin-mermaid';
+  const { wrapSSR, hashId } = useStyle(baseCls);
+
+  return wrapSSR(
+    <div className={classNames(`${baseCls}-fallback`, hashId)}>加载中...</div>,
+  );
+};
 
 /**
  * Mermaid 组件 - Mermaid图表渲染组件

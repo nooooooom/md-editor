@@ -24,3 +24,4 @@ export const InlineKatex = ({
     </code>
   );
 };
+

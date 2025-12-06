@@ -1,7 +1,7 @@
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ImageAndError } from '../../../../../src/MarkdownEditor/editor/elements/Image';
+import { ReadonlyImage } from '../../../../../src/MarkdownEditor/editor/elements/Image';
 import * as editorStore from '../../../../../src/MarkdownEditor/editor/store';
 import { createLinkConfigTestSuite } from '../__testUtils__/linkConfig.testUtils';
 
@@ -14,7 +14,7 @@ beforeEach(() => {
   mockWindowOpen.mockClear();
 });
 
-describe('ImageAndError Component', () => {
+describe('ReadonlyImage Component', () => {
   beforeEach(() => {
     vi.mocked(editorStore.useEditorStore).mockReturnValue({
       editorProps: {},
@@ -23,7 +23,7 @@ describe('ImageAndError Component', () => {
 
   it('应该渲染基本图片', () => {
     const { getByTestId } = render(
-      <ImageAndError src="https://example.com/image.jpg" alt="Test Image" />,
+      <ReadonlyImage src="https://example.com/image.jpg" alt="Test Image" />,
     );
 
     const container = getByTestId('image-container');
@@ -32,7 +32,7 @@ describe('ImageAndError Component', () => {
 
   it('应该使用默认宽度', () => {
     const { container } = render(
-      <ImageAndError src="https://example.com/image.jpg" />,
+      <ReadonlyImage src="https://example.com/image.jpg" />,
     );
 
     const img = container.querySelector('img');
@@ -41,7 +41,7 @@ describe('ImageAndError Component', () => {
 
   it('应该接受自定义宽度（数字）', () => {
     const { container } = render(
-      <ImageAndError src="https://example.com/image.jpg" width={300} />,
+      <ReadonlyImage src="https://example.com/image.jpg" width={300} />,
     );
 
     const img = container.querySelector('img');
@@ -50,16 +50,16 @@ describe('ImageAndError Component', () => {
 
   it('应该接受自定义宽度（字符串）', () => {
     const { container } = render(
-      <ImageAndError src="https://example.com/image.jpg" width="500px" />,
+      <ReadonlyImage src="https://example.com/image.jpg" width="500px" />,
     );
 
     const img = container.querySelector('img');
     expect(img).toBeDefined();
   });
 
-  it('应该在加载失败时显示链接', () => {
+  it('应该在加载失败时显示链接', async () => {
     const { container, rerender } = render(
-      <ImageAndError src="invalid-url.jpg" alt="Failed Image" />,
+      <ReadonlyImage src="invalid-url.jpg" alt="Failed Image" />,
     );
 
     // 触发错误
@@ -68,36 +68,44 @@ describe('ImageAndError Component', () => {
       fireEvent.error(img);
     }
 
-    // 重新渲染以查看更新
-    rerender(<ImageAndError src="invalid-url.jpg" alt="Failed Image" />);
-
-    // 现在应该显示链接
-    const link = container.querySelector('a');
-    if (link) {
-      expect(link.textContent).toContain('Failed Image');
-    }
+    // 等待错误状态更新
+    await waitFor(() => {
+      const link = container.querySelector('span');
+      expect(link).toBeDefined();
+      expect(link?.textContent).toContain('Failed Image');
+    });
   });
 
-  it('应该在加载失败时显示 alt 文本', () => {
+  it('应该在加载失败时显示 alt 文本', async () => {
     const { container } = render(
-      <ImageAndError src="invalid-url.jpg" alt="Alternative Text" />,
+      <ReadonlyImage src="invalid-url.jpg" alt="Alternative Text" />,
     );
 
     const img = container.querySelector('img');
     if (img) {
       fireEvent.error(img);
     }
+
+    await waitFor(() => {
+      const link = container.querySelector('span');
+      expect(link?.textContent).toContain('Alternative Text');
+    });
   });
 
-  it('应该在加载失败且无 alt 时显示 src', () => {
+  it('应该在加载失败且无 alt 时显示 src', async () => {
     const { container } = render(
-      <ImageAndError src="https://example.com/image.jpg" />,
+      <ReadonlyImage src="https://example.com/image.jpg" />,
     );
 
     const img = container.querySelector('img');
     if (img) {
       fireEvent.error(img);
     }
+
+    await waitFor(() => {
+      const link = container.querySelector('span');
+      expect(link?.textContent).toContain('https://example.com/image.jpg');
+    });
   });
 
   it('应该支持自定义 render 函数', () => {
@@ -111,7 +119,7 @@ describe('ImageAndError Component', () => {
       },
     } as any);
 
-    render(<ImageAndError src="https://example.com/image.jpg" />);
+    render(<ReadonlyImage src="https://example.com/image.jpg" />);
 
     expect(customRender).toHaveBeenCalled();
   });
@@ -131,17 +139,16 @@ describe('ImageAndError Component', () => {
       },
     } as any);
 
-    render(<ImageAndError src="https://example.com/image.jpg" />);
+    render(<ReadonlyImage src="https://example.com/image.jpg" />);
   });
 
   it('应该传递所有属性到 Image 组件', () => {
     const { container } = render(
-      <ImageAndError
+      <ReadonlyImage
         src="https://example.com/image.jpg"
         alt="Test"
         width={500}
         height={300}
-        preview={false}
       />,
     );
 
@@ -149,24 +156,36 @@ describe('ImageAndError Component', () => {
     expect(img).toBeDefined();
   });
 
+  it('应该支持 crossOrigin 属性', () => {
+    const { container } = render(
+      <ReadonlyImage
+        src="https://example.com/image.jpg"
+        crossOrigin="anonymous"
+      />,
+    );
+
+    const img = container.querySelector('img');
+    expect(img).toHaveAttribute('crossorigin', 'anonymous');
+  });
+
   it('应该处理没有 src 的情况', () => {
-    const { container } = render(<ImageAndError src="" alt="No source" />);
+    const { container } = render(<ReadonlyImage src="" alt="No source" />);
 
     expect(container).toBeDefined();
   });
 
   it('失败链接应该在新标签页打开', async () => {
-    const { container } = render(<ImageAndError src="invalid-url.jpg" />);
+    const { container } = render(<ReadonlyImage src="invalid-url.jpg" />);
 
     const img = container.querySelector('img');
     if (img) {
       fireEvent.error(img);
 
       await waitFor(() => {
-        const link = container.querySelector('a');
+        const link = container.querySelector('span');
         if (link) {
-          expect(link.getAttribute('target')).toBe('_blank');
-          expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+          fireEvent.click(link);
+          expect(mockWindowOpen).toHaveBeenCalled();
         }
       });
     }
@@ -177,7 +196,13 @@ describe('ImageAndError Component', () => {
 
     const getErrorLink = async () => {
       if (!containerElement) return null;
-      return containerElement.querySelector('a');
+      await waitFor(() => {
+        const link = containerElement?.querySelector('span');
+        if (!link) {
+          throw new Error('链接元素未找到');
+        }
+      });
+      return containerElement.querySelector('span');
     };
 
     const triggerError = () => {
@@ -205,13 +230,16 @@ describe('ImageAndError Component', () => {
         window.open = mockWindowOpen;
       }
       const { container } = render(
-        <ImageAndError src="invalid-url.jpg" alt="Test Image" />,
+        <ReadonlyImage src="invalid-url.jpg" alt="Test Image" />,
       );
       containerElement = container;
     });
 
     createLinkConfigTestSuite({
-      getErrorLink,
+      getErrorLink: async () => {
+        const element = await getErrorLink();
+        return element as HTMLAnchorElement | null;
+      },
       triggerError,
       testUrl: 'invalid-url.jpg',
       mockWindowOpen,

@@ -1,9 +1,9 @@
-﻿import { ExportOutlined } from '@ant-design/icons';
+import { ExportOutlined } from '@ant-design/icons';
 import React, { useMemo } from 'react';
 import { Node } from 'slate';
-import { ElementProps, FootnoteDefinitionNode } from '../../el';
-import { useEditorStore } from '../store';
-import { DragHandle } from '../tools/DragHandle';
+import { ElementProps, FootnoteDefinitionNode } from '../../../el';
+import { useEditorStore } from '../../store';
+import { DragHandle } from '../../tools/DragHandle';
 
 export const FootnoteDefinition = (
   props: ElementProps<FootnoteDefinitionNode>,
@@ -48,3 +48,4 @@ export const FootnoteDefinition = (
     );
   }, [props.element.children]);
 };
+

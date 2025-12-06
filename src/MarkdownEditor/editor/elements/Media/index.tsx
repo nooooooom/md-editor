@@ -1,9 +1,4 @@
-import {
-  DeleteFilled,
-  ExclamationCircleOutlined,
-  EyeOutlined,
-  LoadingOutlined,
-} from '@ant-design/icons';
+import { DeleteFilled, EyeOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Modal, Popover, Skeleton } from 'antd';
 import React, {
   useCallback,
@@ -16,18 +11,18 @@ import React, {
 } from 'react';
 
 import { useDebounceFn } from '@ant-design/pro-components';
-import { SquareArrowUpRight } from '@sofa-design/icons';
 import { Rnd } from 'react-rnd';
 import { Transforms } from 'slate';
-import { ActionIconBox } from '../../../Components/ActionIconBox';
-import { I18nContext } from '../../../I18n';
-import { ElementProps, MediaNode } from '../../el';
-import { useSelStatus } from '../../hooks/editor';
-import { AvatarList } from '../components/ContributorAvatar';
-import { useEditorStore } from '../store';
-import { useGetSetState } from '../utils';
-import { getMediaType } from '../utils/dom';
-import { ImageAndError } from './Image';
+import { ActionIconBox } from '../../../../Components/ActionIconBox';
+import { I18nContext } from '../../../../I18n';
+import { ElementProps, MediaNode } from '../../../el';
+import { useSelStatus } from '../../../hooks/editor';
+import { AvatarList } from '../../components/ContributorAvatar';
+import { MediaErrorLink } from '../../components/MediaErrorLink';
+import { useEditorStore } from '../../store';
+import { useGetSetState } from '../../utils';
+import { getMediaType } from '../../utils/dom';
+import { ReadonlyImage } from '../Image';
 
 /**
  * 可调整大小的图片组件的属性接口
@@ -356,22 +351,12 @@ export function Media({
         }}
       />
     ) : (
-      <ImageAndError
+      <ReadonlyImage
         src={state()?.url || element?.url}
-        alt={'image'}
-        preview={{
-          getContainer: () => document.body,
-        }}
-        referrerPolicy={'no-referrer'}
-        crossOrigin={'anonymous'}
-        draggable={false}
-        style={{
-          maxWidth: '100%',
-          height: 'auto',
-          display: 'block',
-        }}
+        alt={element?.alt || 'image'}
         width={element.width}
         height={element.height}
+        crossOrigin="anonymous"
       />
     );
   }, [
@@ -414,41 +399,13 @@ export function Media({
 
       if (!state().loadSuccess) {
         return (
-          <span
-            onClick={(e) => {
-              if (!state()?.url) return;
-              e.stopPropagation();
-              e.preventDefault();
-              if (editorProps.linkConfig?.onClick) {
-                if (
-                  editorProps.linkConfig.onClick(state()?.url || '') === false
-                ) {
-                  return;
-                }
-              }
-              window.open(
-                state()?.url,
-                editorProps?.linkConfig?.openInNewTab ? '_blank' : '_self',
-              );
-            }}
-            style={{
-              color: '#1890ff',
-              textDecoration: 'underline',
-              wordBreak: 'break-all',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              maxWidth: '100%',
-              padding: '8px 12px',
-              border: '1px dashed #d9d9d9',
-              borderRadius: '6px',
-              backgroundColor: '#fafafa',
-            }}
-          >
-            <ExclamationCircleOutlined style={{ color: '#faad14' }} />
-            {element.alt || state()?.url || element?.url || '视频链接'}
-            <SquareArrowUpRight />
-          </span>
+          <MediaErrorLink
+            url={state()?.url}
+            fallbackUrl={element?.url}
+            displayText={
+              element.alt || state()?.url || element?.url || '视频链接'
+            }
+          />
         );
       }
       return (
@@ -530,43 +487,13 @@ export function Media({
 
       if (!state().loadSuccess) {
         return (
-          <span
-            onClick={(e) => {
-              if (!(state()?.url || element?.url)) return;
-              e.stopPropagation();
-              e.preventDefault();
-              if (editorProps.linkConfig?.onClick) {
-                if (
-                  editorProps.linkConfig.onClick(
-                    state()?.url || element?.url || '',
-                  ) === false
-                ) {
-                  return;
-                }
-              }
-              window.open(
-                state()?.url || element?.url,
-                editorProps?.linkConfig?.openInNewTab ? '_blank' : '_self',
-              );
-            }}
-            style={{
-              color: '#1890ff',
-              textDecoration: 'underline',
-              wordBreak: 'break-all',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              maxWidth: '100%',
-              padding: '8px 12px',
-              border: '1px dashed #d9d9d9',
-              borderRadius: '6px',
-              backgroundColor: '#fafafa',
-            }}
-          >
-            <ExclamationCircleOutlined style={{ color: '#faad14' }} />
-            {element.alt || state()?.url || element?.url || '音频链接'}
-            <SquareArrowUpRight />
-          </span>
+          <MediaErrorLink
+            url={state()?.url}
+            fallbackUrl={element?.url}
+            displayText={
+              element.alt || state()?.url || element?.url || '音频链接'
+            }
+          />
         );
       }
       return (
