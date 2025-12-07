@@ -1,13 +1,13 @@
 import { Player, Scene } from '@galacean/effects';
 import React, {
   HTMLAttributes,
-  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from 'react';
 import { useLatest } from 'react-use';
+import { useRefFunction } from '../../Hooks/useRefFunction';
 
 export interface EffectPlayerProps
   extends Omit<HTMLAttributes<HTMLDivElement>, 'ref'> {
@@ -63,9 +63,9 @@ function EffectPlayer({
 
   const [fallbackImage, setFallbackImage] = useState<string>();
 
-  const onError = useCallback(() => {
+  const onError = useRefFunction(() => {
     setFallbackImage(downgradeImageRef.current);
-  }, [downgradeImageRef]);
+  });
 
   // ==================== Create Player ====================
   useLayoutEffect(() => {

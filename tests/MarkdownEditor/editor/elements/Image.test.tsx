@@ -9,7 +9,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   EditorImage,
-  ImageAndError,
+  ReadonlyImage,
   ResizeImage,
 } from '../../../../src/MarkdownEditor/editor/elements/Image';
 import * as utils from '../../../../src/MarkdownEditor/editor/utils';
@@ -131,10 +131,10 @@ describe('Image', () => {
     vi.clearAllMocks();
   });
 
-  describe('ImageAndError', () => {
+  describe('ReadonlyImage', () => {
     it('应该正确渲染图片', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="https://example.com/image.jpg"
           alt="Test Image"
           width={400}
@@ -152,7 +152,7 @@ describe('Image', () => {
 
     it('应该处理图片加载错误', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="https://example.com/invalid-image.jpg"
           alt="Invalid Image"
           width={400}
@@ -166,7 +166,7 @@ describe('Image', () => {
 
     it('应该处理空的 alt 属性', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="https://example.com/image.jpg"
           alt=""
           width={400}
@@ -174,13 +174,14 @@ describe('Image', () => {
         />,
       );
 
-      const imageElement = screen.getByAltText('');
+      // ReadonlyImage 会将空 alt 转换为 'image'
+      const imageElement = screen.getByAltText('image');
       expect(imageElement).toBeInTheDocument();
     });
 
     it('应该处理数字类型的 width', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="https://example.com/image.jpg"
           alt="Test Image"
           width={400}
@@ -273,8 +274,13 @@ describe('Image', () => {
 
       const getErrorLink = async () => {
         if (!containerElement) return null;
-        await screen.findByText('Test Image');
-        return containerElement.querySelector('a');
+        await waitFor(() => {
+          const link = containerElement?.querySelector('span');
+          if (!link || !link.textContent?.includes('Test Image')) {
+            throw new Error('链接元素未找到');
+          }
+        });
+        return containerElement.querySelector('span') as HTMLSpanElement | null;
       };
 
       const triggerError = () => {
@@ -313,9 +319,11 @@ describe('Image', () => {
 
       it('图片加载失败时应该显示链接', async () => {
         triggerError();
-        await screen.findByText('Test Image');
-        const link = containerElement?.querySelector('a');
-        expect(link).toBeInTheDocument();
+        await waitFor(() => {
+          const link = containerElement?.querySelector('span');
+          expect(link).toBeInTheDocument();
+          expect(link?.textContent).toContain('Test Image');
+        });
       });
 
       // 使用工具函数创建标准测试
@@ -707,10 +715,10 @@ describe('Image', () => {
     });
   });
 
-  describe('ImageAndError 扩展测试', () => {
+  describe('ReadonlyImage 扩展测试', () => {
     it('应该处理图片的 onLoad 事件', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="https://example.com/image.jpg"
           alt="Test Image"
           width={400}
@@ -724,61 +732,11 @@ describe('Image', () => {
       expect(imageElement).toBeInTheDocument();
     });
 
-    it('应该处理自定义 className', () => {
-      renderWithProvider(
-        <ImageAndError
-          src="https://example.com/image.jpg"
-          alt="Test Image"
-          className="custom-image-class"
-        />,
-      );
-
-      const imageElement = screen.getByAltText('Test Image');
-      expect(imageElement).toBeInTheDocument();
-    });
-
-    it('应该处理自定义 style', () => {
-      renderWithProvider(
-        <ImageAndError
-          src="https://example.com/image.jpg"
-          alt="Test Image"
-          style={{ border: '1px solid red' }}
-        />,
-      );
-
-      const imageElement = screen.getByAltText('Test Image');
-      expect(imageElement).toBeInTheDocument();
-    });
-
-    it('应该处理 preview 为 false', () => {
-      renderWithProvider(
-        <ImageAndError
-          src="https://example.com/image.jpg"
-          alt="Test Image"
-          preview={false}
-        />,
-      );
-
-      const imageElement = screen.getByAltText('Test Image');
-      expect(imageElement).toBeInTheDocument();
-    });
-
-    it('应该处理 preview 配置对象', () => {
-      renderWithProvider(
-        <ImageAndError
-          src="https://example.com/image.jpg"
-          alt="Test Image"
-          preview={{ visible: false }}
-        />,
-      );
-
-      const imageElement = screen.getByAltText('Test Image');
-      expect(imageElement).toBeInTheDocument();
-    });
+    // ReadonlyImage 组件不支持 className, style, preview 属性，这些测试已移除
 
     it('应该处理百分比宽度', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="https://example.com/image.jpg"
           alt="Test Image"
           width="50%"
@@ -791,7 +749,7 @@ describe('Image', () => {
 
     it('应该处理 rem 单位宽度', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="https://example.com/image.jpg"
           alt="Test Image"
           width="20rem"
@@ -804,7 +762,7 @@ describe('Image', () => {
 
     it('应该处理特殊字符的 URL', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="https://example.com/image%20with%20spaces.jpg"
           alt="Test Image"
         />,
@@ -816,7 +774,7 @@ describe('Image', () => {
 
     it('应该处理 data URL', () => {
       renderWithProvider(
-        <ImageAndError
+        <ReadonlyImage
           src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
           alt="Test Image"
         />,

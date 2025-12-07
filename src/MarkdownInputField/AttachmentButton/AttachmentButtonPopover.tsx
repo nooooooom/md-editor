@@ -7,7 +7,8 @@ import {
   VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Button, Modal, Tooltip } from 'antd';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
+import { useRefFunction } from '../../Hooks/useRefFunction';
 import { I18nContext } from '../../I18n';
 import { isMobileDevice, isVivoOrOppoDevice, kbToSize } from './utils';
 
@@ -111,7 +112,7 @@ export const AttachmentButtonPopover: React.FC<
     [isVivoOrOppo],
   );
 
-  const handleClick = useCallback(
+  const handleClick = useRefFunction(
     (e: React.MouseEvent) => {
       if (isVivoOrOppo) {
         e.stopPropagation();
@@ -119,18 +120,17 @@ export const AttachmentButtonPopover: React.FC<
         setModalOpen(true);
       }
     },
-    [isVivoOrOppo],
   );
 
-  const handleOpenGallery = useCallback(() => {
+  const handleOpenGallery = useRefFunction(() => {
     uploadImage?.(true);
     setModalOpen(false);
-  }, [uploadImage]);
+  });
 
-  const handleOpenFile = useCallback(() => {
+  const handleOpenFile = useRefFunction(() => {
     uploadImage?.(false);
     setModalOpen(false);
-  }, [uploadImage]);
+  });
 
   if (isVivoOrOppo) {
     return (

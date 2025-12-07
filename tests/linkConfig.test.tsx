@@ -15,8 +15,8 @@ const simulateLinkClick = (
   mockLocationHref: ReturnType<typeof vi.fn>,
 ) => {
   // 模拟 MLeaf 组件的点击逻辑
-  if (linkConfig?.onCLick) {
-    const res = linkConfig.onCLick(url);
+  if (linkConfig?.onClick) {
+    const res = linkConfig.onClick(url);
     if (res === false) {
       return;
     }
@@ -138,24 +138,24 @@ describe('linkConfig - 链接配置测试', () => {
       expect(capturedLinkConfig).toEqual({ openInNewTab: false });
     });
 
-    it('应该正确传递 onCLick 回调', () => {
-      const onCLick = vi.fn();
-      render(<BaseMarkdownEditor {...defaultProps} linkConfig={{ onCLick }} />);
+    it('应该正确传递 onClick 回调', () => {
+      const onClick = vi.fn();
+      render(<BaseMarkdownEditor {...defaultProps} linkConfig={{ onClick }} />);
 
-      expect(capturedLinkConfig.onCLick).toBe(onCLick);
+      expect(capturedLinkConfig.onClick).toBe(onClick);
     });
 
     it('应该正确传递组合配置', () => {
-      const onCLick = vi.fn();
+      const onClick = vi.fn();
       render(
         <BaseMarkdownEditor
           {...defaultProps}
-          linkConfig={{ openInNewTab: false, onCLick }}
+          linkConfig={{ openInNewTab: false, onClick }}
         />,
       );
 
       expect(capturedLinkConfig.openInNewTab).toBe(false);
-      expect(capturedLinkConfig.onCLick).toBe(onCLick);
+      expect(capturedLinkConfig.onClick).toBe(onClick);
     });
   });
 
@@ -206,10 +206,10 @@ describe('linkConfig - 链接配置测试', () => {
     });
   });
 
-  describe('onCLick 回调测试', () => {
-    it('点击链接时应该调用 onCLick 回调', () => {
-      const onCLick = vi.fn();
-      const linkConfig = { onCLick };
+  describe('onClick 回调测试', () => {
+    it('点击链接时应该调用 onClick 回调', () => {
+      const onClick = vi.fn();
+      const linkConfig = { onClick };
       simulateLinkClick(
         linkConfig,
         'https://example.com',
@@ -217,12 +217,12 @@ describe('linkConfig - 链接配置测试', () => {
         mockLocationHref,
       );
 
-      expect(onCLick).toHaveBeenCalledWith('https://example.com');
+      expect(onClick).toHaveBeenCalledWith('https://example.com');
     });
 
-    it('当 onCLick 返回 false 时应该阻止默认行为', () => {
-      const onCLick = vi.fn().mockReturnValue(false);
-      const linkConfig = { onCLick };
+    it('当 onClick 返回 false 时应该阻止默认行为', () => {
+      const onClick = vi.fn().mockReturnValue(false);
+      const linkConfig = { onClick };
       simulateLinkClick(
         linkConfig,
         'https://example.com',
@@ -230,15 +230,15 @@ describe('linkConfig - 链接配置测试', () => {
         mockLocationHref,
       );
 
-      expect(onCLick).toHaveBeenCalledWith('https://example.com');
+      expect(onClick).toHaveBeenCalledWith('https://example.com');
       // 默认行为应该被阻止
       expect(mockWindowOpen).not.toHaveBeenCalled();
       expect(mockLocationHref).not.toHaveBeenCalled();
     });
 
-    it('当 onCLick 返回 undefined 时应该继续执行默认行为', () => {
-      const onCLick = vi.fn().mockReturnValue(undefined);
-      const linkConfig = { onCLick };
+    it('当 onClick 返回 undefined 时应该继续执行默认行为', () => {
+      const onClick = vi.fn().mockReturnValue(undefined);
+      const linkConfig = { onClick };
       simulateLinkClick(
         linkConfig,
         'https://example.com',
@@ -246,7 +246,7 @@ describe('linkConfig - 链接配置测试', () => {
         mockLocationHref,
       );
 
-      expect(onCLick).toHaveBeenCalledWith('https://example.com');
+      expect(onClick).toHaveBeenCalledWith('https://example.com');
       // 默认行为应该继续
       expect(mockWindowOpen).toHaveBeenCalledWith(
         'https://example.com',
@@ -254,9 +254,9 @@ describe('linkConfig - 链接配置测试', () => {
       );
     });
 
-    it('当 onCLick 返回 true 时应该继续执行默认行为', () => {
-      const onCLick = vi.fn().mockReturnValue(true);
-      const linkConfig = { onCLick };
+    it('当 onClick 返回 true 时应该继续执行默认行为', () => {
+      const onClick = vi.fn().mockReturnValue(true);
+      const linkConfig = { onClick };
       simulateLinkClick(
         linkConfig,
         'https://example.com',
@@ -264,7 +264,7 @@ describe('linkConfig - 链接配置测试', () => {
         mockLocationHref,
       );
 
-      expect(onCLick).toHaveBeenCalledWith('https://example.com');
+      expect(onClick).toHaveBeenCalledWith('https://example.com');
       // 默认行为应该继续
       expect(mockWindowOpen).toHaveBeenCalledWith(
         'https://example.com',
@@ -273,10 +273,10 @@ describe('linkConfig - 链接配置测试', () => {
     });
   });
 
-  describe('onCLick 和 openInNewTab 组合测试', () => {
-    it('onCLick 返回 false 时，即使设置了 openInNewTab 也不应该打开链接', () => {
-      const onCLick = vi.fn().mockReturnValue(false);
-      const linkConfig = { onCLick, openInNewTab: true };
+  describe('onClick 和 openInNewTab 组合测试', () => {
+    it('onClick 返回 false 时，即使设置了 openInNewTab 也不应该打开链接', () => {
+      const onClick = vi.fn().mockReturnValue(false);
+      const linkConfig = { onClick, openInNewTab: true };
       simulateLinkClick(
         linkConfig,
         'https://example.com',
@@ -284,14 +284,14 @@ describe('linkConfig - 链接配置测试', () => {
         mockLocationHref,
       );
 
-      expect(onCLick).toHaveBeenCalledWith('https://example.com');
+      expect(onClick).toHaveBeenCalledWith('https://example.com');
       expect(mockWindowOpen).not.toHaveBeenCalled();
       expect(mockLocationHref).not.toHaveBeenCalled();
     });
 
-    it('onCLick 返回非 false 值时，应该根据 openInNewTab 设置打开链接', () => {
-      const onCLick = vi.fn().mockReturnValue(undefined);
-      const linkConfig = { onCLick, openInNewTab: false };
+    it('onClick 返回非 false 值时，应该根据 openInNewTab 设置打开链接', () => {
+      const onClick = vi.fn().mockReturnValue(undefined);
+      const linkConfig = { onClick, openInNewTab: false };
       simulateLinkClick(
         linkConfig,
         'https://example.com',
@@ -299,7 +299,7 @@ describe('linkConfig - 链接配置测试', () => {
         mockLocationHref,
       );
 
-      expect(onCLick).toHaveBeenCalledWith('https://example.com');
+      expect(onClick).toHaveBeenCalledWith('https://example.com');
       expect(mockWindowOpen).not.toHaveBeenCalled();
       expect(mockLocationHref).toHaveBeenCalledWith('https://example.com');
     });

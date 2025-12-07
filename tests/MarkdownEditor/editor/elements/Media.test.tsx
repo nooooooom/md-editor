@@ -641,13 +641,6 @@ describe('Media', () => {
         expect(mockWindowOpen).not.toHaveBeenCalled();
       }
     });
-
-      const resizeImage = screen.getByTestId('resize-image');
-      expect(resizeImage).toHaveStyle({
-        outline: '2px solid #1890ff',
-        boxShadow: '0 0 0 2px #1890ff',
-      });
-    });
   });
 
   describe('交互事件测试', () => {

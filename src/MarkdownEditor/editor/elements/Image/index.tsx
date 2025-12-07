@@ -5,7 +5,6 @@ import {
 } from '@ant-design/icons';
 import { Image, ImageProps, Modal, Popover, Skeleton, Space } from 'antd';
 import React, {
-  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -13,6 +12,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useRefFunction } from '../../../../Hooks/useRefFunction';
 
 import { useDebounceFn } from '@ant-design/pro-components';
 import { Rnd } from 'react-rnd';
@@ -283,17 +283,14 @@ export function EditorImage({
     selected: false,
     type: getMediaType(element?.url, element.alt),
   });
-  const updateElement = useCallback(
-    (attr: Record<string, any>) => {
-      if (!markdownEditorRef.current) return;
-      Transforms.setNodes(markdownEditorRef.current, attr, { at: path });
-    },
-    [path],
-  );
+  const updateElement = useRefFunction((attr: Record<string, any>) => {
+    if (!markdownEditorRef?.current) return;
+    Transforms.setNodes(markdownEditorRef.current, attr, { at: path });
+  });
 
   const { locale } = useContext(I18nContext);
 
-  const initial = useCallback(async () => {
+  const initial = useRefFunction(async () => {
     let type = getMediaType(element?.url, element.alt);
     type = !type ? 'image' : type;
     setState({
@@ -319,7 +316,7 @@ export function EditorImage({
         mediaType: state().type,
       });
     }
-  }, [element]);
+  });
 
   useLayoutEffect(() => {
     initial();
@@ -393,6 +390,7 @@ export function EditorImage({
           setState({ selected: true });
         }}
         onResizeStop={(size) => {
+          if (!markdownEditorRef?.current) return;
           Transforms.setNodes(markdownEditorRef.current, size, { at: path });
           setState({ selected: false });
         }}
@@ -465,6 +463,7 @@ export function EditorImage({
                   title: locale?.deleteMedia || '删除媒体',
                   content: locale?.confirmDelete || '确定删除该媒体吗？',
                   onOk: () => {
+                    if (!markdownEditorRef?.current) return;
                     Transforms.removeNodes(markdownEditorRef.current, {
                       at: path,
                     });
@@ -478,6 +477,7 @@ export function EditorImage({
               title={element?.block ? locale?.blockImage : locale?.inlineImage}
               onClick={(e) => {
                 e.stopPropagation();
+                if (!markdownEditorRef?.current) return;
                 Transforms.setNodes(
                   markdownEditorRef.current,
                   {

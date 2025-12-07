@@ -213,10 +213,10 @@ describe('ReadonlyImage Component', () => {
       }
     };
 
-    const updateEditorStore = (linkConfig: {
+    const updateEditorStore = async (linkConfig: {
       onClick?: (url: string) => boolean | void;
       openInNewTab?: boolean;
-    }) => {
+    }): Promise<void> => {
       vi.mocked(editorStore.useEditorStore).mockReturnValue({
         editorProps: {
           linkConfig,

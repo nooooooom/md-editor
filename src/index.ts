@@ -60,6 +60,7 @@ export { default as Robot } from './Components/Robot';
 
 // Quote 组件导出
 export { default as Quote } from './Quote';
+export type { QuoteProps } from './Quote';
 
 // 新增：图表插件对外导出
 export * from './Plugins/chart';

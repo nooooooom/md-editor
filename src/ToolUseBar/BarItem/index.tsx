@@ -1,6 +1,7 @@
 import classnames from 'classnames';
 import { useMergedState } from 'rc-util';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
+import { useRefFunction } from '../../Hooks/useRefFunction';
 import {
   ToolContent,
   ToolExpand,
@@ -81,7 +82,7 @@ const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
     return classnames(`${prefixCls}-tool-header`, hashId);
   }, [prefixCls, hashId]);
 
-  const handleClick = useCallback(
+  const handleClick = useRefFunction(
     (e: React.MouseEvent<HTMLDivElement>) => {
       onClick?.(tool.id);
       if (onActiveChange && !showContent) {
@@ -103,15 +104,13 @@ const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
       // 使用函数式更新避免闭包陈旧值问题
       setExpanded((prev) => !prev);
     },
-    [onClick, tool.id, onActiveChange, showContent, isActive, setExpanded],
   );
 
-  const handleExpandClick = useCallback(
+  const handleExpandClick = useRefFunction(
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.stopPropagation(); // 阻止事件冒泡到父元素
       setExpanded((prev) => !prev);
     },
-    [setExpanded],
   );
 
   if (tool.type === 'summary') {

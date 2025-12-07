@@ -52,10 +52,11 @@ const MediaErrorLinkComponent = ({
         return;
       }
     }
-    window.open(
-      finalUrl,
-      editorProps?.linkConfig?.openInNewTab ? '_blank' : '_self',
-    );
+    if (editorProps?.linkConfig?.openInNewTab !== false) {
+      window.open(finalUrl, '_blank');
+    } else {
+      window.open(finalUrl, '_self');
+    }
   };
 
   return (

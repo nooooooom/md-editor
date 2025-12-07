@@ -16,7 +16,6 @@ import type { Ace } from 'ace-builds';
 import isHotkey from 'is-hotkey';
 import {
   startTransition,
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -180,7 +179,7 @@ export function AceEditor({
   });
 
   // 配置编辑器事件
-  const setupEditorEvents = useCallback(
+  const setupEditorEvents = useRefFunction(
     (codeEditor: Ace.Editor) => {
       // 禁用默认查找快捷键
       codeEditor.commands.addCommand({
@@ -243,7 +242,6 @@ export function AceEditor({
         }, 100);
       });
     },
-    [onUpdate, onShowBorderChange, onHideChange, readonly, handleKeyDown],
   );
 
   // 初始化 Ace 编辑器（仅在库加载完成后）
@@ -351,7 +349,7 @@ export function AceEditor({
   }, [editorProps.codeProps?.theme, props.theme, aceLoaded]);
 
   // 暴露设置语言的方法
-  const setLanguage = useCallback(
+  const setLanguage = useRefFunction(
     async (changeLang: string) => {
       let lang = changeLang.toLowerCase();
       if (element.language?.toLowerCase() === lang) return;
@@ -369,7 +367,6 @@ export function AceEditor({
         editorRef.current?.session.setMode(`ace/mode/text`);
       }
     },
-    [element, onUpdate],
   );
 
   return {

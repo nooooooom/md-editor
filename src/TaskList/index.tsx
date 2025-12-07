@@ -3,7 +3,8 @@ import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMergedState } from 'rc-util';
-import React, { memo, useCallback, useContext, useMemo } from 'react';
+import React, { memo, useContext, useMemo } from 'react';
+import { useRefFunction } from '../Hooks/useRefFunction';
 import { ActionIconBox } from '../Components/ActionIconBox';
 import { Loading } from '../Components/Loading';
 import { I18nContext } from '../I18n';
@@ -256,7 +257,7 @@ export const TaskList = memo(
       onChange: onExpandedKeysChange,
     });
 
-    const handleToggle = useCallback(
+    const handleToggle = useRefFunction(
       (key: string) => {
         const currentExpanded = isControlled
           ? expandedKeys
@@ -266,12 +267,6 @@ export const TaskList = memo(
           : [...currentExpanded, key];
         setInternalExpandedKeys(newExpandedKeys);
       },
-      [
-        expandedKeys,
-        internalExpandedKeys,
-        isControlled,
-        setInternalExpandedKeys,
-      ],
     );
 
     return wrapSSR(

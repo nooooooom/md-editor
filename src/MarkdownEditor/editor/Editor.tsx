@@ -3,7 +3,6 @@
 import { useDebounceFn } from '@ant-design/pro-components';
 import classNames from 'classnames';
 import React, {
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -18,7 +17,7 @@ import {
   Range,
   Transforms,
 } from 'slate';
-import { Editable, ReactEditor, RenderElementProps, Slate } from 'slate-react';
+import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate } from 'slate-react';
 import { useRefFunction } from '../../Hooks/useRefFunction';
 import { parserMdToSchema } from '../BaseMarkdownEditor';
 import { Elements } from '../el';
@@ -175,7 +174,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
   const hasResetIndexRef = useRef(false);
 
   // 计算懒加载元素总数的函数
-  const countLazyElements = useCallback((nodes: any[]): number => {
+  const countLazyElements = useRefFunction((nodes: any[]): number => {
     let count = 0;
     const traverse = (nodeList: any[]) => {
       nodeList.forEach((node) => {
@@ -191,7 +190,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
     };
     traverse(nodes);
     return count;
-  }, []);
+  });
 
   const changedMark = useRef(false);
   const value = useRef<any[]>([EditorUtils.p]);
@@ -842,7 +841,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
     }
   };
 
-  const elementRenderElement = useCallback(
+  const elementRenderElement = useRefFunction(
     (eleProps: RenderElementProps) => {
       // 在每个渲染周期的第一次调用时重置索引
       if (!hasResetIndexRef.current) {
@@ -926,10 +925,9 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
 
       return renderedDom;
     },
-    [props.eleItemRender, props.lazy, plugins, readonly, countLazyElements],
   );
 
-  const renderMarkdownLeaf = useRefFunction((leafComponentProps) => {
+  const renderMarkdownLeaf = useRefFunction((leafComponentProps: RenderLeafProps) => {
     const defaultDom = (
       <MLeaf
         {...leafComponentProps}

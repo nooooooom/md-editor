@@ -1,7 +1,6 @@
 import { DeleteFilled, EyeOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Modal, Popover, Skeleton } from 'antd';
 import React, {
-  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -9,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useRefFunction } from '../../../../Hooks/useRefFunction';
 
 import { useDebounceFn } from '@ant-design/pro-components';
 import { Rnd } from 'react-rnd';
@@ -220,8 +220,6 @@ export function Media({
   const htmlRef = React.useRef<HTMLDivElement>(null);
   const [showAsText, setShowAsText] = useState(false);
 
-  console.log(editorProps);
-
   const [state, setState] = useGetSetState({
     height: element.height,
     dragging: false,
@@ -230,12 +228,11 @@ export function Media({
     selected: false,
     type: getMediaType(element?.url, element.alt),
   });
-  const updateElement = useCallback(
+  const updateElement = useRefFunction(
     (attr: Record<string, any>) => {
       if (!markdownEditorRef.current) return;
       Transforms.setNodes(markdownEditorRef.current, attr, { at: path });
     },
-    [path],
   );
 
   // 如果 finished 为 false，设置 5 秒超时，超时后显示为文本
@@ -254,7 +251,7 @@ export function Media({
     }
   }, [element.finished]);
 
-  const initial = useCallback(async () => {
+  const initial = useRefFunction(async () => {
     let type = getMediaType(element?.url, element.alt);
     type = !type ? 'image' : type;
     const finalType = ['image', 'video', 'autio', 'attachment'].includes(type!)
@@ -303,7 +300,7 @@ export function Media({
         mediaType: state().type,
       });
     }
-  }, [element]);
+  });
 
   useLayoutEffect(() => {
     initial();
