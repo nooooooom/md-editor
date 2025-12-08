@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { createElement, useEffect, useRef } from 'react';
+import React, { createElement } from 'react';
 import { Node } from 'slate';
 import { debugInfo } from '../../../../Utils/debugUtils';
 import { ElementProps, HeadNode } from '../../../el';
@@ -13,8 +13,6 @@ export function Head({
   attributes,
   children,
 }: ElementProps<HeadNode>) {
-  const headRef = useRef<HTMLHeadingElement>(null);
-
   debugInfo('Head - 渲染标题', {
     level: element.level,
     text: Node.string(element)?.substring(0, 50),
@@ -24,15 +22,6 @@ export function Head({
     useEditorStore();
   const [selected, path] = useSelStatus(element);
   const str = Node.string(element);
-
-  useEffect(() => {
-    if (headRef.current) {
-      debugInfo('Head - 输出 HTML', {
-        html: headRef.current.outerHTML.substring(0, 500),
-        fullHtml: headRef.current.outerHTML,
-      });
-    }
-  });
 
   return React.useMemo(() => {
     debugInfo('Head - useMemo 渲染', {
@@ -45,7 +34,6 @@ export function Head({
       `h${element.level}`,
       {
         ...attributes,
-        ref: headRef,
         id: slugify(str),
         ['data-be']: 'head',
         ['data-head']: slugify(Node.string(element) || ''),

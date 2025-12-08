@@ -1,6 +1,6 @@
 ﻿import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
-import React, { createElement, useContext, useEffect, useRef } from 'react';
+import React, { createElement, useContext } from 'react';
 import { debugInfo } from '../../../../Utils/debugUtils';
 import { ElementProps, ListNode } from '../../../el';
 import { useEditorStore } from '../../store';
@@ -31,8 +31,6 @@ export const List = ({
   attributes,
   children,
 }: ElementProps<ListNode>) => {
-  const listRef = useRef<HTMLDivElement>(null);
-
   debugInfo('List - 渲染列表', {
     order: element.order,
     task: element.task,
@@ -43,15 +41,6 @@ export const List = ({
   const context = useContext(ConfigProvider.ConfigContext);
   const baseCls = context.getPrefixCls('agentic-md-editor-list');
   const { wrapSSR, hashId } = useStyle(baseCls);
-
-  useEffect(() => {
-    if (listRef.current) {
-      debugInfo('List - 输出 HTML', {
-        html: listRef.current.outerHTML.substring(0, 500),
-        fullHtml: listRef.current.outerHTML,
-      });
-    }
-  });
 
   const listContent = React.useMemo(() => {
     const tag = element.order ? 'ol' : 'ul';
@@ -68,7 +57,6 @@ export const List = ({
         }}
       >
         <div
-          ref={listRef}
           className={classNames(`${baseCls}-container`, hashId, 'relative')}
           data-be={'list'}
           {...attributes}

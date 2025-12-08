@@ -1,6 +1,6 @@
 ﻿import { ConfigProvider, Skeleton } from 'antd';
 import classNames from 'classnames';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { debugInfo } from '../../../../Utils/debugUtils';
 import { ElementProps, LinkCardNode } from '../../../el';
 import { AvatarList } from '../../components/ContributorAvatar';
@@ -28,17 +28,7 @@ export function LinkCard({
   const baseCls = context?.getPrefixCls('agentic-md-editor-link-card');
   const { wrapSSR, hashId } = useStyle(baseCls);
   const htmlRef = React.useRef<HTMLDivElement>(null);
-  const linkCardRef = useRef<HTMLDivElement>(null);
   const [showAsText, setShowAsText] = useState(false);
-
-  useEffect(() => {
-    if (linkCardRef.current) {
-      debugInfo('LinkCard - 输出 HTML', {
-        html: linkCardRef.current.outerHTML.substring(0, 500),
-        fullHtml: linkCardRef.current.outerHTML,
-      });
-    }
-  });
 
   // 如果 finished 为 false，设置 5 秒超时，超时后显示为文本
   useEffect(() => {
@@ -94,7 +84,6 @@ export function LinkCard({
   return wrapSSR(
     <div {...attributes}>
       <div
-        ref={linkCardRef}
         className={classNames(baseCls, hashId)}
         data-be="link-card"
         data-drag-el

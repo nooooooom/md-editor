@@ -458,20 +458,8 @@ export function EditorImage({
     (element as any)?.rawMarkdown,
   ]);
 
-  const imageContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (imageContainerRef.current) {
-      debugInfo('EditorImage - 输出 HTML', {
-        html: imageContainerRef.current.outerHTML.substring(0, 500),
-        fullHtml: imageContainerRef.current.outerHTML,
-      });
-    }
-  });
-
   return (
     <div
-      ref={imageContainerRef}
       {...attributes}
       data-be="image"
       data-drag-el

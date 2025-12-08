@@ -248,7 +248,7 @@ export const handleParagraph = (
   debugInfo('handleParagraph - 处理混合内容段落');
   const result = processParagraphChildren(currentElement, parseNodes);
   debugInfo('handleParagraph - 段落处理完成', {
-    resultType: Array.isArray(result) ? 'array' : result?.type,
+    resultType: Array.isArray(result) ? 'array' : (result as any)?.type,
     resultLength: Array.isArray(result) ? result.length : 1,
   });
   return result;

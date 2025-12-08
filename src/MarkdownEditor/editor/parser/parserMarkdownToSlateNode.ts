@@ -121,9 +121,8 @@ export class MarkdownToSlateParser {
     });
 
     // parse() 只执行 parser，需要 runSync() 来执行 transformer 插件
-    const preprocessedMarkdown = preprocessMarkdownTableNewlines(
-      nonStandardProcessed,
-    );
+    const preprocessedMarkdown =
+      preprocessMarkdownTableNewlines(nonStandardProcessed);
     debugInfo('parserMarkdownToSlateNode.parse - preprocessedMarkdown', {
       length: preprocessedMarkdown.length,
     });
@@ -204,11 +203,14 @@ export class MarkdownToSlateParser {
 
     for (let i = 0; i < nodes.length; i++) {
       const currentElement = nodes[i] as any;
-      debugInfo(`parserMarkdownToSlateNode.parseNodes - 处理节点 ${i}/${nodes.length}`, {
-        type: currentElement?.type,
-        hasChildren: !!currentElement?.children,
-        childrenCount: currentElement?.children?.length,
-      });
+      debugInfo(
+        `parserMarkdownToSlateNode.parseNodes - 处理节点 ${i}/${nodes.length}`,
+        {
+          type: currentElement?.type,
+          hasChildren: !!currentElement?.children,
+          childrenCount: currentElement?.children?.length,
+        },
+      );
       let el: Element | null | Element[] = null;
       let pluginHandled = false;
 
@@ -308,10 +310,13 @@ export class MarkdownToSlateParser {
       for (const plugin of this.plugins) {
         const rule = plugin.parseMarkdown?.find((r) => r.match(currentElement));
         if (rule) {
-          debugInfo(`parserMarkdownToSlateNode.parseNodes - 插件处理节点 ${i}`, {
-            pluginName: plugin.name || 'unknown',
-            elementType: currentElement?.type,
-          });
+          debugInfo(
+            `parserMarkdownToSlateNode.parseNodes - 插件处理节点 ${i}`,
+            {
+              pluginName: (plugin as any).name || 'unknown',
+              elementType: currentElement?.type,
+            },
+          );
           const converted = rule.convert(currentElement);
           // 检查转换结果是否为 NodeEntry<Text> 格式
           if (Array.isArray(converted) && converted.length === 2) {
@@ -322,9 +327,12 @@ export class MarkdownToSlateParser {
             el = converted as Element;
           }
           pluginHandled = true;
-          debugInfo(`parserMarkdownToSlateNode.parseNodes - 插件转换完成 ${i}`, {
-            convertedType: el?.type,
-          });
+          debugInfo(
+            `parserMarkdownToSlateNode.parseNodes - 插件转换完成 ${i}`,
+            {
+              convertedType: el?.type,
+            },
+          );
           break;
         }
       }

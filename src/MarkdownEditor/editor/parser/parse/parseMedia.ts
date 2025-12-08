@@ -22,8 +22,8 @@ export const handleImage = (currentElement: any) => {
     },
   );
   debugInfo('handleImage - 图片处理完成', {
-    type: result?.type,
-    url: result?.url,
+    type: (currentElement as any)?.type,
+    url: (currentElement as any)?.url,
   });
   return result;
 };

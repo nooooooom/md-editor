@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
 import { Node } from 'slate';
 import { I18nContext } from '../../../../I18n';
 import { debugInfo } from '../../../../Utils/debugUtils';
@@ -9,8 +9,6 @@ import { useEditorStore } from '../../store';
 import { DragHandle } from '../../tools/DragHandle';
 
 export const Paragraph = (props: ElementProps<ParagraphNode>) => {
-  const paragraphRef = useRef<HTMLDivElement>(null);
-
   debugInfo('Paragraph - 渲染段落', {
     align: props.element.align,
     childrenCount: props.element.children?.length,
@@ -24,15 +22,6 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
   } = useEditorStore();
   const { locale } = useContext(I18nContext);
   const [selected] = useSelStatus(props.element);
-
-  useEffect(() => {
-    if (paragraphRef.current) {
-      debugInfo('Paragraph - 输出 HTML', {
-        html: paragraphRef.current.outerHTML.substring(0, 500),
-        fullHtml: paragraphRef.current.outerHTML,
-      });
-    }
-  });
 
   return React.useMemo(() => {
     const str = Node.string(props.element).trim();
@@ -51,13 +40,9 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
         ? true
         : undefined;
 
-    // 从 attributes 中提取 ref（如果存在），使用我们的 ref 替代
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { ref: _attributesRef, ...restAttributes } = props.attributes as any;
     return (
       <div
-        ref={paragraphRef}
-        {...restAttributes}
+        {...props.attributes}
         data-be={'paragraph'}
         data-drag-el
         className={classNames({

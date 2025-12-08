@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { debugInfo } from '../../../../Utils/debugUtils';
 import { BlockQuoteNode, ElementProps } from '../../../el';
 import { useEditorStore } from '../../store';
@@ -40,24 +40,12 @@ export function Blockquote(props: ElementProps<BlockQuoteNode>) {
     childrenCount: props.element.children?.length,
   });
   const { store, markdownContainerRef } = useEditorStore();
-  const ref = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      debugInfo('Blockquote - 输出 HTML', {
-        html: ref.current.outerHTML.substring(0, 500),
-        fullHtml: ref.current.outerHTML,
-      });
-    }
-  });
-
   return React.useMemo(() => {
     debugInfo('Blockquote - useMemo 渲染', {
       childrenCount: props.element.children?.length,
     });
     return (
       <blockquote
-        ref={ref}
         data-be={'blockquote'}
         {...props.attributes}
         onDragStart={(e) => {

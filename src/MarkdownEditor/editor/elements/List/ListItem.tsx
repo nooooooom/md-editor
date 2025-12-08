@@ -2,7 +2,7 @@
 import { useMountMergeState } from '@ant-design/pro-components';
 import { Checkbox, ConfigProvider, Dropdown, Space } from 'antd';
 import classNames from 'classnames';
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { debugInfo } from '../../../../Utils/debugUtils';
 import { ElementProps, ListItemNode } from '../../../el';
 import { useMEditor } from '../../../hooks/editor';
@@ -189,8 +189,6 @@ export const ListItem = ({
   children,
   attributes,
 }: ElementProps<ListItemNode>) => {
-  const listItemRef = useRef<HTMLLIElement>(null);
-
   debugInfo('ListItem - 渲染列表项', {
     checked: element.checked,
     isTask: typeof element.checked === 'boolean',
@@ -204,15 +202,6 @@ export const ListItem = ({
   const listItemRender = editorProps?.comment?.listItemRender;
   const { hashId = '' } = useContext(ListContext) || {};
   const baseCls = context.getPrefixCls('agentic-md-editor-list');
-
-  useEffect(() => {
-    if (listItemRef.current) {
-      debugInfo('ListItem - 输出 HTML', {
-        html: listItemRef.current.outerHTML.substring(0, 500),
-        fullHtml: listItemRef.current.outerHTML,
-      });
-    }
-  });
 
   const checkbox = React.useMemo(() => {
     if (!isTask) return null;
@@ -258,7 +247,6 @@ export const ListItem = ({
       };
       return (
         <li
-          ref={listItemRef}
           className={classNames(`${baseCls}-item`, hashId, {
             [`${baseCls}-task`]: isTask,
           })}
@@ -275,7 +263,6 @@ export const ListItem = ({
     }
     return (
       <li
-        ref={listItemRef}
         className={classNames(`${baseCls}-item`, hashId, {
           [`${baseCls}-task`]: isTask,
         })}

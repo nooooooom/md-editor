@@ -1,25 +1,14 @@
 import DOMPurify from 'dompurify';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { RenderElementProps } from 'slate-react';
 import { debugInfo } from '../../../../Utils/debugUtils';
 
 export const Code = ({ attributes, children, element }: RenderElementProps) => {
-  const htmlRef = useRef<HTMLDivElement>(null);
-
   debugInfo('Code - 渲染代码块', {
     language: element?.language,
     valueLength: element?.value?.length,
     isConfig: element?.otherProps?.isConfig,
     finished: element?.otherProps?.finished,
-  });
-
-  useEffect(() => {
-    if (htmlRef.current) {
-      debugInfo('Code - 输出 HTML', {
-        html: htmlRef.current.outerHTML.substring(0, 500),
-        fullHtml: htmlRef.current.outerHTML,
-      });
-    }
   });
 
   if (element?.language === 'html') {
@@ -28,7 +17,6 @@ export const Code = ({ attributes, children, element }: RenderElementProps) => {
     });
     return (
       <div
-        ref={htmlRef}
         {...attributes}
         style={{
           display: element?.otherProps?.isConfig ? 'none' : 'block',
@@ -51,7 +39,6 @@ export const Code = ({ attributes, children, element }: RenderElementProps) => {
 
   return (
     <div
-      ref={htmlRef}
       {...attributes}
       data-is-unclosed={isUnclosed}
       data-language={element?.language}
