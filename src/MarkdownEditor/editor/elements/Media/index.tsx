@@ -214,7 +214,6 @@ export function Media({
 }: ElementProps<MediaNode>) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, path] = useSelStatus(element);
-  const { editorProps } = useEditorStore();
   const { markdownEditorRef, readonly } = useEditorStore();
   const { locale } = useContext(I18nContext);
   const htmlRef = React.useRef<HTMLDivElement>(null);
@@ -228,12 +227,10 @@ export function Media({
     selected: false,
     type: getMediaType(element?.url, element.alt),
   });
-  const updateElement = useRefFunction(
-    (attr: Record<string, any>) => {
-      if (!markdownEditorRef.current) return;
-      Transforms.setNodes(markdownEditorRef.current, attr, { at: path });
-    },
-  );
+  const updateElement = useRefFunction((attr: Record<string, any>) => {
+    if (!markdownEditorRef.current) return;
+    Transforms.setNodes(markdownEditorRef.current, attr, { at: path });
+  });
 
   // 如果 finished 为 false，设置 5 秒超时，超时后显示为文本
   useEffect(() => {

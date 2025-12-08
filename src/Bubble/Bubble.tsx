@@ -1,6 +1,7 @@
 import { memo, MutableRefObject } from 'react';
 
 import React from 'react';
+import { debugInfo } from '../Utils/debugUtils';
 import { AIBubble } from './AIBubble';
 import { useSchemaEditorBridge } from './schema-editor';
 import type { BubbleProps } from './type';
@@ -76,6 +77,8 @@ export const Bubble: React.FC<
    */
   const { content } = useSchemaEditorBridge(props.id, initialContent);
 
+  debugInfo('useSchemaEditorBridge', content);
+
   /** 根据角色自动选择组件 */
   const isUserMessage =
     props.placement === undefined
@@ -90,6 +93,11 @@ export const Bubble: React.FC<
       ? { ...originData, ...(hasEditableContent && { content }) }
       : undefined,
   };
+
+  debugInfo('bubbleProps', {
+    isUserMessage,
+    bubbleProps,
+  });
 
   // 根据角色分发到对应的子组件
   if (isUserMessage) {
