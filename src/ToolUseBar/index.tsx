@@ -94,16 +94,14 @@ const ToolUseBarComponent: React.FC<ToolUseBarProps> = ({
     },
   );
 
-  const handleActiveChange = useRefFunction(
-    (id: string, active: boolean) => {
-      if (onActiveKeysChange) {
-        const newActiveKeys = active
-          ? [...activeKeys, id]
-          : activeKeys.filter((key) => key !== id);
-        setActiveKeys(newActiveKeys);
-      }
-    },
-  );
+  const handleActiveChange = useRefFunction((id: string, active: boolean) => {
+    if (onActiveKeysChange) {
+      const newActiveKeys = active
+        ? [...activeKeys, id]
+        : activeKeys.filter((key) => key !== id);
+      setActiveKeys(newActiveKeys);
+    }
+  });
 
   const handleExpandedChange = useRefFunction(
     (id: string, expanded: boolean) => {

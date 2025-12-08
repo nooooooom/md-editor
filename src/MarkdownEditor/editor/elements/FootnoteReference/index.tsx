@@ -28,4 +28,3 @@ export const FootnoteReference = (
     );
   }, [props.element.children, selected]);
 };
-

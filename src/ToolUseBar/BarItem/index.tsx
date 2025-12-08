@@ -82,29 +82,25 @@ const ToolUseBarItemComponent: React.FC<ToolUseBarItemProps> = ({
     return classnames(`${prefixCls}-tool-header`, hashId);
   }, [prefixCls, hashId]);
 
-  const handleClick = useRefFunction(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      onClick?.(tool.id);
-      if (onActiveChange && !showContent) {
-        onActiveChange(tool.id, !isActive);
-      }
+  const handleClick = useRefFunction((e: React.MouseEvent<HTMLDivElement>) => {
+    onClick?.(tool.id);
+    if (onActiveChange && !showContent) {
+      onActiveChange(tool.id, !isActive);
+    }
 
-      // 如果没有内容需要展示，则早返回
-      if (!showContent) return;
+    // 如果没有内容需要展示，则早返回
+    if (!showContent) return;
 
-      // 避免在交互性子元素上误触发折叠
-      if (e.target instanceof Element) {
-        const tag = e.target.tagName.toLowerCase();
-        if (
-          ['a', 'button', 'input', 'textarea', 'select', 'label'].includes(tag)
-        )
-          return;
-      }
+    // 避免在交互性子元素上误触发折叠
+    if (e.target instanceof Element) {
+      const tag = e.target.tagName.toLowerCase();
+      if (['a', 'button', 'input', 'textarea', 'select', 'label'].includes(tag))
+        return;
+    }
 
-      // 使用函数式更新避免闭包陈旧值问题
-      setExpanded((prev) => !prev);
-    },
-  );
+    // 使用函数式更新避免闭包陈旧值问题
+    setExpanded((prev) => !prev);
+  });
 
   const handleExpandClick = useRefFunction(
     (e: React.MouseEvent<HTMLDivElement>) => {

@@ -8,12 +8,7 @@ import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMergedState } from 'rc-util';
-import React, {
-  memo,
-  useContext,
-  useEffect,
-  useMemo,
-} from 'react';
+import React, { memo, useContext, useEffect, useMemo } from 'react';
 import { useRefFunction } from '../Hooks/useRefFunction';
 import { useStyle } from './style';
 

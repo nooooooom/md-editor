@@ -95,14 +95,14 @@ export const HistoryLoadMore: React.FC<HistoryLoadMoreProps> = ({
     }
   });
 
-  const handleKeyDown = useRefFunction<React.KeyboardEventHandler<HTMLDivElement>>(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        onClickFn();
-      }
-    },
-  );
+  const handleKeyDown = useRefFunction<
+    React.KeyboardEventHandler<HTMLDivElement>
+  >((event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onClickFn();
+    }
+  });
 
   return (
     <>

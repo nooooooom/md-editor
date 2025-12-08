@@ -149,4 +149,3 @@ export const Schema: React.FC<RenderElementProps> = (props) => {
     );
   }, [node.value, bubble, apaasify]);
 };
-

@@ -1,4 +1,4 @@
-﻿import { ConfigProvider, Spin } from 'antd';
+import { ConfigProvider, Spin } from 'antd';
 import classNames from 'classnames';
 import React, { useContext } from 'react';
 import { useRefFunction } from '../Hooks/useRefFunction';
@@ -213,11 +213,9 @@ export const GroupMenu: React.FC<GroupMenuProps> = (props) => {
   // 直接使用传入的 items，支持最多双层嵌套
   const dataSource = items || [];
 
-  const handleSelect = useRefFunction(
-    (key: string) => {
-      onSelect?.({ key });
-    },
-  );
+  const handleSelect = useRefFunction((key: string) => {
+    onSelect?.({ key });
+  });
 
   // 直接传递用户自定义的 classNames
   return wrapSSR(

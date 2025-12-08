@@ -49,4 +49,3 @@ export function Blockquote(props: ElementProps<BlockQuoteNode>) {
     [props.element.children],
   );
 }
-

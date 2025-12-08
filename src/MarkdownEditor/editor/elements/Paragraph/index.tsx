@@ -64,4 +64,3 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
     editorProps.titlePlaceholderContent,
   ]);
 };
-

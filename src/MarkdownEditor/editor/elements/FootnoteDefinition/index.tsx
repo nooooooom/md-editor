@@ -48,4 +48,3 @@ export const FootnoteDefinition = (
     );
   }, [props.element.children]);
 };
-

@@ -65,14 +65,14 @@ export const HistoryNewChat: React.FC<HistoryNewChatProps> = ({
     }
   });
 
-  const handleKeyDown = useRefFunction<React.KeyboardEventHandler<HTMLDivElement>>(
-    (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        handleClick();
-      }
-    },
-  );
+  const handleKeyDown = useRefFunction<
+    React.KeyboardEventHandler<HTMLDivElement>
+  >((event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleClick();
+    }
+  });
 
   return wrapSSR(
     <div

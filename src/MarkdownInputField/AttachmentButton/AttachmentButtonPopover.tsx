@@ -112,15 +112,13 @@ export const AttachmentButtonPopover: React.FC<
     [isVivoOrOppo],
   );
 
-  const handleClick = useRefFunction(
-    (e: React.MouseEvent) => {
-      if (isVivoOrOppo) {
-        e.stopPropagation();
-        e.preventDefault();
-        setModalOpen(true);
-      }
-    },
-  );
+  const handleClick = useRefFunction((e: React.MouseEvent) => {
+    if (isVivoOrOppo) {
+      e.stopPropagation();
+      e.preventDefault();
+      setModalOpen(true);
+    }
+  });
 
   const handleOpenGallery = useRefFunction(() => {
     uploadImage?.(true);

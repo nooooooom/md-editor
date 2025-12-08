@@ -417,4 +417,3 @@ export interface BubbleProps<T = Record<string, any>>
       | (() => (file: AttachmentFile) => React.ReactNode);
   };
 }
-

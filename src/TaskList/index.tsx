@@ -4,9 +4,9 @@ import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMergedState } from 'rc-util';
 import React, { memo, useContext, useMemo } from 'react';
-import { useRefFunction } from '../Hooks/useRefFunction';
 import { ActionIconBox } from '../Components/ActionIconBox';
 import { Loading } from '../Components/Loading';
+import { useRefFunction } from '../Hooks/useRefFunction';
 import { I18nContext } from '../I18n';
 import { useStyle } from './style';
 
@@ -257,17 +257,15 @@ export const TaskList = memo(
       onChange: onExpandedKeysChange,
     });
 
-    const handleToggle = useRefFunction(
-      (key: string) => {
-        const currentExpanded = isControlled
-          ? expandedKeys
-          : internalExpandedKeys;
-        const newExpandedKeys = currentExpanded.includes(key)
-          ? currentExpanded.filter((k) => k !== key)
-          : [...currentExpanded, key];
-        setInternalExpandedKeys(newExpandedKeys);
-      },
-    );
+    const handleToggle = useRefFunction((key: string) => {
+      const currentExpanded = isControlled
+        ? expandedKeys
+        : internalExpandedKeys;
+      const newExpandedKeys = currentExpanded.includes(key)
+        ? currentExpanded.filter((k) => k !== key)
+        : [...currentExpanded, key];
+      setInternalExpandedKeys(newExpandedKeys);
+    });
 
     return wrapSSR(
       <div className={className}>

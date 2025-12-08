@@ -40,4 +40,3 @@ export function Head({
     );
   }, [element.level, str, element.children, selected, path]);
 }
-

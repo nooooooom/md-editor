@@ -9,4 +9,3 @@ export const Break = ({ attributes, children }: RenderElementProps) => {
     </span>
   );
 };
-

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, MutableRefObject } from 'react';
+import { MutableRefObject, useCallback, useRef, useState } from 'react';
 
 /**
  * useRefState - 同时维护 state 和 ref 的 hook
@@ -43,4 +43,3 @@ export function useRefState<T>(
 }
 
 export default useRefState;
-

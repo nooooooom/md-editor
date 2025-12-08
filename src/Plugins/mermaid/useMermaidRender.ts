@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { cleanupTempElement, loadMermaid, renderSvgToContainer } from './utils';
 import type { MermaidApi } from './types';
+import { cleanupTempElement, loadMermaid, renderSvgToContainer } from './utils';
 
 /**
  * Mermaid 渲染 Hook
@@ -87,6 +87,3 @@ export const useMermaidRender = (
 
   return { error, renderedCode: renderedCodeRef.current };
 };
-
-
-

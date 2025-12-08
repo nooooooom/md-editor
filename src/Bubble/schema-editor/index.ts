@@ -12,4 +12,3 @@ export {
   useSchemaEditorBridge,
   type UseSchemaEditorBridgeResult,
 } from './useSchemaEditorBridge';
-

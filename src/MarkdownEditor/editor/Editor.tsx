@@ -2,12 +2,7 @@
 /* eslint-disable react/no-children-prop */
 import { useDebounceFn } from '@ant-design/pro-components';
 import classNames from 'classnames';
-import React, {
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { useContext, useEffect, useMemo, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import {
   BaseRange,
@@ -17,7 +12,13 @@ import {
   Range,
   Transforms,
 } from 'slate';
-import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate } from 'slate-react';
+import {
+  Editable,
+  ReactEditor,
+  RenderElementProps,
+  RenderLeafProps,
+  Slate,
+} from 'slate-react';
 import { useRefFunction } from '../../Hooks/useRefFunction';
 import { parserMdToSchema } from '../BaseMarkdownEditor';
 import { Elements } from '../el';
@@ -927,32 +928,34 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
     },
   );
 
-  const renderMarkdownLeaf = useRefFunction((leafComponentProps: RenderLeafProps) => {
-    const defaultDom = (
-      <MLeaf
-        {...leafComponentProps}
-        fncProps={props.fncProps}
-        comment={props?.comment}
-        children={leafComponentProps.children}
-        hashId={hashId}
-        tagInputProps={props.tagInputProps}
-        linkConfig={props.linkConfig}
-      />
-    );
+  const renderMarkdownLeaf = useRefFunction(
+    (leafComponentProps: RenderLeafProps) => {
+      const defaultDom = (
+        <MLeaf
+          {...leafComponentProps}
+          fncProps={props.fncProps}
+          comment={props?.comment}
+          children={leafComponentProps.children}
+          hashId={hashId}
+          tagInputProps={props.tagInputProps}
+          linkConfig={props.linkConfig}
+        />
+      );
 
-    if (!props.leafRender) return defaultDom;
+      if (!props.leafRender) return defaultDom;
 
-    return props.leafRender(
-      {
-        ...leafComponentProps,
-        fncProps: props.fncProps,
-        comment: props?.comment,
-        hashId: hashId,
-        tagInputProps: props.tagInputProps,
-      },
-      defaultDom,
-    ) as React.ReactElement;
-  });
+      return props.leafRender(
+        {
+          ...leafComponentProps,
+          fncProps: props.fncProps,
+          comment: props?.comment,
+          hashId: hashId,
+          tagInputProps: props.tagInputProps,
+        },
+        defaultDom,
+      ) as React.ReactElement;
+    },
+  );
 
   const decorateFn = (e: any) => {
     const decorateList: any[] | undefined = high(e) || [];

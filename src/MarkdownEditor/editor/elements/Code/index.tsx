@@ -62,4 +62,3 @@ export const Code = ({ attributes, children, element }: RenderElementProps) => {
     </div>
   );
 };
-

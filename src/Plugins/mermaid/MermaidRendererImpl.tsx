@@ -3,8 +3,8 @@ import classNames from 'classnames';
 import React, { useContext, useMemo, useRef } from 'react';
 import { useIntersectionOnce } from '../../Hooks/useIntersectionOnce';
 import { CodeNode } from '../../MarkdownEditor/el';
-import { useMermaidRender } from './useMermaidRender';
 import { useStyle } from './style';
+import { useMermaidRender } from './useMermaidRender';
 
 /**
  * Mermaid 渲染器组件实现
@@ -57,6 +57,3 @@ export const MermaidRendererImpl = (props: { element: CodeNode }) => {
     </div>,
   );
 };
-
-
-

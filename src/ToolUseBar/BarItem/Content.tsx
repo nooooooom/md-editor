@@ -2,8 +2,8 @@ import { Api, ChevronUp, X } from '@sofa-design/icons';
 import classnames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { memo, useMemo } from 'react';
-import { useRefFunction } from '../../Hooks/useRefFunction';
 import { ToolCall } from '.';
+import { useRefFunction } from '../../Hooks/useRefFunction';
 
 interface ToolImageProps {
   tool: ToolCall;
@@ -223,11 +223,9 @@ const ToolExpandComponent: React.FC<ToolExpandProps> = ({
   }, [expanded]);
 
   // 使用 useRefFunction 优化点击处理函数
-  const handleClick = useRefFunction(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      onExpandClick(e);
-    },
-  );
+  const handleClick = useRefFunction((e: React.MouseEvent<HTMLDivElement>) => {
+    onExpandClick(e);
+  });
 
   // 缓存展开按钮元素
   const expandElement = useMemo(() => {

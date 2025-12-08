@@ -196,24 +196,20 @@ const HistoryItemSingle = React.memo<HistoryItemProps>(
       [selectedIds, item.sessionId],
     );
 
-    const handleClick = useRefFunction(
-      (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        onClick(item.sessionId!, item);
-      },
-    );
+    const handleClick = useRefFunction((e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onClick(item.sessionId!, item);
+    });
 
     /**
      * 处理复选框状态变化事件
      * @param e - 复选框变化事件对象
      */
-    const handleCheckboxChange = useRefFunction(
-      (e: CheckboxChangeEvent) => {
-        e.stopPropagation();
-        onSelectionChange(item.sessionId!, e.target.checked);
-      },
-    );
+    const handleCheckboxChange = useRefFunction((e: CheckboxChangeEvent) => {
+      e.stopPropagation();
+      onSelectionChange(item.sessionId!, e.target.checked);
+    });
 
     /**
      * 处理删除历史记录项事件
@@ -406,24 +402,20 @@ const HistoryItemMulti = React.memo<HistoryItemProps>(
      * 处理点击事件
      * @param e - 鼠标点击事件对象
      */
-    const handleClick = useRefFunction(
-      (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        onClick(item.sessionId!, item);
-      },
-    );
+    const handleClick = useRefFunction((e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onClick(item.sessionId!, item);
+    });
 
     /**
      * 处理复选框状态变化事件
      * @param e - 复选框变化事件对象
      */
-    const handleCheckboxChange = useRefFunction(
-      (e: CheckboxChangeEvent) => {
-        e.stopPropagation();
-        onSelectionChange(item.sessionId!, e.target.checked);
-      },
-    );
+    const handleCheckboxChange = useRefFunction((e: CheckboxChangeEvent) => {
+      e.stopPropagation();
+      onSelectionChange(item.sessionId!, e.target.checked);
+    });
 
     /**
      * 处理删除事件
