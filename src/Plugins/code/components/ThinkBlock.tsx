@@ -64,7 +64,7 @@ export function ThinkBlock({ element }: ThinkBlockProps) {
         root: {
           boxSizing: 'border-box',
           maxWidth: '680px',
-          marginTop: 16,
+          marginTop: 8,
         },
       }}
       expanded={
