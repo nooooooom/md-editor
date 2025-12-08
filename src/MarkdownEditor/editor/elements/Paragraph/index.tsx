@@ -1,13 +1,20 @@
 import classNames from 'classnames';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { Node } from 'slate';
 import { I18nContext } from '../../../../I18n';
+import { debugInfo } from '../../../../Utils/debugUtils';
 import { ElementProps, ParagraphNode } from '../../../el';
 import { useSelStatus } from '../../../hooks/editor';
 import { useEditorStore } from '../../store';
 import { DragHandle } from '../../tools/DragHandle';
 
 export const Paragraph = (props: ElementProps<ParagraphNode>) => {
+  const paragraphRef = useRef<HTMLDivElement>(null);
+
+  debugInfo('Paragraph - 渲染段落', {
+    align: props.element.align,
+    childrenCount: props.element.children?.length,
+  });
   const {
     store,
     markdownEditorRef,
@@ -18,8 +25,23 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
   const { locale } = useContext(I18nContext);
   const [selected] = useSelStatus(props.element);
 
+  useEffect(() => {
+    if (paragraphRef.current) {
+      debugInfo('Paragraph - 输出 HTML', {
+        html: paragraphRef.current.outerHTML.substring(0, 500),
+        fullHtml: paragraphRef.current.outerHTML,
+      });
+    }
+  });
+
   return React.useMemo(() => {
     const str = Node.string(props.element).trim();
+    debugInfo('Paragraph - useMemo 渲染', {
+      strLength: str.length,
+      selected,
+      readonly,
+      align: props.element.align,
+    });
     const isEmpty =
       !str &&
       markdownEditorRef.current?.children.length === 1 &&
@@ -29,9 +51,13 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
         ? true
         : undefined;
 
+    // 从 attributes 中提取 ref（如果存在），使用我们的 ref 替代
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { ref: _attributesRef, ...restAttributes } = props.attributes as any;
     return (
       <div
-        {...props.attributes}
+        ref={paragraphRef}
+        {...restAttributes}
         data-be={'paragraph'}
         data-drag-el
         className={classNames({
@@ -45,7 +71,10 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
               '请输入内容...'
             : undefined
         }
-        onDragStart={(e) => store.dragStart(e, markdownContainerRef.current!)}
+        onDragStart={(e) => {
+          debugInfo('Paragraph - 拖拽开始');
+          store.dragStart(e, markdownContainerRef.current!);
+        }}
         data-empty={isEmpty}
         style={{
           display: !!str || !!props.children?.at(0).type ? undefined : 'none',

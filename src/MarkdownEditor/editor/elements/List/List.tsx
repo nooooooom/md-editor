@@ -1,6 +1,7 @@
 ﻿import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
-import React, { createElement, useContext } from 'react';
+import React, { createElement, useContext, useEffect, useRef } from 'react';
+import { debugInfo } from '../../../../Utils/debugUtils';
 import { ElementProps, ListNode } from '../../../el';
 import { useEditorStore } from '../../store';
 import { useStyle } from './style';
@@ -30,13 +31,36 @@ export const List = ({
   attributes,
   children,
 }: ElementProps<ListNode>) => {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  debugInfo('List - 渲染列表', {
+    order: element.order,
+    task: element.task,
+    start: element.start,
+    childrenCount: element.children?.length,
+  });
   const { store, markdownContainerRef } = useEditorStore();
   const context = useContext(ConfigProvider.ConfigContext);
   const baseCls = context.getPrefixCls('agentic-md-editor-list');
   const { wrapSSR, hashId } = useStyle(baseCls);
 
+  useEffect(() => {
+    if (listRef.current) {
+      debugInfo('List - 输出 HTML', {
+        html: listRef.current.outerHTML.substring(0, 500),
+        fullHtml: listRef.current.outerHTML,
+      });
+    }
+  });
+
   const listContent = React.useMemo(() => {
     const tag = element.order ? 'ol' : 'ul';
+    debugInfo('List - useMemo 渲染', {
+      tag,
+      order: element.order,
+      start: element.start,
+      task: element.task,
+    });
     return wrapSSR(
       <ListContext.Provider
         value={{
@@ -44,10 +68,14 @@ export const List = ({
         }}
       >
         <div
+          ref={listRef}
           className={classNames(`${baseCls}-container`, hashId, 'relative')}
           data-be={'list'}
           {...attributes}
-          onDragStart={(e) => store.dragStart(e, markdownContainerRef.current!)}
+          onDragStart={(e) => {
+            debugInfo('List - 拖拽开始');
+            store.dragStart(e, markdownContainerRef.current!);
+          }}
         >
           {createElement(
             tag,

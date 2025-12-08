@@ -1,11 +1,34 @@
 import DOMPurify from 'dompurify';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { RenderElementProps } from 'slate-react';
+import { debugInfo } from '../../../../Utils/debugUtils';
 
 export const Code = ({ attributes, children, element }: RenderElementProps) => {
+  const htmlRef = useRef<HTMLDivElement>(null);
+
+  debugInfo('Code - 渲染代码块', {
+    language: element?.language,
+    valueLength: element?.value?.length,
+    isConfig: element?.otherProps?.isConfig,
+    finished: element?.otherProps?.finished,
+  });
+
+  useEffect(() => {
+    if (htmlRef.current) {
+      debugInfo('Code - 输出 HTML', {
+        html: htmlRef.current.outerHTML.substring(0, 500),
+        fullHtml: htmlRef.current.outerHTML,
+      });
+    }
+  });
+
   if (element?.language === 'html') {
+    debugInfo('Code - HTML 代码块', {
+      isConfig: element?.otherProps?.isConfig,
+    });
     return (
       <div
+        ref={htmlRef}
         {...attributes}
         style={{
           display: element?.otherProps?.isConfig ? 'none' : 'block',
@@ -20,9 +43,15 @@ export const Code = ({ attributes, children, element }: RenderElementProps) => {
 
   // 检查代码块是否未闭合
   const isUnclosed = element?.otherProps?.finished === false;
+  debugInfo('Code - 普通代码块', {
+    language: element?.language,
+    isUnclosed,
+    valueLength: element?.value?.length,
+  });
 
   return (
     <div
+      ref={htmlRef}
       {...attributes}
       data-is-unclosed={isUnclosed}
       data-language={element?.language}
