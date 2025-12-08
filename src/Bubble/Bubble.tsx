@@ -68,7 +68,7 @@ export const Bubble: React.FC<
 
   /** 获取初始内容：优先 originContent，回退到字符串 content */
   const initialContent = hasEditableContent
-    ? (originData?.content as string) || (originData?.originContent as string)
+    ? (originData?.content as string)
     : '';
 
   /**
