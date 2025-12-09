@@ -3,7 +3,8 @@
  * 只读模式下渲染思考类型的代码块
  */
 
-import React, { useContext } from 'react';
+import { useMergedState } from 'rc-util';
+import React, { useContext, useEffect } from 'react';
 import { MessagesContext } from '../../../Bubble/MessagesContent/BubbleContext';
 import { I18nContext } from '../../../I18n';
 import { EditorStoreContext } from '../../../MarkdownEditor/editor/store';
@@ -39,6 +40,23 @@ export function ThinkBlock({ element }: ThinkBlockProps) {
   const { locale } = useContext(I18nContext);
   const { editorProps } = useContext(EditorStoreContext) || {};
   const { message } = useContext(MessagesContext);
+  // 获取当前 Bubble 的 isFinished 状态
+  const bubbleIsFinished = message?.isFinished;
+  const [expanded, setExpanded] = useMergedState(
+    () => {
+      return bubbleIsFinished ? undefined : false;
+    },
+    {
+      value: editorProps?.codeProps?.alwaysExpandedDeepThink,
+      defaultValue: editorProps?.codeProps?.alwaysExpandedDeepThink,
+    },
+  );
+
+  useEffect(() => {
+    if (bubbleIsFinished) {
+      setExpanded(true);
+    }
+  }, [bubbleIsFinished]);
 
   const rawContent =
     element?.value !== null && element?.value !== undefined
@@ -47,9 +65,6 @@ export function ThinkBlock({ element }: ThinkBlockProps) {
 
   // 恢复内容中被转义的代码块
   const content = restoreCodeBlocks(rawContent);
-
-  // 获取当前 Bubble 的 isFinished 状态
-  const bubbleIsFinished = message?.isFinished;
 
   // 判断是否正在加载：内容以...结尾 或者 bubble 还未完成
   const isLoading = content.endsWith('...');
@@ -67,13 +82,8 @@ export function ThinkBlock({ element }: ThinkBlockProps) {
           marginTop: 8,
         },
       }}
-      expanded={
-        editorProps?.codeProps?.alwaysExpandedDeepThink
-          ? true
-          : bubbleIsFinished
-            ? false
-            : undefined
-      }
+      expanded={expanded}
+      onExpandedChange={setExpanded}
       toolName={toolNameText}
       thinkContent={content}
       status={isLoading ? 'loading' : 'success'}
