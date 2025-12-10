@@ -46,8 +46,7 @@ export const ThinkBlockContext = createContext<ThinkBlockContextType | null>(
  */
 export const ThinkBlockProvider: React.FC<
   ThinkBlockContextType & { children: React.ReactNode }
-  > = ({ expanded, onExpandedChange, children }) => {
-  
+> = ({ expanded, onExpandedChange, children }) => {
   return (
     <ThinkBlockContext.Provider value={{ expanded, onExpandedChange }}>
       {children}
@@ -94,7 +93,8 @@ export function ThinkBlock({ element }: ThinkBlockProps) {
     {
       value: editorProps?.codeProps?.alwaysExpandedDeepThink
         ? true
-        : (thinkBlockContext?.expanded ?? false),
+        : (thinkBlockContext?.expanded ?? undefined),
+      defaultValue: true,
       onChange: thinkBlockContext?.onExpandedChange,
     },
   );
