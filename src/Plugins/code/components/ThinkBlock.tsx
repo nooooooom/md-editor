@@ -166,7 +166,7 @@ export function ThinkBlock(props: ThinkBlockProps) {
 
     // 更新之前的值
     prevExpandedRef.current = currentExpanded;
-  }, [thinkBlockContext?.expanded, setExpanded]);
+  }, [thinkBlockContext?.expanded]);
 
   const rawContent =
     element?.value !== null && element?.value !== undefined
