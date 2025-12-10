@@ -4,16 +4,18 @@
  */
 
 import { useMergedState } from 'rc-util';
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { MessagesContext } from '../../../Bubble/MessagesContent/BubbleContext';
 import { I18nContext } from '../../../I18n';
-import { EditorStoreContext } from '../../../MarkdownEditor/editor/store';
-import { CodeNode } from '../../../MarkdownEditor/el';
+import {
+  EditorStoreContext,
+  useEditorStore,
+} from '../../../MarkdownEditor/editor/store';
+import { EditorUtils } from '../../../MarkdownEditor/editor/utils/editorUtils';
+import { CodeNode, ElementProps } from '../../../MarkdownEditor/el';
 import { ToolUseBarThink } from '../../../ToolUseBarThink';
 
-interface ThinkBlockProps {
-  element: CodeNode;
-}
+type ThinkBlockProps = ElementProps<CodeNode>;
 
 /**
  * ThinkBlock Context 类型定义
@@ -75,14 +77,42 @@ const restoreCodeBlocks = (content: string): string => {
   );
 };
 
-export function ThinkBlock({ element }: ThinkBlockProps) {
+export function ThinkBlock(props: ThinkBlockProps) {
+  const { element } = props;
   const { locale } = useContext(I18nContext);
   const { editorProps } = useContext(EditorStoreContext) || {};
   const { message } = useContext(MessagesContext);
+  const { markdownEditorRef } = useEditorStore();
   const thinkBlockContext = useContext(ThinkBlockContext);
 
   // 获取当前 Bubble 的 isFinished 状态
   const bubbleIsFinished = message?.isFinished;
+
+  // 获取当前元素的 path
+  const elementPath = useMemo(() => {
+    if (!markdownEditorRef.current) {
+      return null;
+    }
+    try {
+      return EditorUtils.findPath(markdownEditorRef.current, element);
+    } catch (error) {
+      console.error('Error finding element path:', error);
+      return null;
+    }
+  }, [markdownEditorRef.current, element]);
+
+  // 判断是否是最后一个节点
+  const isLastNode = useMemo(() => {
+    if (!markdownEditorRef.current || !elementPath) {
+      return false;
+    }
+    try {
+      return EditorUtils.checkSelEnd(markdownEditorRef.current, elementPath);
+    } catch (error) {
+      console.error('Error checking if last node:', error);
+      return false;
+    }
+  }, [markdownEditorRef.current, elementPath]);
 
   // 状态优先级（从高到低）：
   // 1. Context 提供的 expanded（受控模式）
@@ -105,6 +135,13 @@ export function ThinkBlock({ element }: ThinkBlockProps) {
       setExpanded(false);
     }
   }, [bubbleIsFinished]);
+
+  // 如果不是最后一个节点，自动收起
+  useEffect(() => {
+    if (!isLastNode) {
+      setExpanded(false);
+    }
+  }, [isLastNode]);
 
   const rawContent =
     element?.value !== null && element?.value !== undefined
