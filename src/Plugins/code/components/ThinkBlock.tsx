@@ -4,7 +4,13 @@
  */
 
 import { useMergedState } from 'rc-util';
-import React, { createContext, useContext, useEffect, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { MessagesContext } from '../../../Bubble/MessagesContent/BubbleContext';
 import { I18nContext } from '../../../I18n';
 import {
@@ -142,6 +148,25 @@ export function ThinkBlock(props: ThinkBlockProps) {
       setExpanded(false);
     }
   }, [isLastNode]);
+
+  // 跟踪 thinkBlockContext?.expanded 的之前值
+  const prevExpandedRef = useRef<boolean | undefined>(
+    thinkBlockContext?.expanded,
+  );
+
+  // 当 thinkBlockContext?.expanded 从其他值变成 undefined 时，自动收起
+  useEffect(() => {
+    const prevExpanded = prevExpandedRef.current;
+    const currentExpanded = thinkBlockContext?.expanded;
+
+    // 如果之前有值（true 或 false），现在变成 undefined，则收起
+    if (prevExpanded !== undefined && currentExpanded === undefined) {
+      setExpanded(false);
+    }
+
+    // 更新之前的值
+    prevExpandedRef.current = currentExpanded;
+  }, [thinkBlockContext?.expanded, setExpanded]);
 
   const rawContent =
     element?.value !== null && element?.value !== undefined
