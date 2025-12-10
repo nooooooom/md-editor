@@ -4,7 +4,7 @@
  */
 
 import { useMergedState } from 'rc-util';
-import React, { useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { MessagesContext } from '../../../Bubble/MessagesContent/BubbleContext';
 import { I18nContext } from '../../../I18n';
 import { EditorStoreContext } from '../../../MarkdownEditor/editor/store';
@@ -14,6 +14,46 @@ import { ToolUseBarThink } from '../../../ToolUseBarThink';
 interface ThinkBlockProps {
   element: CodeNode;
 }
+
+/**
+ * ThinkBlock Context 类型定义
+ */
+export interface ThinkBlockContextType {
+  /** 受控的展开状态 */
+  expanded?: boolean;
+  /** 展开状态变更回调 */
+  onExpandedChange?: (expanded: boolean) => void;
+}
+
+/**
+ * ThinkBlock Context
+ */
+export const ThinkBlockContext = createContext<ThinkBlockContextType | null>(
+  null,
+);
+
+/**
+ * ThinkBlock Provider 组件
+ *
+ * 用于全局控制所有 ThinkBlock 实例的展开/收起状态
+ *
+ * @example
+ * ```tsx
+ * <ThinkBlockProvider expanded={isExpanded} onExpandedChange={setIsExpanded}>
+ *   <MarkdownEditor ... />
+ * </ThinkBlockProvider>
+ * ```
+ */
+export const ThinkBlockProvider: React.FC<
+  ThinkBlockContextType & { children: React.ReactNode }
+  > = ({ expanded, onExpandedChange, children }) => {
+  
+  return (
+    <ThinkBlockContext.Provider value={{ expanded, onExpandedChange }}>
+      {children}
+    </ThinkBlockContext.Provider>
+  );
+};
 
 /**
  * 将特殊标记恢复为代码块格式
@@ -40,21 +80,29 @@ export function ThinkBlock({ element }: ThinkBlockProps) {
   const { locale } = useContext(I18nContext);
   const { editorProps } = useContext(EditorStoreContext) || {};
   const { message } = useContext(MessagesContext);
+  const thinkBlockContext = useContext(ThinkBlockContext);
+
   // 获取当前 Bubble 的 isFinished 状态
   const bubbleIsFinished = message?.isFinished;
+
+  // 状态优先级（从高到低）：
+  // 1. Context 提供的 expanded（受控模式）
+  // 2. editorProps?.codeProps?.alwaysExpandedDeepThink
+  // 3. 默认值（false）
   const [expanded, setExpanded] = useMergedState(
-    () => {
-      return bubbleIsFinished ? undefined : false;
-    },
+    editorProps?.codeProps?.alwaysExpandedDeepThink ?? false,
     {
-      value: editorProps?.codeProps?.alwaysExpandedDeepThink,
-      defaultValue: editorProps?.codeProps?.alwaysExpandedDeepThink,
+      value: editorProps?.codeProps?.alwaysExpandedDeepThink
+        ? true
+        : (thinkBlockContext?.expanded ?? false),
+      onChange: thinkBlockContext?.onExpandedChange,
     },
   );
 
+  // 当 bubble 完成时，自动展开
   useEffect(() => {
     if (bubbleIsFinished) {
-      setExpanded(true);
+      setExpanded(false);
     }
   }, [bubbleIsFinished]);
 
