@@ -63,7 +63,7 @@ export const DazingLottie: React.FC<DazingLottieProps> = ({
   loop = true,
   className,
   style,
-  size,
+  size = 32,
 }) => {
   const containerStyle: React.CSSProperties = {
     width: size,

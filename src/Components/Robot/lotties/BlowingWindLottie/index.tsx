@@ -28,7 +28,7 @@ export interface BlowingWindLottieProps {
 /**
  * BlowingWindLottie 组件 - Lottie清风拂面动画组件
  *
- * 该组件使用Lottie动画库提供流畅的弹跳动画效果，支持自定义尺寸、播放控制等。
+ * 该组件使用Lottie动画库提供流畅的清风拂面动画效果，支持自定义尺寸、播放控制等。
  *
  * @component
  * @description BlowingWindLottie 组件 - Lottie清风拂面动画组件，提供流畅的清风拂面动画效果
@@ -63,7 +63,7 @@ export const BlowingWindLottie: React.FC<BlowingWindLottieProps> = ({
   loop = true,
   className,
   style,
-  size,
+  size = 32,
 }) => {
   const containerStyle: React.CSSProperties = {
     width: size,

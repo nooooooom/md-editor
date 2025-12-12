@@ -28,7 +28,7 @@ export interface PeekLottieProps {
 /**
  * PeekLottie 组件 - Lottie探头动画组件
  *
- * 该组件使用Lottie动画库提供流畅的弹跳动画效果，支持自定义尺寸、播放控制等。
+ * 该组件使用Lottie动画库提供流畅的探头动画效果，支持自定义尺寸、播放控制等。
  *
  * @component
  * @description PeekLottie 组件 - Lottie探头动画组件，提供流畅的探头动画效果
@@ -63,7 +63,7 @@ export const PeekLottie: React.FC<PeekLottieProps> = ({
   loop = true,
   className,
   style,
-  size,
+  size = 32,
 }) => {
   const containerStyle: React.CSSProperties = {
     width: size,

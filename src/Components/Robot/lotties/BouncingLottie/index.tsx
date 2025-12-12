@@ -2,7 +2,7 @@ import Lottie from 'lottie-react';
 import React from 'react';
 import lottieData from './lottie.json';
 
-export interface BounceLottieProps {
+export interface BouncingLottieProps {
   /**
    * 是否自动播放动画
    */
@@ -32,7 +32,7 @@ export interface BounceLottieProps {
  *
  * @component
  * @description Lottie弹跳动画组件，提供流畅的弹跳动画效果
- * @param {BounceLottieProps} props - 组件属性
+ * @param {BouncingLottieProps} props - 组件属性
  * @param {boolean} [props.autoplay=true] - 是否自动播放动画
  * @param {boolean} [props.loop=true] - 是否循环播放动画
  * @param {string} [props.className] - 动画容器类名
@@ -58,12 +58,12 @@ export interface BounceLottieProps {
  * - 支持播放控制
  * - 支持自定义样式
  */
-export const BouncingLottie: React.FC<BounceLottieProps> = ({
+export const BouncingLottie: React.FC<BouncingLottieProps> = ({
   autoplay = true,
   loop = true,
   className,
   style,
-  size,
+  size = 32,
 }) => {
   const containerStyle: React.CSSProperties = {
     width: size,
