@@ -80,7 +80,17 @@ export const MermaidRendererImpl = (props: { element: CodeNode }) => {
       )}
       {/* 空状态显示 */}
       {!renderedCode && !error && (
-        <div className={classNames(`${baseCls}-empty`, hashId)}>Empty</div>
+        <div className={classNames(`${baseCls}-empty`, hashId)}>
+          <pre
+            style={{
+              margin: 0,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            }}
+          >
+            {renderCode}
+          </pre>
+        </div>
       )}
     </div>
   );

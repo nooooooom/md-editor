@@ -59,7 +59,10 @@ export const useMermaidRender = (
           return;
         }
 
-        const { svg } = await api.render(id, trimmedCode);
+        const { svg } = await api.render(
+          id,
+          trimmedCode.endsWith('```') ? trimmedCode : trimmedCode,
+        );
 
         if (divRef.current) {
           renderSvgToContainer(svg, divRef.current);
