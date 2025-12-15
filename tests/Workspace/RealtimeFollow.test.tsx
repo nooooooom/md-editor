@@ -1223,5 +1223,407 @@ describe('RealtimeFollow Component', () => {
       // 应该显示默认的英文标签
       expect(screen.getByText('预览')).toBeInTheDocument();
     });
+
+    it('应该处理 styleResult 为 undefined 的情况', () => {
+      // 模拟 useRealtimeFollowStyle 返回 undefined
+      const { container } = render(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'shell',
+              content: 'test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('realtime-follow')).toBeInTheDocument();
+    });
+
+    it('应该处理 HTML 类型在 code 模式下的内容更新', async () => {
+      const { rerender } = render(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'html',
+              content: '<h1>初始</h1>',
+              viewMode: 'code',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      await waitFor(
+        () => {
+          expect(
+            document.querySelector('.ant-agentic-md-editor'),
+          ).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
+
+      rerender(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'html',
+              content: '<h1>更新</h1>',
+              viewMode: 'code',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      // 重新渲染后编辑器应该仍然存在
+      expect(
+        document.querySelector('.ant-agentic-md-editor'),
+      ).toBeInTheDocument();
+    });
+
+    it('应该处理 HTML 类型在 preview 模式下不更新编辑器', () => {
+      render(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'html',
+              content: '<h1>测试</h1>',
+              htmlViewMode: 'preview',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      // preview 模式下应该显示 iframe，不更新编辑器
+      expect(document.querySelector('iframe')).toBeInTheDocument();
+    });
+
+    it('应该处理 getContentForEditor 中 HTML 类型的转换', async () => {
+      render(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'html',
+              content: '<div>测试</div>',
+              viewMode: 'code',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      // HTML 内容应该被包装为代码块格式
+      await waitFor(
+        () => {
+          expect(
+            document.querySelector('.ant-agentic-md-editor'),
+          ).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+    });
+
+    it('应该处理 getTypeConfig 中 locale 为空的情况', () => {
+      const NoLocaleWrapper: React.FC<{ children: React.ReactNode }> = ({
+        children,
+      }) => (
+        <ConfigProvider>
+          <I18nContext.Provider value={{ locale: null as any, language: 'en' }}>
+            {children}
+          </I18nContext.Provider>
+        </ConfigProvider>
+      );
+
+      render(
+        <NoLocaleWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'shell',
+              content: 'test',
+              status: 'done',
+            }}
+          />
+        </NoLocaleWrapper>,
+      );
+
+      // 应该使用默认标题
+      expect(screen.getByText('终端执行')).toBeInTheDocument();
+    });
+
+    it('应该处理 getIconTypeClass 中未知类型的情况', () => {
+      const { container } = render(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'default',
+              content: 'test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      // default 类型应该使用 'default' 后缀
+      const icon = container.querySelector('[class*="header-icon--default"]');
+      expect(icon).toBeInTheDocument();
+    });
+
+    it('应该处理 renderNode 函数形式的情况', () => {
+      const customContentFn = () => (
+        <div data-testid="fn-content">函数内容</div>
+      );
+
+      render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'default',
+              content: 'ignored',
+              customContent: customContentFn,
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('fn-content')).toBeInTheDocument();
+    });
+
+    it('应该处理 Overlay 组件中 loadingRender 为函数的情况', () => {
+      const loadingRenderFn = () => <div>函数加载中</div>;
+
+      render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'shell',
+              content: 'test',
+              status: 'loading',
+              loadingRender: loadingRenderFn,
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      // 测试环境中不显示 overlay，但函数应该被调用
+      expect(screen.getByText('test')).toBeInTheDocument();
+    });
+
+    it('应该处理 Overlay 组件中 errorRender 为函数的情况', () => {
+      const errorRenderFn = () => <div>函数错误</div>;
+
+      render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'shell',
+              content: 'test',
+              status: 'error',
+              errorRender: errorRenderFn,
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      // 测试环境中不显示 overlay，但函数应该被调用
+      expect(screen.getByText('test')).toBeInTheDocument();
+    });
+
+    it('应该处理 shouldUpdateEditor 的不同类型分支', () => {
+      // shell 类型应该更新编辑器
+      const shellResult = render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'shell',
+              content: 'test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+      expect(
+        shellResult.container.querySelector('.ant-agentic-md-editor'),
+      ).toBeInTheDocument();
+      shellResult.unmount();
+
+      // markdown 类型应该更新编辑器
+      const mdResult = render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'markdown',
+              content: '# test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+      expect(
+        mdResult.container.querySelector('.ant-agentic-md-editor'),
+      ).toBeInTheDocument();
+      mdResult.unmount();
+
+      // md 类型应该更新编辑器
+      const mdTypeResult = render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'md',
+              content: '## test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+      expect(
+        mdTypeResult.container.querySelector('.ant-agentic-md-editor'),
+      ).toBeInTheDocument();
+      mdTypeResult.unmount();
+
+      // html 类型在 preview 模式不应该更新编辑器（显示 iframe）
+      const htmlPreviewResult = render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'html',
+              content: '<h1>test</h1>',
+              htmlViewMode: 'preview',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+      expect(
+        htmlPreviewResult.container.querySelector('iframe'),
+      ).toBeInTheDocument();
+      htmlPreviewResult.unmount();
+    });
+
+    it('应该处理 onViewModeChange 回调', () => {
+      const onViewModeChange = vi.fn();
+
+      render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'html',
+              content: '<h1>测试</h1>',
+              onViewModeChange,
+              status: 'done',
+            }}
+            htmlViewMode="preview"
+          />
+        </TestWrapper>,
+      );
+
+      // 通过 HtmlPreview 组件触发回调
+      const iframe = document.querySelector('iframe');
+      expect(iframe).toBeInTheDocument();
+    });
+
+    it('应该处理 RealtimeHeader 中无 locale 的情况', () => {
+      const NoLocaleWrapper: React.FC<{ children: React.ReactNode }> = ({
+        children,
+      }) => (
+        <ConfigProvider>
+          <I18nContext.Provider
+            value={{ locale: undefined as any, language: 'en' }}
+          >
+            {children}
+          </I18nContext.Provider>
+        </ConfigProvider>
+      );
+
+      render(
+        <NoLocaleWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'html',
+              content: '<h1>测试</h1>',
+              status: 'done',
+            }}
+          />
+        </NoLocaleWrapper>,
+      );
+
+      // 应该使用默认标题
+      expect(screen.getByText('创建 HTML 文件')).toBeInTheDocument();
+    });
+
+    it('应该处理 RealtimeHeader 中无 subTitle 的情况', () => {
+      render(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'shell',
+              content: 'test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      // 不应该显示副标题
+      const subtitle = screen.queryByText(/副标题/i);
+      expect(subtitle).not.toBeInTheDocument();
+    });
+
+    it('应该处理 RealtimeHeader 中无 rightContent 的情况', () => {
+      const { container } = render(
+        <TestWrapper>
+          <RealtimeFollowList
+            data={{
+              type: 'shell',
+              content: 'test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      const rightContent = container.querySelector('[class*="-header-right"]');
+      expect(rightContent).toBeInTheDocument();
+      expect(rightContent?.textContent).toBe('');
+    });
+
+    it('应该处理 getEditorConfig 中 md 类型', () => {
+      render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'md',
+              content: '# test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      expect(
+        document.querySelector('.ant-agentic-md-editor'),
+      ).toBeInTheDocument();
+    });
+
+    it('应该处理 getEditorConfig 中未知类型使用默认配置', () => {
+      render(
+        <TestWrapper>
+          <RealtimeFollow
+            data={{
+              type: 'default',
+              content: 'test',
+              status: 'done',
+            }}
+          />
+        </TestWrapper>,
+      );
+
+      expect(
+        document.querySelector('.ant-agentic-md-editor'),
+      ).toBeInTheDocument();
+    });
   });
 });

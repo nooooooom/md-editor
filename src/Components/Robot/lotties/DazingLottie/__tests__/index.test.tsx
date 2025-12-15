@@ -141,4 +141,63 @@ describe('DazingLottie Component', () => {
     const style = lottieAnimation.getAttribute('style');
     expect(style).toBeTruthy();
   });
+
+  it('should render with size 0', () => {
+    render(<DazingLottie size={0} />);
+
+    const lottieAnimation = screen.getByTestId('lottie-animation');
+    expect(lottieAnimation).toHaveStyle({
+      width: '0px',
+      height: '0px',
+      display: 'flex',
+    });
+  });
+
+  it('should render without className prop', () => {
+    render(<DazingLottie size={32} />);
+
+    const lottieAnimation = screen.getByTestId('lottie-animation');
+    expect(lottieAnimation).toBeInTheDocument();
+    expect(lottieAnimation.className).toBe('');
+  });
+
+  it('should render without style prop', () => {
+    render(<DazingLottie size={32} />);
+
+    const lottieAnimation = screen.getByTestId('lottie-animation');
+    expect(lottieAnimation).toBeInTheDocument();
+    expect(lottieAnimation).toHaveStyle({
+      width: '32px',
+      height: '32px',
+      display: 'flex',
+    });
+  });
+
+  it('should handle style override with size', () => {
+    const customStyle = { width: '100px', height: '100px' };
+    render(<DazingLottie size={50} style={customStyle} />);
+
+    const lottieAnimation = screen.getByTestId('lottie-animation');
+    // style 会覆盖 size 设置的 width 和 height
+    expect(lottieAnimation).toHaveStyle({
+      width: '100px',
+      height: '100px',
+    });
+  });
+
+  it('should render with empty string className', () => {
+    render(<DazingLottie className="" />);
+
+    const lottieAnimation = screen.getByTestId('lottie-animation');
+    expect(lottieAnimation.className).toBe('');
+  });
+
+  it('should handle undefined autoplay and loop', () => {
+    render(<DazingLottie autoplay={undefined} loop={undefined} />);
+
+    const lottieAnimation = screen.getByTestId('lottie-animation');
+    // 默认值应该是 true
+    expect(lottieAnimation).toHaveAttribute('data-autoplay', 'true');
+    expect(lottieAnimation).toHaveAttribute('data-loop', 'true');
+  });
 });
