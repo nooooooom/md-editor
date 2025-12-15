@@ -1,8 +1,8 @@
 import Lottie from 'lottie-react';
 import React from 'react';
-import dazingLottie from './dazing.json';
+import lottieData from './lottie.json';
 
-export interface DazingLottieProps {
+export interface BouncingLottieProps {
   /**
    * 是否自动播放动画
    */
@@ -26,13 +26,13 @@ export interface DazingLottieProps {
 }
 
 /**
- * DazingLottie 组件 - Lottie呼吸+眨眼睛动画组件
+ * BouncingLottie 组件 - Lottie弹跳动画组件
  *
- * 该组件使用Lottie动画库提供流畅的加载动画效果，支持自定义尺寸、播放控制等。
+ * 该组件使用Lottie动画库提供流畅的弹跳动画效果，支持自定义尺寸、播放控制等。
  *
  * @component
- * @description Lottie呼吸+眨眼睛动画组件，提供流畅的呼吸+眨眼睛动画效果
- * @param {DazingLottieProps} props - 组件属性
+ * @description Lottie弹跳动画组件，提供流畅的弹跳动画效果
+ * @param {BouncingLottieProps} props - 组件属性
  * @param {boolean} [props.autoplay=true] - 是否自动播放动画
  * @param {boolean} [props.loop=true] - 是否循环播放动画
  * @param {string} [props.className] - 动画容器类名
@@ -41,7 +41,7 @@ export interface DazingLottieProps {
  *
  * @example
  * ```tsx
- * <DazingLottie
+ * <BouncingLottie
  *   autoplay={true}
  *   loop={true}
  *   size={48}
@@ -49,7 +49,7 @@ export interface DazingLottieProps {
  * />
  * ```
  *
- * @returns {React.ReactElement} 渲染的Lottie呼吸+眨眼睛动画组件
+ * @returns {React.ReactElement} 渲染的Lottie弹跳动画组件
  *
  * @remarks
  * - 使用Lottie动画库
@@ -58,7 +58,7 @@ export interface DazingLottieProps {
  * - 支持播放控制
  * - 支持自定义样式
  */
-export const DazingLottie: React.FC<DazingLottieProps> = ({
+export const BouncingLottie: React.FC<BouncingLottieProps> = ({
   autoplay = true,
   loop = true,
   className,
@@ -79,11 +79,11 @@ export const DazingLottie: React.FC<DazingLottieProps> = ({
       style={containerStyle}
       className={className}
       aria-hidden="true"
-      animationData={dazingLottie}
+      animationData={lottieData}
       loop={loop}
       autoplay={autoplay}
     />
   );
 };
 
-export default DazingLottie;
+export default BouncingLottie;
