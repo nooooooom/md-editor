@@ -24,6 +24,45 @@ export const useIntersectionOnce = <T extends Element>(
       return;
     }
 
+    // 初始检查：如果元素已经在视口内，立即设置
+    const checkInitialIntersection = () => {
+      const rect = element.getBoundingClientRect();
+      const resolvedRoot =
+        root && 'current' in root ? root.current : (root as Element | null);
+      const rootElement = resolvedRoot || (typeof document !== 'undefined' ? document.documentElement : null);
+      
+      if (!rootElement) {
+        // 如果没有 root，使用 viewport 检查
+        const isInViewport =
+          rect.top < window.innerHeight &&
+          rect.bottom > 0 &&
+          rect.left < window.innerWidth &&
+          rect.right > 0;
+        if (isInViewport) {
+          setIntersecting(true);
+          return true;
+        }
+      } else {
+        // 如果有 root，检查是否在 root 内
+        const rootRect = rootElement.getBoundingClientRect();
+        const isInRoot =
+          rect.top < rootRect.bottom &&
+          rect.bottom > rootRect.top &&
+          rect.left < rootRect.right &&
+          rect.right > rootRect.left;
+        if (isInRoot) {
+          setIntersecting(true);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    // 立即检查一次
+    if (checkInitialIntersection()) {
+      return;
+    }
+
     const resolvedRoot =
       root && 'current' in root ? root.current : (root as Element | null);
 
