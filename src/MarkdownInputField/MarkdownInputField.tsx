@@ -134,7 +134,6 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
     maxHeight: props.maxHeight,
     style: props.style,
     attachment: props.attachment,
-    enlargeable: props.enlargeable,
     isEnlarged,
     rightPadding,
     topRightPadding,
