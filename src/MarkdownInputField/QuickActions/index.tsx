@@ -187,7 +187,7 @@ export const QuickActions = React.forwardRef<HTMLDivElement, QuickActionsProps>(
                   />,
                 ]
               : []),
-          ]}
+          ].filter(Boolean)}
         </div>
       </RcResizeObserver>
     );
