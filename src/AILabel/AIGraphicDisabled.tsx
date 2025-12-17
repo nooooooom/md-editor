@@ -1,6 +1,6 @@
 import React from 'react';
 
-function AIGraphicDisabled() {
+export function AIGraphicDisabled() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -94,4 +94,3 @@ function AIGraphicDisabled() {
   );
 }
 
-export default AIGraphicDisabled;

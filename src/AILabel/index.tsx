@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import * as React from 'react';
 import { useContext, useMemo } from 'react';
 import { AIGraphic } from './AIGraphic';
-import AIGraphicDisabled from './AIGraphicDisabled';
+import { AIGraphicDisabled } from './AIGraphicDisabled';
 import { prefixCls, useStyle } from './style';
 
 /**
@@ -166,6 +166,7 @@ export const AILabel = React.forwardRef<HTMLSpanElement, AILabelProps>(
      */
     const handleTooltipOpenChange = (open: boolean) => {
       setTooltipOpen(open);
+      tooltip?.onOpenChange?.(open);
     };
 
     // ====================== Render ======================

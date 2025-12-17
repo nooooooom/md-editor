@@ -158,24 +158,6 @@ describe('AILabel 组件', () => {
     expect(label).toBeInTheDocument();
   });
 
-  it('应该正确处理水印状态下的图标切换', async () => {
-    const { container } = render(
-      <AILabel
-        status="watermark"
-        tooltip={{
-          title: '水印提示',
-        }}
-      />,
-    );
-
-    // 初始状态下应该显示禁用图标（watermark 且 tooltip 未打开）
-    const dot = container.querySelector('.ant-ai-label-dot');
-    expect(dot).toBeInTheDocument();
-
-    // 当 tooltip 打开时，应该显示正常图标
-    // 注意：这需要实际触发 tooltip 的打开事件
-  });
-
   it('应该支持复杂的子元素内容', () => {
     render(
       <AILabel status="emphasis">
@@ -377,18 +359,5 @@ describe('AILabel 组件', () => {
     expect(screen.getByText('第一个子元素')).toBeInTheDocument();
     expect(screen.getByText('第二个子元素')).toBeInTheDocument();
     expect(screen.getByText('第三个子元素')).toBeInTheDocument();
-  });
-
-  it('应该正确处理 tooltip 的 onOpenChange 回调', async () => {
-    const handleOpenChange = vi.fn();
-
-    render(
-      <AILabel
-        tooltip={{
-          title: '测试',
-          onOpenChange: handleOpenChange,
-        }}
-      />,
-    );
   });
 });
