@@ -1,6 +1,5 @@
 import { ConfigProvider, Tooltip, TooltipProps } from 'antd';
 import classNames from 'classnames';
-import { motion } from 'framer-motion';
 import * as React from 'react';
 import { useContext, useMemo } from 'react';
 import { AIGraphic } from './AIGraphic';
@@ -190,26 +189,16 @@ export const AILabel = React.forwardRef<HTMLSpanElement, AILabelProps>(
       >
         {children}
         <Tooltip {...tooltip} onOpenChange={handleTooltipOpenChange}>
-          <motion.sup
+          <sup
             className={classNames(`${baseCls}-dot`, hashId)}
             style={mergedStyle}
-            variants={{
-              hidden: {
-                transform: 'scale(0) translate(50%, -50%)',
-                opacity: 0,
-              },
-              visible: {
-                transform: 'scale(1) translate(50%, -50%)',
-                opacity: 1,
-              },
-            }}
           >
             {status === 'watermark' && !tooltipOpen ? (
               <AIGraphicDisabled />
             ) : (
               <AIGraphic />
             )}
-          </motion.sup>
+          </sup>
         </Tooltip>
       </span>,
     );
