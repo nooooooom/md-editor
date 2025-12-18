@@ -40,10 +40,10 @@ interface LoadingProps extends Pick<LoadingLottieProps, 'size'> {
   className?: string;
 
   /**
-   * 根元素的自定义类名
+   * 最外层容器的自定义类名
    * @description 应用于组件最外层容器的类名，与 className 的区别在于作用域不同
    */
-  rootClassName?: string;
+  wrapperClassName?: string;
 
   /**
    * 自定义 CSS 样式
@@ -134,9 +134,8 @@ interface LoadingProps extends Pick<LoadingLottieProps, 'size'> {
  * function App() {
  *   return (
  *     <div>
- *       <Loading />
+ *       <Loading {...props} />
  *     </div>
-  return <LoadingLottie size={'1em'} {...props} />;
  *   );
  * }
  * ```
@@ -144,6 +143,9 @@ interface LoadingProps extends Pick<LoadingLottieProps, 'size'> {
  * @returns {React.ReactElement} 渲染的加载动画组件
  */
 export const Loading = ({
+  className,
+  wrapperClassName,
+  style,
   indicator,
   tip,
   spinning = true,
@@ -164,16 +166,22 @@ export const Loading = ({
 
   const loadingElement = (
     <div
-      className={classNames(baseCls, hashId, {
+      className={classNames(baseCls, hashId, className, {
         [`${baseCls}-with-tip`]: !!tip,
         [`${baseCls}-with-children`]: isNestedPattern,
       })}
       style={{
         fontSize: mergedSize,
         ...styles?.root,
+        ...style,
       }}
     >
-      <Indicator size={mergedSize} indicator={indicator} percent={percent} />
+      <Indicator
+        size={mergedSize}
+        indicator={indicator}
+        percent={percent}
+        style={styles?.indicator}
+      />
       {tip || (tip !== false && tip !== null && showPercent) ? (
         <div
           className={classNames(`${baseCls}-tip`, hashId)}
@@ -188,9 +196,12 @@ export const Loading = ({
   if (isNestedPattern) {
     return wrapSSR(
       <div
-        className={classNames(`${baseCls}-nested-pattern`, hashId, {
-          [`${baseCls}-spinning`]: spinning,
-        })}
+        className={classNames(
+          `${baseCls}-nested-pattern`,
+          hashId,
+          wrapperClassName,
+          spinning && `${baseCls}-spinning`,
+        )}
         style={styles?.wrapper}
       >
         {spinning ? loadingElement : null}

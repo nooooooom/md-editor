@@ -20,18 +20,18 @@ group:
 
 Loading 组件是主要的加载组件，支持多种使用模式。
 
-| 参数            | 说明                                                                   | 类型                                                                                | 默认值  | 必填 |
-| --------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- | ---- |
-| `size`          | 动画尺寸（宽度和高度），支持数字（px）或字符串（如 `'1em'`, `'2rem'`） | `number \| string`                                                                  | `'1em'` | 否   |
-| `tip`           | 加载提示文本，支持 ReactNode。设置为 `false` 或 `null` 时不显示提示    | `React.ReactNode \| false \| null`                                                  | -       | 否   |
-| `indicator`     | 自定义加载指示器，支持 ReactNode                                       | `React.ReactNode`                                                                   | -       | 否   |
-| `percent`       | 加载进度百分比（0-100），设置后会显示进度条                            | `number`                                                                            | -       | 否   |
-| `children`      | 子元素，传入后会启用嵌套模式（覆盖在内容上方显示加载状态）             | `React.ReactNode`                                                                   | -       | 否   |
-| `className`     | 自定义类名                                                             | `string`                                                                            | -       | 否   |
-| `rootClassName` | 根节点自定义类名                                                       | `string`                                                                            | -       | 否   |
-| `style`         | 自定义样式                                                             | `React.CSSProperties`                                                               | -       | 否   |
-| `styles`        | 语义化样式配置，可分别设置 root、wrapper、indicator、tip 的样式        | `Partial<Record<'root' \| 'wrapper' \| 'indicator' \| 'tip', React.CSSProperties>>` | -       | 否   |
-| `spinning`      | 是否显示加载状态，在嵌套模式下控制是否显示加载指示器和背景动画效果     | `boolean`                                                                           | `true`  | 否   |
+| 参数               | 说明                                                                                                                              | 类型                                                                                | 默认值 | 必填 |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------ | ---- |
+| `size`             | 动画尺寸（宽度和高度），支持数字（px）或字符串（如 `'1em'`, `'2rem'`）。未设置时，嵌套模式默认为 `32px`，非嵌套模式默认为 `'1em'` | `number \| string`                                                                  | -      | 否   |
+| `tip`              | 加载提示文本，支持 ReactNode。设置为 `false` 或 `null` 时不显示提示                                                               | `React.ReactNode \| false \| null`                                                  | -      | 否   |
+| `indicator`        | 自定义加载指示器，支持 ReactNode                                                                                                  | `React.ReactNode`                                                                   | -      | 否   |
+| `percent`          | 加载进度百分比（0-100），设置后会显示进度条                                                                                       | `number`                                                                            | -      | 否   |
+| `children`         | 子元素，传入后会启用嵌套模式（覆盖在内容上方显示加载状态）                                                                        | `React.ReactNode`                                                                   | -      | 否   |
+| `className`        | 自定义类名                                                                                                                        | `string`                                                                            | -      | 否   |
+| `wrapperClassName` | 最外层容器的自定义类名                                                                                                            | `string`                                                                            | -      | 否   |
+| `style`            | 自定义样式                                                                                                                        | `React.CSSProperties`                                                               | -      | 否   |
+| `styles`           | 语义化样式配置，可分别设置 root、wrapper、indicator、tip 的样式                                                                   | `Partial<Record<'root' \| 'wrapper' \| 'indicator' \| 'tip', React.CSSProperties>>` | -      | 否   |
+| `spinning`         | 是否显示加载状态，仅在嵌套模式下生效，控制是否显示加载指示器和背景动画效果                                                        | `boolean`                                                                           | `true` | 否   |
 
 ## 组件概览
 
@@ -70,8 +70,9 @@ Loading 组件库提供了三种不同风格的加载动画组件：
 
 ### 尺寸控制
 
-- **默认尺寸**: 组件默认尺寸为 `1em`，可以很好地与文本内容对齐
-- **嵌套模式尺寸**: 在嵌套模式下，默认尺寸为 `32px`
+- **默认尺寸**: 当未设置 `size` 时，组件会根据模式自动选择默认尺寸
+  - 非嵌套模式：默认尺寸为 `'1em'`，可以很好地与文本内容对齐
+  - 嵌套模式：默认尺寸为 `32px`
 - **尺寸设置**: 可以通过 `size` 属性直接设置动画的宽度和高度，支持数字（px）或字符串（如 `'1em'`, `'2rem'`），也可以通过 `style` 属性传递 `fontSize` 来控制大小
 
 ### 提示文本
@@ -91,7 +92,14 @@ Loading 组件库提供了三种不同风格的加载动画组件：
 - **使用方式**: 通过 `indicator` 属性传入任何 React 组件作为加载指示器
 - **优先级**: `indicator` 的优先级高于 `percent`，当同时设置时，会使用 `indicator` 而不是进度条
 
+### 加载状态控制
+
+- **spinning 属性**: 控制是否显示加载状态，默认值为 `true`
+- **作用范围**: 仅在嵌套模式下生效，在非嵌套模式下此属性无效
+- **嵌套模式**: 当 `spinning={false}` 时，会隐藏加载指示器和背景动画效果，但子内容仍然可见
+
 ### 样式定制
 
 - **语义化样式**: 使用 `styles` 属性可以分别定制 `root`、`wrapper`、`indicator`、`tip` 的样式
-- **样式合并**: `styles.root` 会与 `style` 属性合并，`styles.root` 优先级更高
+- **样式合并**: `styles.root` 会与 `style` 属性合并，`style` 的优先级高于 `styles.root`
+- **wrapperClassName**: 在嵌套模式下，可以通过 `wrapperClassName` 为最外层容器添加自定义类名

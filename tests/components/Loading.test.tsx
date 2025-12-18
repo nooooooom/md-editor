@@ -80,17 +80,75 @@ describe('Loading 组件', () => {
       ) as HTMLElement;
       expect(loadingElement).toBeTruthy();
       expect(loadingElement).toBeInTheDocument();
+      // 验证自定义类名是否被应用
+      expect(loadingElement.className).toContain('custom-loading');
+    });
+
+    it('嵌套模式下应该应用自定义类名', () => {
+      render(
+        <Loading className="nested-custom-class">
+          <div>Content</div>
+        </Loading>,
+      );
+
+      // 在嵌套模式下，className 应用到内部的 loadingElement
+      const lottie = screen.getByTestId('lottie-animation');
+      const loadingElement = lottie.parentElement as HTMLElement;
+      expect(loadingElement).toBeTruthy();
+      expect(loadingElement.className).toContain('nested-custom-class');
     });
 
     it('应该应用自定义样式', () => {
       const customStyle = { margin: '20px', padding: '10px' };
-      const { container } = render(<Loading style={customStyle} />);
+      render(<Loading style={customStyle} />);
 
-      // style 属性会应用到根元素
-      const rootElement = container.firstChild as HTMLElement;
-      expect(rootElement).toBeTruthy();
-      // 注意：style 属性可能通过 styles.root 应用，这里只验证组件能正常渲染
-      expect(screen.getByTestId('lottie-animation')).toBeInTheDocument();
+      // 获取加载元素的根容器（应用 style 的元素）
+      const lottie = screen.getByTestId('lottie-animation');
+      const container = lottie.parentElement as HTMLElement;
+      expect(container).toBeTruthy();
+      // 验证自定义样式是否被正确应用
+      expect(container).toHaveStyle({
+        margin: '20px',
+        padding: '10px',
+      });
+    });
+
+    it('嵌套模式下应该应用自定义样式', () => {
+      const customStyle = { margin: '15px', padding: '5px' };
+      render(
+        <Loading style={customStyle}>
+          <div>Content</div>
+        </Loading>,
+      );
+
+      // 在嵌套模式下，style 应用到内部的 loadingElement
+      const lottie = screen.getByTestId('lottie-animation');
+      const loadingElement = lottie.parentElement as HTMLElement;
+      expect(loadingElement).toBeTruthy();
+      expect(loadingElement).toHaveStyle({
+        margin: '15px',
+        padding: '5px',
+      });
+    });
+
+    it('style 的优先级应该高于 styles.root', () => {
+      render(
+        <Loading
+          style={{ margin: '20px', padding: '10px' }}
+          styles={{
+            root: { margin: '30px', background: '#F8F9FA' },
+          }}
+        />,
+      );
+
+      const lottie = screen.getByTestId('lottie-animation');
+      const container = lottie.parentElement as HTMLElement;
+      // style 中的 margin 应该覆盖 styles.root 中的 margin
+      expect(container).toHaveStyle({
+        margin: '20px', // style 优先级更高
+        padding: '10px',
+        background: '#F8F9FA', // styles.root 中的其他样式仍然生效
+      });
     });
   });
 
@@ -386,6 +444,22 @@ describe('Loading 组件', () => {
       expect(screen.getByTestId('progress-circle')).toBeInTheDocument();
       expect(screen.getByText('处理中...')).toBeInTheDocument();
       expect(screen.getByTestId('content')).toBeInTheDocument();
+
+      // 验证 className 是否被应用到加载元素（在嵌套模式下，className 应用到内部的 loadingElement）
+      const progress = screen.getByTestId('progress-circle');
+      const loadingElement = progress.parentElement as HTMLElement;
+      expect(loadingElement).toBeTruthy();
+      expect(loadingElement.className).toContain('custom-class');
+
+      // 验证 style 是否被应用（style 优先级高于 styles.root）
+      expect(loadingElement).toHaveStyle({
+        margin: '10px',
+        background: '#fff', // styles.root 也会被应用
+      });
+
+      // 验证 styles.tip 是否被应用
+      const tip = screen.getByText('处理中...');
+      expect(tip).toHaveStyle({ color: '#333' });
     });
 
     it('当 percent 为 undefined 时不应该显示进度条', () => {

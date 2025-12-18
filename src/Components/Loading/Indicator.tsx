@@ -1,5 +1,5 @@
 import { Progress, ProgressProps } from 'antd';
-import React from 'react';
+import React, { cloneElement } from 'react';
 import { LoadingLottie, LoadingLottieProps } from '../lotties/LoadingLottie';
 
 /**
@@ -26,6 +26,11 @@ export interface IndicatorProps extends Pick<LoadingLottieProps, 'size'> {
    * ```
    */
   percent?: number;
+
+  /**
+   * 自定义 CSS 样式
+   */
+  style?: React.CSSProperties;
 }
 
 const defaultStrokeColor: ProgressProps['strokeColor'] = {
@@ -67,9 +72,12 @@ const defaultStrokeColor: ProgressProps['strokeColor'] = {
  *
  * @returns {React.ReactElement} 渲染的加载指示器组件
  */
-function Indicator({ indicator, percent, size }: IndicatorProps) {
+function Indicator({ indicator, percent, size, style }: IndicatorProps) {
   if (indicator && React.isValidElement(indicator)) {
-    return indicator;
+    return cloneElement(indicator, (currentProps: any) => ({
+      style: { ...currentProps.style, ...style },
+      percent,
+    }));
   }
 
   if (percent !== undefined && percent !== null) {
@@ -83,11 +91,12 @@ function Indicator({ indicator, percent, size }: IndicatorProps) {
         size={size}
         showInfo={false}
         strokeWidth={12}
+        style={style}
       />
     );
   }
 
-  return <LoadingLottie size={size} />;
+  return <LoadingLottie size={size} style={style} />;
 }
 
 export default Indicator;
