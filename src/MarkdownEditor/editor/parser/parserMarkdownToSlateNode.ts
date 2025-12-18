@@ -135,12 +135,20 @@ const splitMarkdownIntoBlocks = (
     blocks.push(currentBlock.trim());
   }
 
-  // 合并小于 100 个字符的块到下一个块
+  // 合并小于 100 个字符的块到下一个块，同时处理包含 --- 的块
   const MIN_BLOCK_SIZE = 100;
   const mergedBlocks: string[] = [];
 
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
+
+    // 检查当前块是否包含 --- (frontmatter 分隔符或 thematic break)
+    // 如果包含 ---，且有上一个块，则合并到上一个块
+    const containsHr = /^---\s*$/m.test(block);
+    if (containsHr && mergedBlocks.length > 0) {
+      mergedBlocks[mergedBlocks.length - 1] += '\n\n' + block;
+      continue;
+    }
 
     // 如果当前块小于 100 个字符，且有下一个块，则合并到下一个块
     if (block.length < MIN_BLOCK_SIZE && i + 1 < blocks.length) {
