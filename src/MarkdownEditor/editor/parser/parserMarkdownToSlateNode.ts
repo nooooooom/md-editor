@@ -199,7 +199,6 @@ export class MarkdownToSlateParser {
     let preElement: Element = null;
     let htmlTag: { tag: string; color?: string; url?: string }[] = [];
     let contextProps = {};
-    let pendingHtmlCommentProps: any = null;
 
     for (let i = 0; i < nodes.length; i++) {
       const currentElement = nodes[i] as any;
@@ -221,7 +220,6 @@ export class MarkdownToSlateParser {
         currentElement.value?.trim()?.endsWith('-->');
 
       let htmlCommentProps: Record<string, any> = {};
-      let isOtherPropsComment = false;
       if (isHtmlComment) {
         try {
           const commentContent = currentElement.value
@@ -229,65 +227,33 @@ export class MarkdownToSlateParser {
             .replace('-->', '')
             .trim();
           htmlCommentProps = JSON.parse(commentContent);
-          // 如果能够成功解析为 JSON 对象，且是对象类型（不是数组或基本类型）
-          if (
-            typeof htmlCommentProps === 'object' &&
-            htmlCommentProps !== null &&
-            !Array.isArray(htmlCommentProps)
-          ) {
-            // 检查是否包含代码块的元数据属性（data-language、data-block、data-state）
-            // 这些属性表明这是代码块的 otherProps 序列化生成的注释
-            const hasCodeMetadataProps =
-              htmlCommentProps['data-language'] ||
-              htmlCommentProps['data-block'] ||
-              htmlCommentProps['data-state'];
-            // 只有当包含代码块元数据属性时，才认为是 otherProps 注释
-            // 对齐注释（如 {"align":"center"}）不包含这些属性，应该被保留
-            isOtherPropsComment = hasCodeMetadataProps;
-          }
+          // 如果是数组类型，转换为图表配置格式
           if (Array.isArray(htmlCommentProps)) {
             htmlCommentProps = {
               config: htmlCommentProps as ChartTypeConfig[],
             };
           }
         } catch (e) {
-          // 解析失败，不是 JSON 格式的注释，可能是真正的 HTML 注释
-          isOtherPropsComment = false;
+          // 解析失败，不是 JSON 格式的注释，保持为空对象
         }
       }
 
-      const nextElement = i + 1 < nodes.length ? nodes[i + 1] : null;
-      const isNextCodeBlock = nextElement?.type === 'code';
-
-      // 如果 HTML 注释是代码块的 otherProps 序列化生成的，应该跳过，避免被解析为独立的 HTML 代码节点
-      // 如果后面跟着代码块，存储注释属性供代码块使用
-      if (isHtmlComment && isOtherPropsComment) {
-        if (isNextCodeBlock) {
-          // 后面有代码块，存储属性供代码块使用
-          pendingHtmlCommentProps = htmlCommentProps;
-        }
-        // 无论后面是否有代码块，都跳过 HTML 注释，避免生成独立的 HTML 代码节点
-        continue;
-      }
-
-      // 确定要使用的 config：优先使用待处理的 HTML 注释属性，否则使用前一个 HTML 代码节点的属性
-      let config = pendingHtmlCommentProps
-        ? pendingHtmlCommentProps
-        : preElement?.type === 'code' &&
-            preElement?.language === 'html' &&
-            preElement?.otherProps
+      // 确定要使用的 config：使用前一个 HTML 代码节点的属性
+      let config =
+        preElement?.type === 'code' &&
+        preElement?.language === 'html' &&
+        preElement?.otherProps
           ? preElement?.otherProps
           : {};
 
-      // 如果 HTML 注释不是代码块元数据注释，但包含 JSON 对象属性（如对齐注释），
-      // 应该跳过注释本身，但将属性应用到下一个元素
+      // 如果 HTML 注释包含 JSON 对象属性（如对齐注释、图表配置），
+      // 跳过注释本身，但将属性应用到下一个元素
       if (
         isHtmlComment &&
-        !isOtherPropsComment &&
         htmlCommentProps &&
         Object.keys(htmlCommentProps).length > 0
       ) {
-        // 将对齐注释等非代码块元数据注释的属性存储到 contextProps 中，供下一个元素使用
+        // 将注释属性存储到 contextProps 中，供下一个元素使用
         contextProps = { ...contextProps, ...htmlCommentProps };
         // 同时将属性作为 config 传递，以便 applyContextPropsAndConfig 设置 otherProps
         config = { ...config, ...htmlCommentProps };
@@ -299,11 +265,6 @@ export class MarkdownToSlateParser {
       // 这主要针对对齐注释等场景，需要同时设置 contextProps 和 otherProps
       if (contextProps && Object.keys(contextProps).length > 0) {
         config = { ...config, ...contextProps };
-      }
-
-      // 如果使用了待处理的 HTML 注释属性，清空它
-      if (pendingHtmlCommentProps && config === pendingHtmlCommentProps) {
-        pendingHtmlCommentProps = null;
       }
 
       // 首先尝试使用插件处理，使用 this.plugins

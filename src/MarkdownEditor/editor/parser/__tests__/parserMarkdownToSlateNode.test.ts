@@ -271,11 +271,8 @@ describe('parserMarkdownToSlateNode', () => {
         value: 'console.log("hello");',
         children: [{ text: 'console.log("hello");' }],
       });
-      // 验证 otherProps 存在并包含预期的属性
+      // 验证 otherProps 存在（不再包含 data-block 等冗余属性）
       expect(codeNode).toHaveProperty('otherProps');
-      expect((codeNode as any).otherProps).toMatchObject({
-        'data-block': 'true',
-      });
     });
 
     it('should handle code block without language', () => {
@@ -292,11 +289,8 @@ describe('parserMarkdownToSlateNode', () => {
         value: 'some code',
         children: [{ text: 'some code' }],
       });
-      // 验证 otherProps 存在并包含预期的属性
+      // 验证 otherProps 存在（不再包含 data-block 等冗余属性）
       expect(codeNode).toHaveProperty('otherProps');
-      expect((codeNode as any).otherProps).toMatchObject({
-        'data-block': 'true',
-      });
     });
 
     it('should handle multi-line code block', () => {
@@ -316,12 +310,8 @@ describe('parserMarkdownToSlateNode', () => {
           { text: 'def hello():\n    print("Hello World")\n    return True' },
         ],
       });
-      // 验证 otherProps 存在并包含预期的属性
+      // 验证 otherProps 存在（不再包含 data-block 等冗余属性）
       expect(codeNode).toHaveProperty('otherProps');
-      expect((codeNode as any).otherProps).toMatchObject({
-        'data-block': 'true',
-        'data-language': 'python',
-      });
     });
   });
 
@@ -1237,12 +1227,7 @@ console.log('测试代码');
             ]),
           },
         ],
-        otherProps: {
-          'data-block': 'true',
-          'data-state': 'loading',
-          finish: false,
-          'data-language': 'apaasify',
-        },
+        otherProps: {},
       };
 
       // AST -> Markdown
@@ -1364,9 +1349,9 @@ Second paragraph
       }
     });
 
-    it('should skip standalone HTML comment with metadata props', () => {
-      // 包含独立 HTML 注释的 Markdown（模拟多次转换后的情况）
-      const markdown = `<!--{"data-block":"true","data-state":"loading","data-language":"apaasify"}-->
+    it('should skip JSON format HTML comment and apply to next element', () => {
+      // JSON 格式的 HTML 注释会被跳过，其属性会应用到下一个元素
+      const markdown = `<!--{"align":"center"}-->
 
 \`\`\`apaasify
 [{"test": "value"}]
@@ -1385,27 +1370,6 @@ Second paragraph
         (node: any) => node.type === 'apaasify',
       );
       expect(apaasifyNodes.length).toBe(1);
-    });
-
-    it('should skip HTML comment with metadata even without following code block', () => {
-      // HTML 注释后面没有代码块的情况（多次转换后可能出现）
-      const markdown = `<!--{"data-block":"true","data-state":"loading","data-language":"apaasify"}-->
-
-Some text here.`;
-
-      const ast = parserMarkdownToSlateNode(markdown);
-
-      // 验证 HTML 注释被跳过，不应该生成独立的 HTML 代码节点
-      const htmlCodeNodes = ast.schema.filter(
-        (node: any) => node.type === 'code' && node.language === 'html',
-      );
-      expect(htmlCodeNodes.length).toBe(0);
-
-      // 应该只有段落节点
-      const paragraphNodes = ast.schema.filter(
-        (node: any) => node.type === 'paragraph',
-      );
-      expect(paragraphNodes.length).toBeGreaterThan(0);
     });
   });
 });
