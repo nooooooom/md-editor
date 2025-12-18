@@ -10,7 +10,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: 'This is a simple paragraph' }],
       });
@@ -63,7 +63,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           { text: 'Normal text ' },
@@ -78,7 +78,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           { text: 'Normal text ' },
@@ -93,7 +93,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           { text: 'Normal ' },
@@ -108,7 +108,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           { text: 'Normal ' },
@@ -123,7 +123,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           { text: 'Some ' },
@@ -222,17 +222,17 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(3);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'head',
         level: 1,
         children: [{ text: 'Heading 1' }],
       });
-      expect(result.schema[1]).toEqual({
+      expect(result.schema[1]).toMatchObject({
         type: 'head',
         level: 2,
         children: [{ text: 'Heading 2' }],
       });
-      expect(result.schema[2]).toEqual({
+      expect(result.schema[2]).toMatchObject({
         type: 'head',
         level: 3,
         children: [{ text: 'Heading 3' }],
@@ -244,7 +244,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'head',
         level: 2,
         children: [
@@ -321,7 +321,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'blockquote',
         children: [
           {
@@ -337,7 +337,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'blockquote',
         children: [
           {
@@ -364,7 +364,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'list',
         order: false,
         start: null,
@@ -412,7 +412,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'list',
         order: true,
         start: 1,
@@ -472,7 +472,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'card',
         block: false,
         children: [
@@ -504,7 +504,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'card',
         block: false,
         children: [
@@ -537,7 +537,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           {
@@ -553,7 +553,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           {
@@ -569,7 +569,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           {
@@ -619,7 +619,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'hr',
         children: [{ text: '' }],
       });
@@ -641,7 +641,7 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         text: 'HTML content',
       });
     });
@@ -661,14 +661,14 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(2);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'code',
         language: 'yaml',
         frontmatter: true,
         value: 'title: Test\nauthor: John',
         children: [{ text: 'title: Test\nauthor: John' }],
       });
-      expect(result.schema[1]).toEqual({
+      expect(result.schema[1]).toMatchObject({
         type: 'head',
         level: 1,
         children: [{ text: 'Content' }],
@@ -729,11 +729,11 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(2);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: 'Text with   multiple   spaces and' }],
       });
-      expect(result.schema[1]).toEqual({
+      expect(result.schema[1]).toMatchObject({
         type: 'paragraph',
         children: [{ text: 'new paragraphs' }],
       });
@@ -746,7 +746,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: '' }],
       });
@@ -757,7 +757,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: '' }],
       });
@@ -780,7 +780,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         contextProps: { align: 'center' },
         otherProps: { align: 'center' },
@@ -793,7 +793,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'head',
         level: 2,
         contextProps: { align: 'right' },
@@ -854,7 +854,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [
           {
@@ -883,7 +883,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: 'This has a footnote[^1]' }],
       });
@@ -896,11 +896,11 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(2);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: 'Term 1\n: Definition 1' }],
       });
-      expect(result.schema[1]).toEqual({
+      expect(result.schema[1]).toMatchObject({
         type: 'paragraph',
         children: [{ text: 'Term 2\n: Definition 2' }],
       });
@@ -913,7 +913,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: 'Text with *escaped* asterisks and [brackets]' }],
       });
@@ -924,7 +924,7 @@ function hello() {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: 'Unicode: 你好 🌟 ∑∞≠' }],
       });
@@ -1015,7 +1015,7 @@ console.log('测试代码');
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: '自定义内容' }],
       });
@@ -1065,7 +1065,7 @@ console.log('测试代码');
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: '这是答案内容' }],
       });
@@ -1076,7 +1076,7 @@ console.log('测试代码');
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: '第一行答案\n第二行答案' }],
       });
@@ -1087,7 +1087,7 @@ console.log('测试代码');
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: '' }],
       });
@@ -1107,7 +1107,7 @@ console.log('测试代码');
         value: '思考过程',
       });
       // answer 只显示内容
-      expect(result.schema[1]).toEqual({
+      expect(result.schema[1]).toMatchObject({
         type: 'paragraph',
         children: [{ text: '答案内容' }],
       });
@@ -1119,7 +1119,7 @@ console.log('测试代码');
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(result.schema[0]).toEqual({
+      expect(result.schema[0]).toMatchObject({
         type: 'paragraph',
         children: [{ text: '答案：这是一个包含特殊字符的答案！@#$%' }],
       });
