@@ -4,6 +4,89 @@ import { Element } from 'slate';
 import { debugInfo } from '../../../Utils/debugUtils';
 import { ChartTypeConfig, Elements } from '../../el';
 import { MarkdownEditorPlugin } from '../../plugin';
+
+// 全局解析缓存
+const parseCache = new Map<string, Elements[]>();
+
+/**
+ * 清空解析缓存
+ */
+export const clearParseCache = (): void => {
+  parseCache.clear();
+};
+
+/**
+ * 将 Markdown 文本按块分割
+ * 正确处理代码块和 HTML 标签内的换行
+ */
+const splitMarkdownIntoBlocks = (md: string): string[] => {
+  const blocks: string[] = [];
+  let currentBlock = '';
+  let inCodeBlock = false;
+  let htmlTagDepth = 0;
+
+  const lines = md.split('\n');
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // 检测代码块开始/结束
+    if (line.trim().startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+    }
+
+    // 检测 HTML 标签深度（非代码块时）
+    if (!inCodeBlock) {
+      const openTags = (line.match(/<[a-zA-Z][^/>]*>/g) || []).length;
+      const closeTags = (line.match(/<\/[a-zA-Z][^>]*>/g) || []).length;
+      const selfClosing = (line.match(/<[^>]*\/>/g) || []).length;
+      htmlTagDepth += openTags - closeTags - selfClosing;
+      htmlTagDepth = Math.max(0, htmlTagDepth);
+    }
+
+    // 检查当前块是否以 HTML 结尾（注释或标签）
+    const blockEndsWithHtml = /<!--[\s\S]*?-->$|<[^>]+>$/.test(
+      currentBlock.trim(),
+    );
+
+    // 只有在非代码块、非 HTML 块、且当前块不以 HTML 结尾时，连续空行才作为分割点
+    const isBlockBoundary =
+      line === '' &&
+      !inCodeBlock &&
+      htmlTagDepth === 0 &&
+      !blockEndsWithHtml &&
+      currentBlock.endsWith('\n');
+
+    if (isBlockBoundary) {
+      if (currentBlock.trim()) {
+        blocks.push(currentBlock.trim());
+      }
+      currentBlock = '';
+      continue;
+    }
+
+    currentBlock += line + '\n';
+  }
+
+  if (currentBlock.trim()) {
+    blocks.push(currentBlock.trim());
+  }
+
+  return blocks;
+};
+
+/**
+ * 生成缓存 key
+ */
+const generateCacheKey = (
+  blockMd: string,
+  config?: ParserMarkdownToSlateNodeConfig,
+  plugins?: MarkdownEditorPlugin[],
+): string => {
+  const configStr = config ? JSON.stringify(config) : '';
+  const pluginsCount = plugins?.length || 0;
+  return `${blockMd}_${configStr}_${pluginsCount}`;
+};
 import { applyContextPropsAndConfig } from './parse/applyContextPropsAndConfig';
 import {
   handleBlockquote,
@@ -535,5 +618,62 @@ export const parserMarkdownToSlateNode = (
   links: { path: number[]; target: string }[];
 } => {
   const parser = new MarkdownToSlateParser(config || {}, plugins || []);
-  return parser.parse(md);
+
+  // 将 markdown 按块分割
+  const blocks = splitMarkdownIntoBlocks(md || '');
+  debugInfo('parserMarkdownToSlateNode - 分割块', {
+    totalBlocks: blocks.length,
+    blockLengths: blocks.map((b) => b.length),
+  });
+
+  // 如果只有一个块，直接解析（不需要缓存合并逻辑）
+  if (blocks.length <= 1) {
+    return parser.parse(md);
+  }
+
+  // 对每个块进行缓存查找或解析
+  const allSchemas: Elements[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    const cacheKey = generateCacheKey(block, config, plugins);
+
+    // 检查缓存
+    if (parseCache.has(cacheKey)) {
+      debugInfo(`parserMarkdownToSlateNode - 缓存命中 块 ${i}`, {
+        blockLength: block.length,
+      });
+      const cachedSchema = parseCache.get(cacheKey)!;
+      allSchemas.push(...cachedSchema);
+      continue;
+    }
+
+    // 缓存未命中，解析块
+    debugInfo(`parserMarkdownToSlateNode - 缓存未命中 块 ${i}`, {
+      blockLength: block.length,
+    });
+    const result = parser.parse(block);
+
+    // 存入缓存
+    parseCache.set(cacheKey, result.schema);
+
+    // 限制缓存大小（最多 1000 个条目）
+    if (parseCache.size > 1000) {
+      const firstKey = parseCache.keys().next().value;
+      if (firstKey) {
+        parseCache.delete(firstKey);
+      }
+    }
+
+    allSchemas.push(...result.schema);
+  }
+
+  debugInfo('parserMarkdownToSlateNode - 合并完成', {
+    totalElements: allSchemas.length,
+    cacheSize: parseCache.size,
+  });
+
+  return {
+    schema: allSchemas,
+    links: [],
+  };
 };
