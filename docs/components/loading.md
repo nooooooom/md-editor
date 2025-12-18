@@ -31,7 +31,7 @@ Loading 组件是主要的加载组件，支持多种使用模式。
 | `rootClassName` | 根节点自定义类名                                                       | `string`                                                                            | -       | 否   |
 | `style`         | 自定义样式                                                             | `React.CSSProperties`                                                               | -       | 否   |
 | `styles`        | 语义化样式配置，可分别设置 root、wrapper、indicator、tip 的样式        | `Partial<Record<'root' \| 'wrapper' \| 'indicator' \| 'tip', React.CSSProperties>>` | -       | 否   |
-| `spinning`      | 是否显示加载状态（预留属性，当前版本未使用）                           | `boolean`                                                                           | -       | 否   |
+| `spinning`      | 是否显示加载状态，在嵌套模式下控制是否显示加载指示器和背景动画效果     | `boolean`                                                                           | `true`  | 否   |
 
 ## 组件概览
 
@@ -63,7 +63,7 @@ Loading 组件库提供了三种不同风格的加载动画组件：
 - 📏 **灵活尺寸**: 支持通过 `size` 属性或 `style` 中的 `fontSize` 控制整体大小
 - 🎯 **易于集成**: 默认尺寸为 `1em`，可以很好地与文本内容对齐
 - 📊 **进度显示**: 支持显示加载进度百分比，带有渐变色进度条
-- 🎭 **嵌套模式**: 支持覆盖在内容上方显示加载状态，带有优雅的渐变背景和闪光动画效果
+- 🎭 **嵌套模式**: 支持覆盖在内容上方显示加载状态，带有优雅的渐变背景和闪光动画效果，可通过 `spinning` 属性控制显示/隐藏
 - 🎨 **自定义指示器**: 支持使用任何 React 组件作为加载指示器
 
 ## 使用说明

@@ -44,40 +44,43 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
 
     [`${token.componentCls}-nested-pattern`]: {
       position: 'relative',
-      background:
-        'linear-gradient(90deg, rgba(240, 251, 254, 1) 0%, rgba(245, 249, 255, 1) 50%, rgba(241, 240, 255, 1) 100%)',
-      borderRadius: 'var(--radius-card-lg, 22px)',
-      overflow: 'hidden',
 
-      '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: 0,
-        insetInlineStart: 0,
-        width: '100%',
-        height: '100%',
+      [`&${token.componentCls}-spinning`]: {
         background:
-          'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
-        animationName: shimmerAnimation,
-        animationDuration: '3s',
-        animationTimingFunction: 'linear',
-        animationIterationCount: 'infinite',
-        transition: 'background 0.25s cubic-bezier(0.645, 0.045, 0.355, 1)',
-        zIndex: 1,
-      },
+          'linear-gradient(90deg, rgba(240, 251, 254, 1) 0%, rgba(245, 249, 255, 1) 50%, rgba(241, 240, 255, 1) 100%)',
+        borderRadius: 'var(--radius-card-lg, 22px)',
+        overflow: 'hidden',
 
-      [`& > ${token.componentCls}`]: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        zIndex: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        width: '100%',
-        height: '100%',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          insetInlineStart: 0,
+          width: '100%',
+          height: '100%',
+          background:
+            'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
+          animationName: shimmerAnimation,
+          animationDuration: '3s',
+          animationTimingFunction: 'linear',
+          animationIterationCount: 'infinite',
+          transition: 'background 0.25s cubic-bezier(0.645, 0.045, 0.355, 1)',
+          zIndex: 1,
+        },
+
+        [`& > ${token.componentCls}`]: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          zIndex: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          width: '100%',
+          height: '100%',
+        },
       },
     },
   };

@@ -146,6 +146,7 @@ interface LoadingProps extends Pick<LoadingLottieProps, 'size'> {
 export const Loading = ({
   indicator,
   tip,
+  spinning = true,
   children,
   styles,
   size,
@@ -187,10 +188,12 @@ export const Loading = ({
   if (isNestedPattern) {
     return wrapSSR(
       <div
-        className={classNames(`${baseCls}-nested-pattern`, hashId)}
+        className={classNames(`${baseCls}-nested-pattern`, hashId, {
+          [`${baseCls}-spinning`]: spinning,
+        })}
         style={styles?.wrapper}
       >
-        {loadingElement}
+        {spinning ? loadingElement : null}
         <div className={classNames(`${baseCls}-container`, hashId)}>
           {children}
         </div>
