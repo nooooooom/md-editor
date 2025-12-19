@@ -78,6 +78,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
           alignItems: 'center',
           justifyContent: 'center',
           borderRadius: '6px',
+          fontSize: token.fontSizeHeading3,
 
           [`&--html`]: {
             width: '40px',
