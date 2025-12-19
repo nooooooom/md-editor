@@ -1,9 +1,5 @@
 import type { CSSInterpolation } from '@ant-design/cssinjs';
-import {
-  ComponentToken,
-  createStyleRegister,
-  globalThemeToken,
-} from '@ant-design/theme-token';
+import { ComponentToken, createStyleRegister } from '@ant-design/theme-token';
 import { ConfigProvider as AntdConfigProvider, theme as antdTheme } from 'antd';
 import { useContext } from 'react';
 
@@ -76,7 +72,7 @@ export function useEditorStyleRegister(
     hashId: hashId || '',
     token: chatToken,
     theme: theme,
-    cssVariables: globalThemeToken,
+    cssVariables: {},
   });
 
   const result = genStyles(componentName, styleFn);
