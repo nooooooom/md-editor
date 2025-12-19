@@ -85,4 +85,4 @@ group:
 
 ## 加载状态
 
-<code src="../demos/loading.tsx" background="var(--main-bg-color)" iframe=540></code>
+<code src="../demos/loading/index.tsx" background="var(--main-bg-color)" iframe=540></code>
