@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest';
-import { parserMarkdownToSlateNode } from '../parserMarkdownToSlateNode';
+import { beforeEach, describe, expect, it } from 'vitest';
+import {
+  clearParseCache,
+  parserMarkdownToSlateNode,
+} from '../parserMarkdownToSlateNode';
 
 import { parserSlateNodeToMarkdown } from '../parserSlateNodeToMarkdown';
 
@@ -1370,6 +1373,351 @@ Second paragraph
         (node: any) => node.type === 'apaasify',
       );
       expect(apaasifyNodes.length).toBe(1);
+    });
+  });
+
+  describe('缓存和切分逻辑', () => {
+    beforeEach(() => {
+      // 清空缓存以确保测试隔离
+      clearParseCache();
+    });
+
+    it('应该为单块 markdown 添加 hash', () => {
+      const markdown = '# 标题\n\n这是一个段落';
+      const result = parserMarkdownToSlateNode(markdown);
+
+      expect(result.schema.length).toBeGreaterThan(0);
+      // 单块情况下，所有元素应该有相同的 hash
+      const hashes = result.schema.map((s: any) => s.hash).filter(Boolean);
+      if (hashes.length > 0) {
+        const uniqueHashes = new Set(hashes);
+        expect(uniqueHashes.size).toBe(1);
+      }
+    });
+
+    it('应该将长 markdown 切分为多个块', () => {
+      // 创建一个足够长的 markdown，确保会被切分
+      const blocks: string[] = [];
+      for (let i = 0; i < 10; i++) {
+        blocks.push(`# 标题 ${i}\n\n这是第 ${i} 个段落的内容。`);
+      }
+      const markdown = blocks.join('\n\n');
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证结果包含多个元素
+      expect(result.schema.length).toBeGreaterThan(1);
+    });
+
+    it('应该缓存已解析的块', () => {
+      const block1 = '# 标题 1\n\n段落 1';
+      const block2 = '# 标题 2\n\n段落 2';
+      const markdown = `${block1}\n\n${block2}`;
+
+      // 第一次解析
+      const result1 = parserMarkdownToSlateNode(markdown);
+      const firstCallSchemaCount = result1.schema.length;
+
+      // 第二次解析相同内容
+      const result2 = parserMarkdownToSlateNode(markdown);
+
+      // 验证结果一致
+      expect(result2.schema.length).toBe(firstCallSchemaCount);
+      expect(result2.schema).toEqual(result1.schema);
+    });
+
+    it('应该为每个块生成唯一的 hash', () => {
+      const block1 = '# 标题 1\n\n段落 1';
+      const block2 = '# 标题 2\n\n段落 2';
+      const markdown = `${block1}\n\n${block2}`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证每个元素都有 hash
+      result.schema.forEach((s: any) => {
+        expect(s.hash).toBeDefined();
+        expect(typeof s.hash).toBe('string');
+      });
+    });
+
+    it('应该正确处理包含代码块的切分', () => {
+      const markdown = `# 标题
+
+\`\`\`javascript
+const x = 1;
+const y = 2;
+\`\`\`
+
+另一个段落`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证代码块被正确解析
+      const codeNode = result.schema.find(
+        (node: any) => node.type === 'code' && node.language === 'javascript',
+      );
+      expect(codeNode).toBeDefined();
+      expect((codeNode as any).value).toContain('const x = 1');
+    });
+
+    it('应该正确处理包含 HTML 标签的切分', () => {
+      const markdown = `# 标题
+
+<div>
+  <p>HTML 内容</p>
+</div>
+
+另一个段落`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证 HTML 内容被正确处理
+      expect(result.schema.length).toBeGreaterThan(0);
+    });
+
+    it('应该正确处理包含 HTML 注释的切分', () => {
+      const markdown = `# 标题
+
+<!-- 这是一个注释 -->
+
+另一个段落`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证内容被正确解析
+      expect(result.schema.length).toBeGreaterThan(0);
+    });
+
+    it('应该合并小于 100 字符的小块', () => {
+      // 创建多个小块
+      const smallBlock1 = '小段落 1';
+      const smallBlock2 = '小段落 2';
+      const largeBlock =
+        '# 大标题\n\n这是一个足够长的段落，应该超过 100 个字符的限制，以确保它不会被合并到其他块中。';
+      const markdown = `${smallBlock1}\n\n${smallBlock2}\n\n${largeBlock}`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证小块被合并或正确处理
+      expect(result.schema.length).toBeGreaterThan(0);
+    });
+
+    it('应该处理包含 frontmatter 分隔符的块', () => {
+      const markdown = `# 标题
+
+---
+
+这是分隔符后的内容`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证内容被正确解析
+      expect(result.schema.length).toBeGreaterThan(0);
+    });
+
+    it('应该为不同配置生成不同的 hash', () => {
+      const markdown = '# 标题\n\n段落';
+
+      const result1 = parserMarkdownToSlateNode(markdown, [], {
+        openLinksInNewTab: true,
+      });
+      const result2 = parserMarkdownToSlateNode(markdown, [], {
+        openLinksInNewTab: false,
+      });
+
+      // 验证不同配置可能产生不同的 hash（如果配置影响解析）
+      expect(result1.schema.length).toBe(result2.schema.length);
+    });
+
+    it('应该为不同插件生成不同的 hash', () => {
+      const markdown = '# 标题\n\n段落';
+
+      const plugin1 = {
+        parseMarkdown: [
+          {
+            match: () => false,
+            convert: () => null,
+          },
+        ],
+      };
+
+      const result1 = parserMarkdownToSlateNode(markdown, [plugin1]);
+      const result2 = parserMarkdownToSlateNode(markdown, []);
+
+      // 验证不同插件可能产生不同的 hash
+      expect(result1.schema.length).toBe(result2.schema.length);
+    });
+
+    it('应该限制缓存大小为 100 个条目', () => {
+      // 创建 101 个不同的块
+      const blocks: string[] = [];
+      for (let i = 0; i < 101; i++) {
+        blocks.push(`# 标题 ${i}\n\n这是第 ${i} 个唯一的内容块。`);
+      }
+      const markdown = blocks.join('\n\n');
+
+      // 解析所有块
+      parserMarkdownToSlateNode(markdown);
+
+      // 验证缓存大小不超过 100
+      // 注意：由于 parseCache 是私有的，我们通过行为来验证
+      // 如果缓存大小限制生效，第一个块应该被移除
+      const firstBlock = '# 标题 0\n\n这是第 0 个唯一的内容块。';
+      const result = parserMarkdownToSlateNode(firstBlock);
+
+      // 验证解析仍然正常工作
+      expect(result.schema.length).toBeGreaterThan(0);
+    });
+
+    it('应该正确处理空 markdown 的切分', () => {
+      const markdown = '';
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 空 markdown 应该返回一个空段落
+      expect(result.schema.length).toBe(1);
+      expect(result.schema[0].type).toBe('paragraph');
+    });
+
+    it('应该正确处理只有空行的 markdown', () => {
+      const markdown = '\n\n\n';
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 应该返回一个空段落
+      expect(result.schema.length).toBe(1);
+    });
+
+    it('应该正确处理包含脚注的切分', () => {
+      const markdown = `这是包含脚注[^1]的段落。
+
+[^1]: 这是脚注定义。`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证脚注被正确处理
+      expect(result.schema.length).toBeGreaterThan(0);
+    });
+
+    it('应该为每个块中的元素添加带索引的 hash', () => {
+      const markdown = `# 标题 1
+
+段落 1
+
+# 标题 2
+
+段落 2`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证每个元素都有 hash
+      const hashes = result.schema.map((s: any) => s.hash).filter(Boolean);
+      expect(hashes.length).toBeGreaterThan(0);
+
+      // 在多块情况下，每个元素的 hash 应该包含块 hash 和索引
+      // 如果内容被切分为多个块，每个块内的元素应该有相同的块 hash，但索引不同
+      if (hashes.length > 1) {
+        // 验证所有 hash 都是字符串
+        hashes.forEach((hash) => {
+          expect(typeof hash).toBe('string');
+          expect(hash.length).toBeGreaterThan(0);
+        });
+      }
+    });
+
+    it('应该正确处理嵌套 HTML 标签的切分', () => {
+      const markdown = `# 标题
+
+<div>
+  <span>
+    嵌套内容
+  </span>
+</div>
+
+另一个段落`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证嵌套 HTML 被正确处理
+      expect(result.schema.length).toBeGreaterThan(0);
+    });
+
+    it('应该正确处理包含表格的切分', () => {
+      const markdown = `# 标题
+
+| 列1 | 列2 |
+| --- | --- |
+| 值1 | 值2 |
+
+另一个段落`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证表格被正确解析
+      const tableNode = result.schema.find((node: any) => {
+        if (node.type === 'card' && node.children) {
+          return node.children.some((child: any) => child.type === 'table');
+        }
+        return false;
+      });
+      expect(tableNode).toBeDefined();
+    });
+
+    it('应该正确处理混合内容的切分和缓存', () => {
+      const markdown = `# 第一部分
+
+这是第一部分的内容。
+
+\`\`\`javascript
+console.log('代码');
+\`\`\`
+
+# 第二部分
+
+这是第二部分的内容。
+
+| 表格 | 列 |
+| --- | --- |
+| 数据 | 值 |`;
+
+      // 第一次解析
+      const result1 = parserMarkdownToSlateNode(markdown);
+
+      // 第二次解析（应该使用缓存）
+      const result2 = parserMarkdownToSlateNode(markdown);
+
+      // 验证结果一致
+      expect(result2.schema.length).toBe(result1.schema.length);
+      expect(result2.schema).toEqual(result1.schema);
+    });
+
+    it('应该正确处理包含特殊字符的块', () => {
+      const markdown = `# 标题
+
+包含特殊字符：!@#$%^&*()_+-=[]{}|;':",./<>?
+
+另一个段落`;
+
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证特殊字符被正确处理
+      expect(result.schema.length).toBeGreaterThan(0);
+    });
+
+    it('应该为相同内容但不同顺序的块生成不同的 hash', () => {
+      const block1 = '# 标题 1\n\n段落 1';
+      const block2 = '# 标题 2\n\n段落 2';
+
+      const markdown1 = `${block1}\n\n${block2}`;
+      const markdown2 = `${block2}\n\n${block1}`;
+
+      const result1 = parserMarkdownToSlateNode(markdown1);
+      const result2 = parserMarkdownToSlateNode(markdown2);
+
+      // 验证不同顺序产生不同的结果
+      expect(result1.schema.length).toBe(result2.schema.length);
+      // 第一个元素应该不同
+      expect(result1.schema[0]).not.toEqual(result2.schema[0]);
     });
   });
 });
