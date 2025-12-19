@@ -200,6 +200,7 @@ export const ChartElement = (props: RenderElementProps) => {
     useEditorStore();
   const editor = useSlate();
   const { element: node, attributes, children } = props;
+
   // 使用更高效的依赖项比较，避免 JSON.stringify 的性能开销
   const dataSourceHash = useMemo(
     () => getDataHash(node.otherProps?.dataSource || []),
