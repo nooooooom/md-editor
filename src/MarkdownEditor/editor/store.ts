@@ -1177,7 +1177,10 @@ export class EditorStore {
     }
 
     // 如果节点类型不同，直接替换整个节点
-    if (newNode.type !== oldNode.type) {
+    if (
+      newNode.type !== oldNode.type ||
+      newNode.finished !== oldNode.finished
+    ) {
       operations.push({
         type: 'replace',
         path,
