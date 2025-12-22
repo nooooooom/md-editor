@@ -66,7 +66,7 @@ const areElementPropsEqual = (
   const nextHash = (nextProps.element as any)?.hash;
 
   // 如果都有 hash，只比较 hash
-  if (prevHash && nextHash) {
+  if (prevHash && nextHash && nextProps.readonly && prevProps.readonly) {
     return prevHash === nextHash;
   }
 
