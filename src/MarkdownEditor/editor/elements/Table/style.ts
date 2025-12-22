@@ -15,6 +15,9 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     [token.componentCls]: {
       width: '100%',
       overflow: 'auto',
+      flex: 1,
+      minWidth: 0,
+      position: 'relative',
       '--table-border-radius': '8px',
       '--table-border-color': '#E7E9E8',
       '--table-header-bg': '#f7f7f9',
@@ -29,19 +32,21 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         outline: 'none',
         position: 'relative',
         marginBottom: 12,
+        [`&:hover ${token.componentCls}-readonly-table-actions`]: {
+          opacity: 1,
+          transform: 'translateX(50%)',
+          top: -24,
+        },
       },
       '&-editor-table': {
         marginTop: '1em',
       },
-      '&:hover &-readonly-table-actions': {
-        opacity: 1,
-        transform: 'translateX(50%)',
-        top: -24,
-      },
       '&-readonly-table-actions': {
         opacity: 0,
         position: 'absolute',
-        top: -44,
+        top: 20,
+        display: 'flex',
+        gap: 8,
         right: '50%',
         zIndex: 1000,
         backgroundColor: 'var(--color-gray-bg-page-light)',

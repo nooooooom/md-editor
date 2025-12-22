@@ -139,7 +139,6 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
     const popoverContent = useMemo(
       () => (
         <div
-          style={{ display: 'flex', gap: 8 }}
           className={classNames(hashId, `${baseCls}-readonly-table-actions`)}
         >
           {actions?.fullScreen && (
@@ -171,18 +170,8 @@ export const ReadonlyTableComponent: React.FC<ReadonlyTableComponentProps> =
 
     return (
       <>
-        <div
-          className={classNames(baseCls, hashId)}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            position: 'relative',
-          }}
-        >
-          {tableDom}
-          {popoverContent}
-        </div>
-
+        <div className={classNames(baseCls, hashId)}>{tableDom}</div>
+        {popoverContent}
         {previewOpen && (
           <Modal
             title={editorProps?.tableConfig?.previewTitle || '预览表格'}
