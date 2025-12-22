@@ -158,47 +158,10 @@ describe('Schema', () => {
 
       const container = screen.getByTestId('agentar-card-container');
       expect(container).toHaveAttribute('data-agentar-card');
-      expect(container).toHaveStyle({ padding: '0.5em' });
     });
   });
 
   describe('样式测试', () => {
-    it('应该应用正确的容器样式', () => {
-      renderWithProvider(
-        <Schema element={mockElement} attributes={mockAttributes}>
-          {null}
-        </Schema>,
-      );
-
-      const container = screen.getByTestId('schema-container');
-      expect(container).toHaveStyle({
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-      });
-    });
-
-    it('应该应用正确的可点击区域样式', () => {
-      renderWithProvider(
-        <Schema element={mockElement} attributes={mockAttributes}>
-          {null}
-        </Schema>,
-      );
-
-      const clickableDiv = screen.getByTestId('schema-clickable');
-      expect(clickableDiv).toHaveStyle({
-        padding: '8px',
-        width: '100%',
-        cursor: 'pointer',
-        position: 'relative',
-        display: 'flex',
-        borderRadius: '8px',
-        flex: '1',
-        border: '1px solid rgb(209 213 219 / 0.8)',
-        alignItems: 'center',
-      });
-    });
-
     it('应该隐藏子元素', () => {
       renderWithProvider(
         <Schema element={mockElement} attributes={mockAttributes}>

@@ -181,11 +181,11 @@
                   >
                     <div
                       class="ant-agentic-md-editor markdown-editor ant-agentic-md-editor-edit"
-                      style="width: 100%; height: auto; display: flex; flex-direction: column; max-height: 100%; font: var(--font-text-paragraph-lg); letter-spacing: var(--letter-spacing-paragraph-lg, normal); color: var(--color-gray-text-default); min-height: 400px;"
+                      style="width: 100%; height: auto; min-height: 400px;"
                     >
                       <div
                         class="ant-agentic-md-editor-container"
-                        style="overflow: auto; display: flex; height: 100%; position: relative; gap: 24px; outline: none;"
+                        style="height: 100%;"
                         tabindex="-1"
                       >
                         <div
@@ -1598,7 +1598,6 @@ const greeting = "Hello, World!";
                       </div>
                       <div
                         class="ant-agentic-md-editor-focus"
-                        style="height: 64px;"
                       />
                     </div>
                   </div>

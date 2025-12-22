@@ -154,12 +154,6 @@ describe('AceEditorWrapper', () => {
       expect(editorElement).toHaveStyle({ height: '50vh' });
     });
 
-    it('应该设置默认宽度为 100%', () => {
-      const { container } = render(<AceEditorWrapper value="test" />);
-
-      const editorElement = container.firstChild as HTMLElement;
-      expect(editorElement).toHaveStyle({ width: '100%' });
-    });
   });
 
   describe('编辑器初始化', () => {

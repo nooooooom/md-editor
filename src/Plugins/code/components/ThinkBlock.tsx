@@ -125,12 +125,12 @@ export function ThinkBlock(props: ThinkBlockProps) {
   // 2. editorProps?.codeProps?.alwaysExpandedDeepThink
   // 3. 默认值（false）
   const [expanded, setExpanded] = useMergedState(
-    editorProps?.codeProps?.alwaysExpandedDeepThink ?? true,
+    editorProps?.codeProps?.alwaysExpandedDeepThink ?? false,
     {
       value: editorProps?.codeProps?.alwaysExpandedDeepThink
         ? true
         : (thinkBlockContext?.expanded ?? undefined),
-      defaultValue: true,
+      defaultValue: false,
       onChange: thinkBlockContext?.onExpandedChange,
     },
   );

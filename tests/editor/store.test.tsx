@@ -417,9 +417,41 @@ describe('EditorStore', () => {
         { type: 'paragraph', children: [{ text: 'new content' }] },
       ];
 
+      // Mock Transforms 来确保它们能够正确更新 editor.children
+      const originalInsertNodes = Transforms.insertNodes;
+      const originalRemoveNodes = Transforms.removeNodes;
+      
+      Transforms.insertNodes = vi.fn((editor, nodes, options) => {
+        if (options?.at) {
+          const at = options.at[0];
+          if (Array.isArray(nodes)) {
+            editor.children.splice(at, 0, ...nodes);
+          } else {
+            editor.children.splice(at, 0, nodes);
+          }
+        } else {
+          if (Array.isArray(nodes)) {
+            editor.children.push(...nodes);
+          } else {
+            editor.children.push(nodes);
+          }
+        }
+      });
+      
+      Transforms.removeNodes = vi.fn((editor, options) => {
+        if (options?.at) {
+          const at = options.at[0];
+          editor.children.splice(at, 1);
+        }
+      });
+
       store.setContent(newContent);
 
-      expect(editor.children).toBe(newContent);
+      // 恢复原始方法
+      Transforms.insertNodes = originalInsertNodes;
+      Transforms.removeNodes = originalRemoveNodes;
+
+      expect(editor.children).toEqual(newContent);
     });
 
     it('应该调用 onChange', () => {

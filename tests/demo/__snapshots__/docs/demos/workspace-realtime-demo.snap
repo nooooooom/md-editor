@@ -304,11 +304,11 @@
             >
               <div
                 class="ant-agentic-md-editor markdown-editor ant-agentic-md-editor-readonly"
-                style="width: 100%; height: auto; display: flex; flex-direction: column; max-height: auto; font: var(--font-text-paragraph-lg); letter-spacing: var(--letter-spacing-paragraph-lg, normal); color: var(--color-gray-text-default);"
+                style="width: 100%; height: auto; max-height: auto;"
               >
                 <div
                   class="ant-agentic-md-editor-container"
-                  style="overflow: visible; display: flex; height: 100%; position: relative; gap: 24px; outline: none; --content-padding: 0px; padding: 0px;"
+                  style="height: 100%; --content-padding: 0px; padding: 0px; overflow: visible;"
                   tabindex="-1"
                 >
                   <div

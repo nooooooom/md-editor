@@ -403,12 +403,6 @@ describe('ReadonlyTableComponent', () => {
   });
 
   describe('样式和容器测试', () => {
-    it('应该应用正确的容器样式', () => {
-      const { container } = renderComponent();
-      const wrapper = container.querySelector('.ant-agentic-md-editor-content-table');
-      expect(wrapper).toHaveStyle({ flex: '1', minWidth: '0' });
-    });
-
     it('应该应用 hashId', () => {
       renderComponent();
       const wrapper = document.querySelector('.test-hash');

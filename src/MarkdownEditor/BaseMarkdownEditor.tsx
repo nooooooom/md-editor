@@ -332,24 +332,11 @@ export const BaseMarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
             style={{
               width: width || '100%',
               height: height || 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              maxHeight: '100%',
-              font: 'var(--font-text-paragraph-lg)',
-              letterSpacing: 'var(--letter-spacing-paragraph-lg, normal)',
-              color: 'var(--color-gray-text-default)',
               ...style,
             }}
           >
             {!readonly && toolBar?.enable === true ? (
               <div
-                style={{
-                  width: '100%',
-                  maxWidth: '100%',
-                  position: 'sticky',
-                  zIndex: 99,
-                  top: 0,
-                }}
                 className={classNames(`${baseClassName}-toolbar-container`, {
                   [`${baseClassName}-min-toolbar`]: toolBar.min,
                 })}
@@ -368,13 +355,8 @@ export const BaseMarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
                 hashId,
               )}
               style={{
-                overflow: 'auto',
-                display: 'flex',
                 height:
                   !readonly && toolBar?.enable ? `calc(100% - 56px)` : '100%',
-                position: 'relative',
-                gap: 24,
-                outline: 'none',
                 // 如果 contentStyle 中设置了 padding，设置 CSS 变量和内联样式
                 ...(contentStyle?.padding !== undefined
                   ? {
@@ -442,12 +424,7 @@ export const BaseMarkdownEditor: React.FC<MarkdownEditorProps> = (props) => {
             {readonly ||
             props?.textAreaProps?.enable ||
             props?.reportMode ? null : (
-              <div
-                className={classNames(`${baseClassName}-focus`)}
-                style={{
-                  height: 64,
-                }}
-              />
+              <div className={classNames(`${baseClassName}-focus`)} />
             )}
             {readonly ? (
               <></>
