@@ -144,6 +144,10 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       minWidth: '0px',
       width: '100%',
       margin: '0 auto',
+      position: 'relative',
+      whiteSpace: 'pre-wrap',
+      wordWrap: 'break-word',
+      fontSize: '14px',
       '::-webkit-scrollbar': { width: '8px', height: '8px' },
       '::-webkit-scrollbar-thumb': {
         backgroundColor: 'var(--color-gray-text-tertiary)',
@@ -177,6 +181,9 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
 
       '&> *:first-child': {
         marginTop: 0,
+      },
+      '&-report': {
+        fontSize: '16px',
       },
       '& > .link': { textDecoration: 'underline' },
       '& > .attach': {

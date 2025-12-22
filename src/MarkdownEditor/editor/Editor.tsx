@@ -1144,17 +1144,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
             },
             hashId,
           )}
-          style={
-            props.reportMode
-              ? {
-                  fontSize: 16,
-                  ...props.style,
-                }
-              : {
-                  fontSize: 14,
-                  ...props.style,
-                }
-          }
+          style={props.style}
           onSelect={handleSelectionChange.run}
           onCut={(event: React.ClipboardEvent<HTMLDivElement>) => {
             const handled = handleClipboardCopy(event, 'cut');
