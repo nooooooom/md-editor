@@ -1,15 +1,15 @@
 import {
-  DislikeFilled,
-  DislikeOutlined,
-  LikeFilled,
-  LikeOutlined,
-} from '@ant-design/icons';
+  CopyLottie,
+  DislikeLottie,
+  LikeLottie,
+  RefreshLottie,
+} from '@ant-design/agentic-ui';
+import { DislikeFilled, LikeFilled } from '@ant-design/icons';
 import { ConfigProvider, Divider } from 'antd';
 import classNames from 'classnames';
 import copy from 'copy-to-clipboard';
 import { motion } from 'framer-motion';
 
-import { Copy, RotateCwSquare } from '@sofa-design/icons';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ActionIconBox } from '../../Components/ActionIconBox';
 import { Loading } from '../../Components/Loading';
@@ -141,11 +141,13 @@ export const BubbleExtra = ({
             }
           }}
         >
-          {originalData?.feedback === 'thumbsUp' ? (
-            <LikeFilled />
-          ) : (
-            <LikeOutlined />
-          )}
+          {(isHovered) =>
+            originalData?.feedback === 'thumbsUp' ? (
+              <LikeFilled />
+            ) : (
+              <LikeLottie active={isHovered} />
+            )
+          }
         </ActionIconBox>
       ) : null,
     [
@@ -176,11 +178,13 @@ export const BubbleExtra = ({
             } catch (error) {}
           }}
         >
-          {originalData?.feedback === 'thumbsDown' ? (
-            <DislikeFilled />
-          ) : (
-            <DislikeOutlined />
-          )}
+          {(isHovered) =>
+            originalData?.feedback === 'thumbsDown' ? (
+              <DislikeFilled />
+            ) : (
+              <DislikeLottie active={isHovered} />
+            )
+          }
         </ActionIconBox>
       ) : null,
     [
@@ -251,7 +255,7 @@ export const BubbleExtra = ({
           }}
           showTitle={false}
         >
-          <Copy />
+          {(isHovered) => <CopyLottie active={isHovered} />}
         </CopyButton>
       ) : null,
     [shouldShowCopy, context?.locale, bubble.originData?.content],
@@ -355,19 +359,21 @@ export const BubbleExtra = ({
         }}
         title={context?.locale?.['chat.message.retrySend'] || '重新生成'}
       >
-        <div
-          style={{
-            gap: 4,
-            display: 'flex',
-            cursor: 'pointer',
-            alignItems: 'center',
-          }}
-        >
-          <RotateCwSquare />
-          <span>
-            {context?.locale?.['chat.message.retrySend'] || '重新生成'}
-          </span>
-        </div>
+        {(isHovered) => (
+          <div
+            style={{
+              gap: 4,
+              display: 'flex',
+              cursor: 'pointer',
+              alignItems: 'center',
+            }}
+          >
+            <RefreshLottie active={isHovered} />
+            <span>
+              {context?.locale?.['chat.message.retrySend'] || '重新生成'}
+            </span>
+          </div>
+        )}
       </ActionIconBox>
     );
   }, [originalData?.isAborted, typing, originalData?.isFinished]);
