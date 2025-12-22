@@ -160,8 +160,14 @@ const getNodePath = (
   domRef: React.RefObject<HTMLDivElement>,
 ) => {
   if (!domRef.current) return null;
-  const slateNode = ReactEditor.toSlateNode(editor, domRef.current);
-  return ReactEditor.findPath(editor, slateNode);
+  try {
+    const slateNode = ReactEditor.toSlateNode(editor, domRef.current);
+    return ReactEditor.findPath(editor, slateNode);
+  } catch (error) {
+    // 如果无法从 DOM 节点解析 Slate 节点，返回 null
+    // 这在测试环境或某些边缘情况下可能会发生
+    return null;
+  }
 };
 
 const updateNodeContext = (
@@ -403,7 +409,7 @@ export const TagPopup = (props: RenderProps) => {
         onSelect?.(value?.trim() || '', currentNodePath.current || []);
       },
     });
-  }, [props.text, suggestionConnext.open]);
+  }, [props.text, suggestionConnext?.open]);
 
   useEffect(() => {
     initializeAutoOpen(props.autoOpen, type, setOpen, suggestionConnext);
