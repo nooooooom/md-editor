@@ -29,16 +29,18 @@ export type MoreLottieProps = Omit<AbstractLottieProps, 'animationData'>;
  * @example
  * // 控制播放行为
  * <MoreLottie
- *   autoplay={false}
- *   loop={false}
+ *   active={true}
+ *   autoplay={true}
+ *   loop={true}
  * />
  *
  * @param props - 组件属性
- * @param props.autoplay - 是否自动播放动画，默认为 true
- * @param props.loop - 是否循环播放动画，默认为 true
+ * @param props.active - 是否激活动画，默认为 false
+ * @param props.autoplay - 是否自动播放动画，默认为 false
+ * @param props.loop - 是否循环播放动画，默认为 false
  * @param props.className - 动画容器类名
  * @param props.style - 动画容器自定义样式
- * @param props.size - 动画尺寸（宽度和高度）
+ * @param props.size - 动画尺寸（宽度和高度），默认为 '1em'
  * @returns 渲染的更多操作动画组件
  */
 export const MoreLottie: React.FC<MoreLottieProps> = (props) => (
