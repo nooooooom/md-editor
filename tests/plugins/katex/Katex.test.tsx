@@ -281,7 +281,7 @@ describe('Katex', () => {
     it('应该处理 undefined 的公式内容', async () => {
       const undefinedElement: CodeNode = {
         ...mockElement,
-        value: undefined,
+        value: undefined as any,
       };
 
       render(<Katex el={undefinedElement} />);

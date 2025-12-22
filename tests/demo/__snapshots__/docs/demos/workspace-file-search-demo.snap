@@ -45,7 +45,6 @@
                   >
                     <span
                       class="ant-input-affix-wrapper ant-input-outlined"
-                      style="margin-bottom: 8px;"
                     >
                       <span
                         class="ant-input-prefix"
@@ -55,7 +54,7 @@
                           fill="currentColor"
                           fill-rule="evenodd"
                           height="1em"
-                          style="vertical-align: -0.125em; color: var(--color-gray-text-secondary); font-size: 16px;"
+                          style="vertical-align: -0.125em;"
                           viewBox="0 0 16 16"
                           width="1em"
                           xmlns="http://www.w3.org/2000/svg"
@@ -786,13 +785,11 @@
               class="ant-image ant-image-error"
             >
               <img
-                class="ant-image-img"
+                class="ant-image-img ant-workspace-file-hidden-image"
                 src=""
-                style="display: none;"
               />
               <div
                 class="ant-image-mask"
-                style="display: none;"
               >
                 <div
                   class="ant-image-mask-info"

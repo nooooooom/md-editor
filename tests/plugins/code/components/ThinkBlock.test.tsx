@@ -17,6 +17,15 @@ describe('ThinkBlock', () => {
     children: [{ text: '这是一个思考块的内容' }],
   };
 
+  const mockProps = {
+    element: mockCodeNode,
+    attributes: {
+      'data-slate-node': 'element' as const,
+      ref: null,
+    },
+    children: <span>children content</span>,
+  };
+
   beforeEach(() => {
     // 清理 DOM
     document.body.innerHTML = '';
@@ -24,14 +33,14 @@ describe('ThinkBlock', () => {
 
   describe('基本渲染', () => {
     it('应该正确渲染思考块组件', () => {
-      render(<ThinkBlock element={mockCodeNode} />);
+      render(<ThinkBlock {...mockProps} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
     });
 
     it('应该显示思考块的内容', () => {
-      render(<ThinkBlock element={mockCodeNode} />);
+      render(<ThinkBlock {...mockProps} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toHaveTextContent('这是一个思考块的内容');
@@ -44,7 +53,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '' }],
       };
 
-      render(<ThinkBlock element={emptyCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={emptyCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
@@ -54,7 +63,7 @@ describe('ThinkBlock', () => {
 
   describe('样式测试', () => {
     it('应该应用正确的样式属性', () => {
-      render(<ThinkBlock element={mockCodeNode} />);
+      render(<ThinkBlock {...mockProps} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
@@ -67,7 +76,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '第一行\n第二行\n第三行' }],
       };
 
-      render(<ThinkBlock element={multiLineCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={multiLineCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toHaveTextContent('第一行 第二行 第三行');
@@ -82,7 +91,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '特殊字符: <>&"\'' }],
       };
 
-      render(<ThinkBlock element={specialCharCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={specialCharCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toHaveTextContent('特殊字符: <>&"\'');
@@ -95,7 +104,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '<div>HTML 内容</div>' }],
       };
 
-      render(<ThinkBlock element={htmlCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={htmlCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toHaveTextContent('<div>HTML 内容</div>');
@@ -109,7 +118,7 @@ describe('ThinkBlock', () => {
         children: [{ text: longText }],
       };
 
-      render(<ThinkBlock element={longCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={longCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toHaveTextContent(longText);
@@ -124,7 +133,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '' }],
       };
 
-      render(<ThinkBlock element={undefinedValueCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={undefinedValueCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
@@ -138,7 +147,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '' }],
       };
 
-      render(<ThinkBlock element={nullValueCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={nullValueCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
@@ -152,7 +161,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '123' }],
       };
 
-      render(<ThinkBlock element={numberValueCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={numberValueCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
@@ -162,14 +171,14 @@ describe('ThinkBlock', () => {
 
   describe('可访问性', () => {
     it('应该具有正确的 testid 属性', () => {
-      render(<ThinkBlock element={mockCodeNode} />);
+      render(<ThinkBlock {...mockProps} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
     });
 
     it('应该正确渲染为 div 元素', () => {
-      render(<ThinkBlock element={mockCodeNode} />);
+      render(<ThinkBlock {...mockProps} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock.tagName).toBe('DIV');
@@ -178,7 +187,7 @@ describe('ThinkBlock', () => {
 
   describe('组件结构', () => {
     it('应该只渲染一个根元素', () => {
-      const { container } = render(<ThinkBlock element={mockCodeNode} />);
+      const { container } = render(<ThinkBlock {...mockProps} />);
 
       expect(container.children).toHaveLength(1);
       expect(container.firstChild).toHaveAttribute(
@@ -188,7 +197,7 @@ describe('ThinkBlock', () => {
     });
 
     it('应该正确传递 element 属性', () => {
-      render(<ThinkBlock element={mockCodeNode} />);
+      render(<ThinkBlock {...mockProps} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toHaveTextContent(mockCodeNode.value);
@@ -200,7 +209,7 @@ describe('ThinkBlock', () => {
       // 测试 alwaysExpandedDeepThink 为 true 的情况
       // 由于 ToolUseBarThink 组件已经在实际渲染中被使用，
       // 这里主要测试组件能正确渲染，不会因为该属性报错
-      render(<ThinkBlock element={mockCodeNode} />);
+      render(<ThinkBlock {...mockProps} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
@@ -214,7 +223,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '正在思考中...' }],
       };
 
-      render(<ThinkBlock element={loadingCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={loadingCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();
@@ -229,7 +238,7 @@ describe('ThinkBlock', () => {
         children: [{ text: '这是正常的思考内容' }],
       };
 
-      render(<ThinkBlock element={normalCodeNode} />);
+      render(<ThinkBlock {...mockProps} element={normalCodeNode} />);
 
       const thinkBlock = screen.getByTestId('think-block');
       expect(thinkBlock).toBeInTheDocument();

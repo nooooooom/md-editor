@@ -1290,7 +1290,7 @@ describe('RealtimeFollow Component', () => {
             data={{
               type: 'html',
               content: '<h1>测试</h1>',
-              htmlViewMode: 'preview',
+              viewMode: 'preview',
               status: 'done',
             }}
           />
@@ -1331,7 +1331,7 @@ describe('RealtimeFollow Component', () => {
         children,
       }) => (
         <ConfigProvider>
-          <I18nContext.Provider value={{ locale: null as any, language: 'en' }}>
+          <I18nContext.Provider value={{ locale: null as any, language: 'en-US' }}>
             {children}
           </I18nContext.Provider>
         </ConfigProvider>
@@ -1491,7 +1491,7 @@ describe('RealtimeFollow Component', () => {
             data={{
               type: 'html',
               content: '<h1>test</h1>',
-              htmlViewMode: 'preview',
+              viewMode: 'preview',
               status: 'done',
             }}
           />
@@ -1531,7 +1531,7 @@ describe('RealtimeFollow Component', () => {
       }) => (
         <ConfigProvider>
           <I18nContext.Provider
-            value={{ locale: undefined as any, language: 'en' }}
+            value={{ locale: undefined as any, language: 'en-US' }}
           >
             {children}
           </I18nContext.Provider>
@@ -1715,7 +1715,7 @@ describe('RealtimeFollow Component', () => {
         children,
       }) => (
         <ConfigProvider>
-          <I18nContext.Provider value={{ locale: null as any, language: 'en' }}>
+          <I18nContext.Provider value={{ locale: null as any, language: 'en-US' }}>
             {children}
           </I18nContext.Provider>
         </ConfigProvider>

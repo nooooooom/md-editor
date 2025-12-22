@@ -467,6 +467,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         borderColor: 'transparent',
         background: 'var(--color-gray-bg-card-light)',
         boxShadow: 'var(--shadow-border-base)',
+        marginBottom: 8,
       },
 
       '.ant-input-outlined:hover, .ant-input-outlined:focus-within': {
@@ -478,6 +479,35 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         font: 'var(--font-text-body-base)',
         letterSpacing: 'var(--letter-spacing-body-base, normal)',
       },
+
+      // 搜索图标样式
+      '.anticon': {
+        color: 'var(--color-gray-text-secondary)',
+        fontSize: 16,
+      },
+    },
+
+    // 成功消息图标样式
+    [`${token.componentCls}-success-icon`]: {
+      fontSize: 16,
+      marginRight: 8,
+      color: 'var(--color-green-control-fill-primary)',
+    },
+
+    // 成功消息文本样式
+    [`${token.componentCls}-message-text`]: {
+      font: 'var(--font-text-body-emphasized-base)',
+      color: 'var(--color-gray-text-default)',
+    },
+
+    // 分组内容容器（用于motion.div）
+    [`${token.componentCls}-group-content`]: {
+      overflow: 'hidden',
+    },
+
+    // 隐藏的图片预览组件
+    [`${token.componentCls}-hidden-image`]: {
+      display: 'none',
     },
   };
 };

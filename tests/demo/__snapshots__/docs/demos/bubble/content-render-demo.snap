@@ -683,9 +683,8 @@
                   style="min-width: 0px;"
                 >
                   <div
-                    class="agent-item-default-content"
+                    class="agent-item-default-content ant-agentic-ui-messages-content-message"
                     data-testid="message-box-content"
-                    style="line-height: 24px;"
                   >
                     <div
                       aria-describedby="test-id"

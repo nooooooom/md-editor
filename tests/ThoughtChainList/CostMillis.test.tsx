@@ -9,7 +9,7 @@ import { I18nContext } from '../../src/I18n';
 import { CostMillis } from '../../src/ThoughtChainList/CostMillis';
 
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <I18nContext.Provider value={{ locale: {}, language: 'zh-CN' }}>
+  <I18nContext.Provider value={{ locale: {} as any, language: 'zh-CN' }}>
     {children}
   </I18nContext.Provider>
 );
@@ -91,7 +91,7 @@ describe('CostMillis', () => {
 
       render(
         <I18nContext.Provider
-          value={{ locale: customLocale, language: 'zh-CN' }}
+          value={{ locale: customLocale as any, language: 'zh-CN' }}
         >
           <CostMillis costMillis={1500} />
         </I18nContext.Provider>,

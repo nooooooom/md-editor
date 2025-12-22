@@ -1093,13 +1093,11 @@
               class="ant-image ant-image-error"
             >
               <img
-                class="ant-image-img"
+                class="ant-image-img ant-workspace-file-hidden-image"
                 src=""
-                style="display: none;"
               />
               <div
                 class="ant-image-mask"
-                style="display: none;"
               >
                 <div
                   class="ant-image-mask-info"

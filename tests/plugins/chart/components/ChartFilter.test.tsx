@@ -334,17 +334,17 @@ describe('ChartFilter', () => {
   });
 
   it('应该正确处理筛选选项为null的情况', () => {
-    const props = { ...defaultProps, filterOptions: null };
+    const props = { ...defaultProps, filterOptions: null as any };
 
-    const { container } = render(<ChartFilter {...props} /> as any);
+    const { container } = render(<ChartFilter {...props} />);
 
     expect(container.firstChild).toBeNull();
   });
 
   it('应该正确处理自定义选项为null的情况', () => {
-    const props = { ...defaultProps, customOptions: null };
+    const props = { ...defaultProps, customOptions: null as any };
 
-    render(<ChartFilter {...props} /> as any);
+    render(<ChartFilter {...props} />);
 
     // 当 customOptions 为 null 时，下拉菜单不应渲染
     expect(screen.queryByTestId('dropdown')).not.toBeInTheDocument();

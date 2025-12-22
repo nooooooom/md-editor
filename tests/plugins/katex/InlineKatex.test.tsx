@@ -45,7 +45,7 @@ vi.mock('slate', () => {
   return {
     ...actual,
     Editor: {
-      ...actual.Editor,
+      ...(actual as any).Editor,
       end: vi.fn((editor, path) => ({ path, offset: 0 })),
     },
     Node: {

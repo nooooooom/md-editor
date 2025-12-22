@@ -1,5 +1,6 @@
 import { ExportOutlined } from '@ant-design/icons';
-import { Popover, Tooltip, Typography } from 'antd';
+import { ConfigProvider, Popover, Tooltip, Typography } from 'antd';
+import classNames from 'classnames';
 import React, { useContext, useMemo } from 'react';
 import { ActionIconBox } from '../../Components/ActionIconBox';
 import { I18nContext } from '../../I18n';
@@ -11,6 +12,7 @@ import { BubbleExtra } from './BubbleExtra';
 import { DocInfoList } from './DocInfo';
 import { EXCEPTION } from './EXCEPTION';
 import { MarkdownPreview } from './MarkdownPreview';
+import { useMessagesContentStyle } from './style';
 
 export const LOADING_FLAT = '...';
 
@@ -76,6 +78,10 @@ export const BubbleMessageDisplay: React.FC<
     }[]
   >([]);
 
+  const { hashId } = useMessagesContentStyle();
+  const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
+  const chatCls = getPrefixCls('agentic-ui');
+
   const funRender = useRefFunction((props: { identifier?: any }) => {
     const node = nodeList.find((item) => item.placeholder === props.identifier);
     return node;
@@ -123,14 +129,14 @@ export const BubbleMessageDisplay: React.FC<
       if (context?.thoughtChain?.alwaysRender !== true) {
         return (
           <div
-            style={{
-              padding: context?.compact ? '8px' : '12px',
-              lineHeight: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-            }}
-            className="agent-item-default-content"
+            className={classNames(
+              'agent-item-default-content',
+              `${chatCls}-messages-content-loading`,
+              context?.compact
+                ? `${chatCls}-messages-content-loading-compact`
+                : `${chatCls}-messages-content-loading-default`,
+              hashId,
+            )}
             data-testid="message-content"
           >
             {locale?.['chat.message.thinking'] || '思考中...'}
@@ -199,10 +205,11 @@ export const BubbleMessageDisplay: React.FC<
     ) {
       return (
         <div
-          style={{
-            lineHeight: '24px',
-          }}
-          className="agent-item-default-content"
+          className={classNames(
+            'agent-item-default-content',
+            `${chatCls}-messages-content-message`,
+            hashId,
+          )}
           data-testid="message-box-content"
           onDoubleClick={props.onDoubleClick}
         >
@@ -213,11 +220,7 @@ export const BubbleMessageDisplay: React.FC<
             markdownRenderConfig={props.markdownRenderConfig}
             isFinished={true}
             style={
-              props.originData?.role === 'bot'
-                ? {}
-                : {
-                    color: '#343A45',
-                  }
+              props.originData?.role === 'bot' ? {} : { color: '#343A45' } // 使用类名方式需要传递className，这里保留style以兼容现有API
             }
             extra={extra}
             typing={false}
@@ -293,13 +296,11 @@ export const BubbleMessageDisplay: React.FC<
               <Popover
                 title={
                   <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      fontSize: '1em',
-                      ...(props?.customConfig?.PopoverProps?.titleStyle || {}),
-                    }}
+                    className={classNames(
+                      `${chatCls}-messages-content-popover-title`,
+                      hashId,
+                    )}
+                    style={props?.customConfig?.PopoverProps?.titleStyle}
                   >
                     <div>
                       {locale?.['chat.message.referenceDocument'] || '参考文档'}
@@ -330,16 +331,11 @@ export const BubbleMessageDisplay: React.FC<
                 }
                 content={
                   <div
-                    style={{
-                      width: 400,
-                      display: 'flex',
-                      maxHeight: 400,
-                      overflow: 'auto',
-                      flexDirection: 'column',
-                      gap: 12,
-                      ...(props?.customConfig?.PopoverProps?.contentStyle ||
-                        {}),
-                    }}
+                    className={classNames(
+                      `${chatCls}-messages-content-popover-content`,
+                      hashId,
+                    )}
+                    style={props?.customConfig?.PopoverProps?.contentStyle}
                   >
                     <MarkdownEditor
                       style={{
@@ -368,36 +364,25 @@ export const BubbleMessageDisplay: React.FC<
                         }
                       >
                         <div
-                          style={{
-                            borderRadius: '20px',
-                            opacity: 1,
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            padding: '10px',
-                            gap: '10px',
-                            alignSelf: 'stretch',
-                            background: '#FBFCFD',
-                            cursor: 'pointer',
-                            zIndex: 1,
-                          }}
+                          className={classNames(
+                            `${chatCls}-messages-content-doc-tag`,
+                            hashId,
+                          )}
                         >
                           <img
-                            style={{
-                              width: 24,
-                            }}
+                            className={classNames(
+                              `${chatCls}-messages-content-doc-tag-icon`,
+                              hashId,
+                            )}
                             src={
                               'https://mdn.alipayobjects.com/huamei_ptjqan/afts/img/A*kF_GTppRbp4AAAAAAAAAAAAADkN6AQ/original'
                             }
                           />
                           <div
-                            style={{
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              WebkitBoxOrient: 'vertical',
-                              WebkitLineClamp: 2,
-                              display: '-webkit-box',
-                            }}
+                            className={classNames(
+                              `${chatCls}-messages-content-doc-name`,
+                              hashId,
+                            )}
                           >
                             {item?.doc_name}
                           </div>

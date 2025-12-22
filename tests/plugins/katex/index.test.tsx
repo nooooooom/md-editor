@@ -47,9 +47,8 @@ describe('KatexElement', () => {
     element: mockElement,
     attributes: {
       'data-slate-node': 'element' as const,
-      'data-testid': 'katex-element',
       ref: null,
-    },
+    } as any,
     children: <span>children content</span>,
   };
 
@@ -107,7 +106,7 @@ describe('KatexElement', () => {
     it('应该在只读模式下渲染简化版本', () => {
       const { container } = render(<KatexElement {...defaultProps} />);
 
-      const element = container.querySelector('[data-testid="katex-element"]');
+      const element = container.querySelector('[data-slate-node="element"]');
       expect(element).toBeInTheDocument();
       expect(element).toHaveAttribute('contentEditable', 'false');
       expect(element).toHaveStyle({ margin: '1em 0', userSelect: 'none' });
@@ -152,7 +151,7 @@ describe('KatexElement', () => {
     it('应该在编辑模式下渲染完整版本', () => {
       const { container } = render(<KatexElement {...defaultProps} />);
 
-      const element = container.querySelector('[data-testid="katex-element"]');
+      const element = container.querySelector('[data-be="katex"]');
       expect(element).toBeInTheDocument();
       expect(element).toHaveClass('katex-el', 'drag-el');
       expect(element).toHaveAttribute('data-be', 'katex');
@@ -198,7 +197,7 @@ describe('KatexElement', () => {
     it('应该阻止 onBlur 事件冒泡', () => {
       const { container } = render(<KatexElement {...defaultProps} />);
 
-      const element = container.querySelector('[data-testid="katex-element"]');
+      const element = container.querySelector('[data-be="katex"]');
       expect(element).toBeInTheDocument();
 
       const stopPropagation = vi.fn();
@@ -214,7 +213,7 @@ describe('KatexElement', () => {
     it('应该阻止 onClick 事件冒泡', () => {
       const { container } = render(<KatexElement {...defaultProps} />);
 
-      const element = container.querySelector('[data-testid="katex-element"]');
+      const element = container.querySelector('[data-be="katex"]');
       expect(element).toBeInTheDocument();
 
       const stopPropagation = vi.fn();
@@ -248,9 +247,9 @@ describe('KatexElement', () => {
     });
 
     it('应该处理 undefined 的 value', () => {
-      const undefinedValueElement = {
+      const undefinedValueElement: CodeNode = {
         ...mockElement,
-        value: undefined,
+        value: undefined as any,
       };
 
       render(

@@ -8,7 +8,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toEqual([]);
@@ -36,7 +36,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toHaveLength(1);
@@ -64,7 +64,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem1, mockItem2],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toHaveLength(2);
@@ -83,7 +83,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toEqual([]);
@@ -111,7 +111,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toHaveLength(1);
@@ -160,7 +160,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toHaveLength(2);
@@ -222,7 +222,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toHaveLength(2);
@@ -246,7 +246,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toEqual([]);
@@ -263,7 +263,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toEqual([]);
@@ -294,7 +294,7 @@ describe('FilePaste', () => {
         clipboardData: {
           items: [mockItem],
         },
-      } as React.ClipboardEvent<HTMLDivElement>;
+      } as unknown as React.ClipboardEvent<HTMLDivElement>;
 
       const result = await getFileListFromDataTransferItems(mockEvent);
       expect(result).toEqual([]);

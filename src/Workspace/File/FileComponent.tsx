@@ -172,21 +172,13 @@ const SearchInput: FC<SearchInputProps> = React.memo(
         <Input
           ref={inputRef}
           key="file-search-input" // 添加稳定的 key
-          style={{ marginBottom: 8 }}
           allowClear
           placeholder={
             searchPlaceholder ||
             locale?.['workspace.searchPlaceholder'] ||
             '搜索文件名'
           }
-          prefix={
-            <Search
-              style={{
-                color: 'var(--color-gray-text-secondary)',
-                fontSize: 16,
-              }}
-            />
-          }
+          prefix={<Search />}
           value={keyword ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
         />
@@ -637,7 +629,6 @@ const FileGroupComponent: FC<{
             animate="expanded"
             exit="collapsed"
             transition={contentTransition}
-            style={{ overflow: 'hidden' }}
             className={classNames(`${finalPrefixCls}-group-content`, hashId)}
           >
             {group.children.map((file) => (
@@ -1013,7 +1004,7 @@ export const FileComponent: FC<{
   // 图片预览组件
   const ImagePreviewComponent = (
     <Image
-      style={{ display: 'none' }}
+      className={classNames(`${prefixCls}-hidden-image`, hashId)}
       src={imagePreview.src}
       preview={{
         visible: imagePreview.visible,

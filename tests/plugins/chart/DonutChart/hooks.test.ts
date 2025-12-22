@@ -1,10 +1,17 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useMobile, useResponsiveDimensions, useFilterLabels, useAutoCategory } from '../../../../src/Plugins/chart/DonutChart/hooks';
 import { MOBILE_MAX_CHART_SIZE } from '../../../../src/Plugins/chart/DonutChart/constants';
+import {
+  useAutoCategory,
+  useFilterLabels,
+  useMobile,
+  useResponsiveDimensions,
+} from '../../../../src/Plugins/chart/DonutChart/hooks';
+import type { DonutChartData } from '../../../../src/Plugins/chart/DonutChart/types';
 
 describe('DonutChart hooks', () => {
-  const originalInnerWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  const originalInnerWidth =
+    typeof window !== 'undefined' ? window.innerWidth : 1024;
 
   beforeEach(() => {
     // 重置 window.innerWidth
@@ -112,7 +119,12 @@ describe('DonutChart hooks', () => {
       const width = 400;
       const height = 300;
 
-      const result = useResponsiveDimensions(isMobile, windowWidth, width, height);
+      const result = useResponsiveDimensions(
+        isMobile,
+        windowWidth,
+        width,
+        height,
+      );
 
       expect(result.width).toBe(width);
       expect(result.height).toBe(height);
@@ -126,7 +138,12 @@ describe('DonutChart hooks', () => {
       const width = 400;
       const height = 300;
 
-      const result = useResponsiveDimensions(isMobile, windowWidth, width, height);
+      const result = useResponsiveDimensions(
+        isMobile,
+        windowWidth,
+        width,
+        height,
+      );
 
       const expectedSize = Math.min(
         windowWidth - 40,
@@ -146,7 +163,12 @@ describe('DonutChart hooks', () => {
       const width = 800;
       const height = 600;
 
-      const result = useResponsiveDimensions(isMobile, windowWidth, width, height);
+      const result = useResponsiveDimensions(
+        isMobile,
+        windowWidth,
+        width,
+        height,
+      );
 
       const expectedSize = Math.min(
         windowWidth - 40,
@@ -164,7 +186,12 @@ describe('DonutChart hooks', () => {
       const width = '100%';
       const height = '500px';
 
-      const result = useResponsiveDimensions(isMobile, windowWidth, width, height);
+      const result = useResponsiveDimensions(
+        isMobile,
+        windowWidth,
+        width,
+        height,
+      );
 
       expect(result.width).toBe(width);
       expect(result.height).toBe(height);
@@ -178,7 +205,12 @@ describe('DonutChart hooks', () => {
       const width = '100%';
       const height = '500px';
 
-      const result = useResponsiveDimensions(isMobile, windowWidth, width, height);
+      const result = useResponsiveDimensions(
+        isMobile,
+        windowWidth,
+        width,
+        height,
+      );
 
       const expectedSize = Math.min(
         windowWidth - 40,
@@ -203,7 +235,11 @@ describe('DonutChart hooks', () => {
 
       const { result } = renderHook(() => useFilterLabels(data));
 
-      expect(result.current.filterLabels).toEqual(['Category 1', 'Category 2', 'Category 3']);
+      expect(result.current.filterLabels).toEqual([
+        'Category 1',
+        'Category 2',
+        'Category 3',
+      ]);
       expect(result.current.selectedFilterLabel).toBe('Category 1');
     });
 
@@ -273,9 +309,12 @@ describe('DonutChart hooks', () => {
         { label: 'B', value: 20, filterLabel: 'Category 2' },
       ];
 
-      const { result, rerender } = renderHook(({ data }) => useFilterLabels(data), {
-        initialProps: { data: initialData },
-      });
+      const { result, rerender } = renderHook(
+        ({ data }) => useFilterLabels(data),
+        {
+          initialProps: { data: initialData },
+        },
+      );
 
       expect(result.current.selectedFilterLabel).toBe('Category 1');
 
@@ -296,19 +335,22 @@ describe('DonutChart hooks', () => {
         { label: 'A', value: 10, filterLabel: 'Category 1' },
       ];
 
-      const { result, rerender } = renderHook(({ data }) => useFilterLabels(data), {
-        initialProps: { data: initialData },
-      });
+      const { result, rerender } = renderHook(
+        ({ data }: { data: DonutChartData[] }) => useFilterLabels(data),
+        {
+          initialProps: { data: initialData },
+        },
+      );
 
       expect(result.current.selectedFilterLabel).toBe('Category 1');
 
       // 更新数据，移除所有filterLabel
-      const newData = [
+      const newData: DonutChartData[] = [
         { label: 'A', value: 10 },
         { label: 'B', value: 20 },
       ];
 
-      rerender({ data: newData });
+      rerender({ data: newData } as any);
 
       // 应该清除选中项
       expect(result.current.selectedFilterLabel).toBeUndefined();
@@ -323,7 +365,9 @@ describe('DonutChart hooks', () => {
       ];
       const enableAutoCategory = false;
 
-      const { result } = renderHook(() => useAutoCategory(data, enableAutoCategory));
+      const { result } = renderHook(() =>
+        useAutoCategory(data, enableAutoCategory),
+      );
 
       expect(result.current.autoCategoryData).toBeNull();
     });
@@ -332,7 +376,9 @@ describe('DonutChart hooks', () => {
       const data: any[] = [];
       const enableAutoCategory = true;
 
-      const { result } = renderHook(() => useAutoCategory(data, enableAutoCategory));
+      const { result } = renderHook(() =>
+        useAutoCategory(data, enableAutoCategory),
+      );
 
       expect(result.current.autoCategoryData).toBeNull();
     });
@@ -345,7 +391,9 @@ describe('DonutChart hooks', () => {
       ];
       const enableAutoCategory = true;
 
-      const { result } = renderHook(() => useAutoCategory(data, enableAutoCategory));
+      const { result } = renderHook(() =>
+        useAutoCategory(data, enableAutoCategory),
+      );
 
       expect(result.current.autoCategoryData).toBeNull();
     });
@@ -360,10 +408,16 @@ describe('DonutChart hooks', () => {
       ];
       const enableAutoCategory = true;
 
-      const { result } = renderHook(() => useAutoCategory(data, enableAutoCategory));
+      const { result } = renderHook(() =>
+        useAutoCategory(data, enableAutoCategory),
+      );
 
       expect(result.current.autoCategoryData).not.toBeNull();
-      expect(result.current.autoCategoryData?.categories).toEqual(['Cat1', 'Cat2', 'Cat3']);
+      expect(result.current.autoCategoryData?.categories).toEqual([
+        'Cat1',
+        'Cat2',
+        'Cat3',
+      ]);
       expect(result.current.autoCategoryData?.allData).toBe(data);
     });
 
@@ -374,7 +428,9 @@ describe('DonutChart hooks', () => {
       ];
       const enableAutoCategory = true;
 
-      const { result } = renderHook(() => useAutoCategory(data, enableAutoCategory));
+      const { result } = renderHook(() =>
+        useAutoCategory(data, enableAutoCategory),
+      );
 
       expect(result.current.internalSelectedCategory).toBe('Cat1');
       expect(result.current.selectedCategory).toBe('Cat1');
@@ -387,7 +443,9 @@ describe('DonutChart hooks', () => {
       ];
       const enableAutoCategory = true;
 
-      const { result } = renderHook(() => useAutoCategory(data, enableAutoCategory));
+      const { result } = renderHook(() =>
+        useAutoCategory(data, enableAutoCategory),
+      );
 
       expect(result.current.internalSelectedCategory).toBe('Cat1');
 
@@ -407,7 +465,9 @@ describe('DonutChart hooks', () => {
       const enableAutoCategory = true;
       const externalSelectedFilter = 'ExternalCategory';
 
-      const { result } = renderHook(() => useAutoCategory(data, enableAutoCategory, externalSelectedFilter));
+      const { result } = renderHook(() =>
+        useAutoCategory(data, enableAutoCategory, externalSelectedFilter),
+      );
 
       expect(result.current.selectedCategory).toBe('ExternalCategory');
     });
@@ -418,10 +478,13 @@ describe('DonutChart hooks', () => {
         { label: 'B', value: 20, category: 'Cat2' },
       ];
 
-      const { result, rerender } = renderHook(({ enableAutoCategory }) => 
-        useAutoCategory(initialData, enableAutoCategory), {
-        initialProps: { enableAutoCategory: true },
-      });
+      const { result, rerender } = renderHook(
+        ({ enableAutoCategory }) =>
+          useAutoCategory(initialData, enableAutoCategory),
+        {
+          initialProps: { enableAutoCategory: true },
+        },
+      );
 
       // 设置一个内部选中项
       act(() => {

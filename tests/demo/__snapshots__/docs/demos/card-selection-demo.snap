@@ -113,7 +113,7 @@
               data-slate-node="value"
               role="textbox"
               spellcheck="false"
-              style="position: relative; white-space: pre-wrap; word-wrap: break-word; font-size: 14px;"
+              style="position: relative; white-space: pre-wrap; word-wrap: break-word;"
               translate="no"
               zindex="-1"
             >

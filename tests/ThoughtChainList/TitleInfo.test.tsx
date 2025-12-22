@@ -9,7 +9,7 @@ import { I18nContext } from '../../src/I18n';
 import { TitleInfo } from '../../src/ThoughtChainList/TitleInfo';
 
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <I18nContext.Provider value={{ locale: {}, language: 'zh-CN' }}>
+  <I18nContext.Provider value={{ locale: {} as any, language: 'zh-CN' }}>
     {children}
   </I18nContext.Provider>
 );
@@ -101,7 +101,7 @@ describe('TitleInfo', () => {
       };
 
       render(
-        <I18nContext.Provider value={{ locale, language: 'zh-CN' }}>
+        <I18nContext.Provider value={{ locale: locale as any, language: 'zh-CN' }}>
           <TitleInfo
             {...defaultProps}
             title="查询 ${knowledge} 数据"
@@ -137,7 +137,7 @@ describe('TitleInfo', () => {
       };
 
       render(
-        <I18nContext.Provider value={{ locale, language: 'zh-CN' }}>
+        <I18nContext.Provider value={{ locale: locale as any, language: 'zh-CN' }}>
           <TitleInfo
             {...defaultProps}
             title="查询 ${table} 数据"
@@ -173,7 +173,7 @@ describe('TitleInfo', () => {
       };
 
       render(
-        <I18nContext.Provider value={{ locale, language: 'zh-CN' }}>
+        <I18nContext.Provider value={{ locale: locale as any, language: 'zh-CN' }}>
           <TitleInfo
             {...defaultProps}
             title="调用 ${tool} 工具"
@@ -209,7 +209,7 @@ describe('TitleInfo', () => {
       };
 
       render(
-        <I18nContext.Provider value={{ locale, language: 'zh-CN' }}>
+        <I18nContext.Provider value={{ locale: locale as any, language: 'zh-CN' }}>
           <TitleInfo
             {...defaultProps}
             title="处理 ${data} 数据"

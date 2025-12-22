@@ -41,7 +41,7 @@ vi.mock('../../src/Utils/copy', () => ({
 }));
 
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <I18nContext.Provider value={{ locale: {}, language: 'zh-CN' }}>
+  <I18nContext.Provider value={{ locale: {} as any, language: 'zh-CN' }}>
     {children}
   </I18nContext.Provider>
 );

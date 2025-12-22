@@ -1532,11 +1532,11 @@ const y = 2;
     it('应该为不同插件生成不同的 hash', () => {
       const markdown = '# 标题\n\n段落';
 
-      const plugin1 = {
+      const plugin1: import('../../../plugin').MarkdownEditorPlugin = {
         parseMarkdown: [
           {
             match: () => false,
-            convert: () => null,
+            convert: () => null as any,
           },
         ],
       };

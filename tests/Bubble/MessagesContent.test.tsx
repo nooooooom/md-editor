@@ -148,60 +148,64 @@ vi.mock('../../src/MarkdownEditor', () => ({
 }));
 
 // Mock Antd 组件
-vi.mock('antd', () => ({
-  Popover: ({ children, content, title, placement }: any) => (
-    <div data-testid="popover" data-placement={placement}>
-      {title && <div data-testid="popover-title">{title}</div>}
-      {children}
-      {content && <div data-testid="popover-content">{content}</div>}
-    </div>
-  ),
-  Tooltip: ({ children, title }: any) => (
-    <div data-testid="tooltip" title={title}>
-      {children}
-    </div>
-  ),
-  Typography: {
-    Text: ({ children, copyable }: any) => (
-      <span
-        data-testid="typography-text"
-        data-copyable={copyable ? 'true' : 'false'}
-      >
+vi.mock('antd', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('antd')>();
+  return {
+    ...actual,
+    Popover: ({ children, content, title, placement }: any) => (
+      <div data-testid="popover" data-placement={placement}>
+        {title && <div data-testid="popover-title">{title}</div>}
         {children}
-      </span>
+        {content && <div data-testid="popover-content">{content}</div>}
+      </div>
     ),
-  },
-  ConfigProvider: {
-    ConfigContext: {
-      Consumer: ({ children }: any) =>
-        children({ getPrefixCls: () => 'test-prefix' }),
+    Tooltip: ({ children, title }: any) => (
+      <div data-testid="tooltip" title={title}>
+        {children}
+      </div>
+    ),
+    Typography: {
+      Text: ({ children, copyable }: any) => (
+        <span
+          data-testid="typography-text"
+          data-copyable={copyable ? 'true' : 'false'}
+        >
+          {children}
+        </span>
+      ),
     },
-  },
-  Divider: ({ type, style }: any) => (
-    <div data-testid="divider" data-type={type} style={style}>
-      Divider
-    </div>
-  ),
-  Drawer: ({ title, open, onClose, width, children }: any) => (
-    <div data-testid="drawer" data-open={open} data-width={width}>
-      <div data-testid="drawer-title">{title}</div>
-      <button data-testid="drawer-close" onClick={onClose}>
-        Close
-      </button>
-      {children}
-    </div>
-  ),
-  Descriptions: ({ column, items }: any) => (
-    <div data-testid="descriptions" data-column={column}>
-      {items?.map((item: any, index: number) => (
-        <div key={index} data-testid={`desc-item-${index}`}>
-          <span data-testid={`desc-label-${index}`}>{item.label}</span>
-          <span data-testid={`desc-children-${index}`}>{item.children}</span>
-        </div>
-      ))}
-    </div>
-  ),
-}));
+    ConfigProvider: {
+      ...actual.ConfigProvider,
+      ConfigContext: React.createContext({
+        getPrefixCls: (prefix?: string) => prefix || 'ant',
+      }),
+    },
+    Divider: ({ type, style }: any) => (
+      <div data-testid="divider" data-type={type} style={style}>
+        Divider
+      </div>
+    ),
+    Drawer: ({ title, open, onClose, width, children }: any) => (
+      <div data-testid="drawer" data-open={open} data-width={width}>
+        <div data-testid="drawer-title">{title}</div>
+        <button data-testid="drawer-close" onClick={onClose}>
+          Close
+        </button>
+        {children}
+      </div>
+    ),
+    Descriptions: ({ column, items }: any) => (
+      <div data-testid="descriptions" data-column={column}>
+        {items?.map((item: any, index: number) => (
+          <div key={index} data-testid={`desc-item-${index}`}>
+            <span data-testid={`desc-label-${index}`}>{item.label}</span>
+            <span data-testid={`desc-children-${index}`}>{item.children}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  };
+});
 
 // Mock 图标
 vi.mock('@ant-design/icons', () => ({

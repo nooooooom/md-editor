@@ -58,14 +58,14 @@ describe('DonutChart plugins', () => {
     });
 
     it('应该使用默认背景色和 padding', () => {
-      const plugin = createBackgroundArcPlugin();
+      const plugin = createBackgroundArcPlugin('#F7F8F9', 4);
 
       expect(plugin).toBeDefined();
       expect(plugin.id).toBe('backgroundArc');
     });
 
     it('应该在没有数据时安全返回', () => {
-      const plugin = createBackgroundArcPlugin();
+      const plugin = createBackgroundArcPlugin('#F7F8F9', 4);
       const mockChart = createMockChart(200, 200, false);
 
       expect(() => {
