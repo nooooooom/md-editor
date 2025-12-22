@@ -14,7 +14,7 @@ export default defineConfig({
   resolve: {
     docDirs: ['docs', 'src/schema'],
   },
-  scripts: [
+  headScripts: [
     {
       src: 'https://www.googletagmanager.com/gtag/js?id=G-8V1D6XCMW3',
       async: true,
