@@ -30,27 +30,27 @@ vi.mock('framer-motion', () => ({
 vi.mock('@ant-design/agentic-ui', async () => {
   const actual = await vi.importActual('@ant-design/agentic-ui');
   // Mock Lottie 组件，当 active 为 true 时显示 lottie-animation
-  const mockPlayLottie = ({ active, ...props }: any) => (
+  const mockPlayLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'voice-play-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
   );
-  const mockCopyLottie = ({ active, ...props }: any) => (
+  const mockCopyLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'copy-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
   );
-  const mockLikeLottie = ({ active, ...props }: any) => (
+  const mockLikeLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'like-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
   );
-  const mockDislikeLottie = ({ active, ...props }: any) => (
+  const mockDislikeLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'dislike-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
   );
-  const mockRefreshLottie = ({ active, ...props }: any) => (
+  const mockRefreshLottie = ({ active }: any) => (
     <span data-testid={active ? 'lottie-animation' : 'refresh-lottie'}>
       {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
@@ -66,48 +66,83 @@ vi.mock('@ant-design/agentic-ui', async () => {
 });
 
 // Mock CopyButton / ActionIconBox，避免依赖样式与外部行为
-vi.mock('../src/index', () => ({
-  ActionIconBox: ({
-    children,
-    onClick,
-    title,
-    style,
-    scale,
-    'data-testid': dataTestid,
-    ...props
-  }: any) => (
-    <span
-      data-testid={dataTestid || 'action-icon-box'}
-      onClick={onClick}
-      style={style}
-      title={title}
-      data-scale={scale ? 'true' : 'false'}
-      {...props}
-    >
-      {children}
+vi.mock('../src/index', async () => {
+  const actual = await vi.importActual('../src/index');
+  // Mock Lottie 组件，当 active 为 true 时显示 lottie-animation
+  const mockPlayLottie = ({ active }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'voice-play-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
-  ),
-  CopyButton: ({
-    children,
-    onClick,
-    title,
-    style,
-    scale,
-    'data-testid': dataTestid,
-    ...props
-  }: any) => (
-    <span
-      data-testid={dataTestid || 'copy-button'}
-      onClick={onClick}
-      style={style}
-      title={title}
-      data-scale={scale ? 'true' : 'false'}
-      {...props}
-    >
-      {children || '复制'}
+  );
+  const mockCopyLottie = ({ active }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'copy-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
     </span>
-  ),
-}));
+  );
+  const mockLikeLottie = ({ active }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'like-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
+    </span>
+  );
+  const mockDislikeLottie = ({ active }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'dislike-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
+    </span>
+  );
+  const mockRefreshLottie = ({ active }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'refresh-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
+    </span>
+  );
+  return {
+    ...actual,
+    ActionIconBox: ({
+      children,
+      onClick,
+      title,
+      style,
+      scale,
+      'data-testid': dataTestid,
+      ...restProps
+    }: any) => (
+      <span
+        data-testid={dataTestid || 'action-icon-box'}
+        onClick={onClick}
+        style={style}
+        title={title}
+        data-scale={scale ? 'true' : 'false'}
+        {...restProps}
+      >
+        {children}
+      </span>
+    ),
+    CopyButton: ({
+      children,
+      onClick,
+      title,
+      style,
+      scale,
+      'data-testid': dataTestid,
+      ...restProps
+    }: any) => (
+      <span
+        data-testid={dataTestid || 'copy-button'}
+        onClick={onClick}
+        style={style}
+        title={title}
+        data-scale={scale ? 'true' : 'false'}
+        {...restProps}
+      >
+        {children || '复制'}
+      </span>
+    ),
+    PlayLottie: mockPlayLottie,
+    CopyLottie: mockCopyLottie,
+    LikeLottie: mockLikeLottie,
+    DislikeLottie: mockDislikeLottie,
+    RefreshLottie: mockRefreshLottie,
+  };
+});
 
 // Mock lottie 相关组件，避免加载动画 JSON（保持默认导出与命名导出一致）
 vi.mock('../src/icons/VoicePlayLottie', () => {
