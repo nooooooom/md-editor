@@ -8,6 +8,7 @@ import { ConfigProvider } from 'antd';
 import cx from 'classnames';
 import { nanoid } from 'nanoid';
 import React from 'react';
+import { LazyElement } from '../../MarkdownEditor/editor/components/LazyElement';
 import { BubbleConfigContext } from '../BubbleConfigProvide';
 import { LOADING_FLAT } from '../MessagesContent';
 import { PureAIBubble, PureUserBubble } from '../PureBubble';
@@ -45,6 +46,39 @@ export interface PureBubbleListProps {
     event: React.TouchEvent<HTMLDivElement>,
     bubbleListRef: HTMLDivElement | null,
   ) => void;
+  /**
+   * 懒加载配置
+   * @description 启用后，只有进入视口的气泡才会被渲染，提升长列表性能
+   */
+  lazy?: {
+    /**
+     * 是否启用懒加载
+     */
+    enable: boolean;
+    /**
+     * 占位符高度（单位：px），默认 100px
+     */
+    placeholderHeight?: number;
+    /**
+     * 提前加载距离，默认 '200px'
+     * @description 元素距离视口多远时开始加载
+     */
+    rootMargin?: string;
+    /**
+     * 自定义占位符渲染函数
+     */
+    renderPlaceholder?: (props: {
+      height: number;
+      style: React.CSSProperties;
+      isIntersecting: boolean;
+      elementInfo?: {
+        type: string;
+        index: number;
+        total: number;
+        role?: 'user' | 'assistant';
+      };
+    }) => React.ReactNode;
+  };
 }
 
 export const PureBubbleList: React.FC<PureBubbleListProps> = (props) => {
@@ -85,6 +119,9 @@ export const PureBubbleList: React.FC<PureBubbleListProps> = (props) => {
   const loadingKeysRef = useRef<Map<string, string>>(new Map());
 
   const listDom = useMemo(() => {
+    const isLazyEnabled = props.lazy?.enable;
+    const totalCount = bubbleList.length;
+
     return bubbleList.map((item, index) => {
       const placement = item.role === 'user' ? 'right' : 'left';
       const BubbleComponent =
@@ -104,7 +141,7 @@ export const PureBubbleList: React.FC<PureBubbleListProps> = (props) => {
         itemKey = loadingKeysRef.current.get(cacheKey)!;
       }
 
-      return (
+      const bubbleElement = (
         <BubbleComponent
           key={itemKey}
           data-id={item.id}
@@ -149,8 +186,48 @@ export const PureBubbleList: React.FC<PureBubbleListProps> = (props) => {
           shouldShowVoice={shouldShowVoice}
         />
       );
+
+      // 如果启用了懒加载，用 LazyElement 包裹
+      if (isLazyEnabled) {
+        // 创建适配的 renderPlaceholder，将 role 信息添加到 elementInfo
+        const adaptedRenderPlaceholder = props.lazy?.renderPlaceholder
+          ? (
+              lazyProps: Parameters<
+                NonNullable<typeof props.lazy.renderPlaceholder>
+              >[0],
+            ) => {
+              return props.lazy!.renderPlaceholder!({
+                ...lazyProps,
+                elementInfo: lazyProps.elementInfo
+                  ? {
+                      ...lazyProps.elementInfo,
+                      role: item.role as 'user' | 'assistant',
+                    }
+                  : undefined,
+              });
+            }
+          : undefined;
+
+        return (
+          <LazyElement
+            key={itemKey}
+            placeholderHeight={props.lazy?.placeholderHeight ?? 100}
+            rootMargin={props.lazy?.rootMargin ?? '200px'}
+            renderPlaceholder={adaptedRenderPlaceholder}
+            elementInfo={{
+              type: 'bubble',
+              index,
+              total: totalCount,
+            }}
+          >
+            {bubbleElement}
+          </LazyElement>
+        );
+      }
+
+      return bubbleElement;
     });
-  }, [bubbleList, props.style]);
+  }, [bubbleList, props.style, props.lazy]);
 
   if (isLoading) {
     return wrapSSR(
