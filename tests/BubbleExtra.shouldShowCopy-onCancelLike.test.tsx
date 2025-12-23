@@ -36,49 +36,93 @@ vi.mock('classnames', () => ({
   default: vi.fn(() => 'test-class'),
 }));
 
+// Mock @ant-design/agentic-ui (别名指向 ./src)
+vi.mock('@ant-design/agentic-ui', async () => {
+  const actual = await vi.importActual('@ant-design/agentic-ui');
+  // Mock Lottie 组件
+  const mockPlayLottie = ({ active, ...props }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'voice-play-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
+    </span>
+  );
+  const mockCopyLottie = ({ active, ...props }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'copy-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
+    </span>
+  );
+  const mockLikeLottie = ({ active, ...props }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'like-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
+    </span>
+  );
+  const mockDislikeLottie = ({ active, ...props }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'dislike-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
+    </span>
+  );
+  const mockRefreshLottie = ({ active, ...props }: any) => (
+    <span data-testid={active ? 'lottie-animation' : 'refresh-lottie'}>
+      {active ? 'lottie-active' : 'lottie-inactive'}
+    </span>
+  );
+  return {
+    ...actual,
+    PlayLottie: mockPlayLottie,
+    CopyLottie: mockCopyLottie,
+    LikeLottie: mockLikeLottie,
+    DislikeLottie: mockDislikeLottie,
+    RefreshLottie: mockRefreshLottie,
+  };
+});
+
 // Mock ActionIconBox and CopyButton
-vi.mock('../src/index', () => ({
-  ActionIconBox: ({
-    children,
-    onClick,
-    title,
-    style,
-    scale,
-    'data-testid': dataTestid,
-    ...props
-  }: any) => (
-    <span
-      data-testid={dataTestid || 'action-icon-box'}
-      onClick={onClick}
-      style={style}
-      title={title}
-      data-scale={scale ? 'true' : 'false'}
-      {...props}
-    >
-      {children}
-    </span>
-  ),
-  CopyButton: ({
-    children,
-    onClick,
-    title,
-    style,
-    scale,
-    'data-testid': dataTestid,
-    ...props
-  }: any) => (
-    <span
-      data-testid={dataTestid || 'copy-button'}
-      onClick={onClick}
-      style={style}
-      title={title}
-      data-scale={scale ? 'true' : 'false'}
-      {...props}
-    >
-      {children || '复制'}
-    </span>
-  ),
-}));
+vi.mock('../src/index', async () => {
+  const actual = await vi.importActual('../src/index');
+  return {
+    ...actual,
+    ActionIconBox: ({
+      children,
+      onClick,
+      title,
+      style,
+      scale,
+      'data-testid': dataTestid,
+      ...props
+    }: any) => (
+      <span
+        data-testid={dataTestid || 'action-icon-box'}
+        onClick={onClick}
+        style={style}
+        title={title}
+        data-scale={scale ? 'true' : 'false'}
+        data-title={title}
+        {...props}
+      >
+        {children}
+      </span>
+    ),
+    CopyButton: ({
+      children,
+      onClick,
+      title,
+      style,
+      scale,
+      'data-testid': dataTestid,
+      ...props
+    }: any) => (
+      <span
+        data-testid={dataTestid || 'copy-button'}
+        onClick={onClick}
+        style={style}
+        title={title}
+        data-scale={scale ? 'true' : 'false'}
+        {...props}
+      >
+        {children || '复制'}
+      </span>
+    ),
+  };
+});
 
 // Mock clipboard API
 Object.assign(navigator, {

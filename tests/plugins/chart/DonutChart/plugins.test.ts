@@ -23,7 +23,7 @@ describe('DonutChart plugins', () => {
       const mockChart = createMockChart(200, 200);
 
       expect(() => {
-        plugin.beforeDraw?.(mockChart as any);
+        plugin.beforeDraw?.(mockChart as any, { cancelable: true }, {});
       }).not.toThrow();
     });
 
@@ -32,7 +32,7 @@ describe('DonutChart plugins', () => {
       const mockChart = createMockChart(200, 200);
 
       expect(() => {
-        plugin.beforeDraw?.(mockChart as any);
+        plugin.beforeDraw?.(mockChart as any, { cancelable: true }, {});
       }).not.toThrow();
     });
 
@@ -41,7 +41,7 @@ describe('DonutChart plugins', () => {
       const mockChart = createMockChart(200, 200);
       const mockCtx = mockChart.ctx;
 
-      plugin.beforeDraw?.(mockChart as any);
+      plugin.beforeDraw?.(mockChart as any, { cancelable: true }, {});
 
       // 验证 fillText 被调用
       expect(mockCtx.fillText).toHaveBeenCalled();
@@ -67,9 +67,14 @@ describe('DonutChart plugins', () => {
     it('应该在没有数据时安全返回', () => {
       const plugin = createBackgroundArcPlugin('#F7F8F9', 4);
       const mockChart = createMockChart(200, 200, false);
+      const mockMeta = mockChart.getDatasetMeta(0);
 
       expect(() => {
-        plugin.beforeDatasetDraw?.(mockChart as any);
+        plugin.beforeDatasetDraw?.(
+          mockChart as any,
+          { index: 0, meta: mockMeta as any },
+          {},
+        );
       }).not.toThrow();
     });
 
@@ -77,8 +82,13 @@ describe('DonutChart plugins', () => {
       const plugin = createBackgroundArcPlugin('#F7F8F9', 4);
       const mockChart = createMockChart(200, 200);
       const mockCtx = mockChart.ctx;
+      const mockMeta = mockChart.getDatasetMeta(0);
 
-      plugin.beforeDatasetDraw?.(mockChart as any);
+      plugin.beforeDatasetDraw?.(
+        mockChart as any,
+        { index: 0, meta: mockMeta as any },
+        {},
+      );
 
       // 验证 arc 和 fill 被调用
       expect(mockCtx.beginPath).toHaveBeenCalled();
@@ -90,8 +100,13 @@ describe('DonutChart plugins', () => {
       const plugin = createBackgroundArcPlugin('#FF0000', 4);
       const mockChart = createMockChart(200, 200);
       const mockCtx = mockChart.ctx;
+      const mockMeta = mockChart.getDatasetMeta(0);
 
-      plugin.beforeDatasetDraw?.(mockChart as any);
+      plugin.beforeDatasetDraw?.(
+        mockChart as any,
+        { index: 0, meta: mockMeta as any },
+        {},
+      );
 
       expect(mockCtx.fillStyle).toBe('#FF0000');
     });
@@ -100,8 +115,13 @@ describe('DonutChart plugins', () => {
       const plugin = createBackgroundArcPlugin('#F7F8F9', 8);
       const mockChart = createMockChart(200, 200);
       const mockCtx = mockChart.ctx;
+      const mockMeta = mockChart.getDatasetMeta(0);
 
-      plugin.beforeDatasetDraw?.(mockChart as any);
+      plugin.beforeDatasetDraw?.(
+        mockChart as any,
+        { index: 0, meta: mockMeta as any },
+        {},
+      );
 
       // padding 会影响半径计算
       expect(mockCtx.arc).toHaveBeenCalled();
@@ -154,6 +174,6 @@ function createMockChart(
     width,
     height,
     ctx: mockCtx,
-    getDatasetMeta: vi.fn(() => (hasData ? mockMeta : null)),
+    getDatasetMeta: vi.fn((index?: number) => (hasData ? mockMeta : null)),
   };
 }
