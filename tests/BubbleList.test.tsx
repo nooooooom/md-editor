@@ -39,6 +39,136 @@ describe('BubbleList', () => {
     updateAt: Date.now(),
   });
 
+  describe('isLast property', () => {
+    it('should set isLast to true only for the last bubble in the list', () => {
+      const bubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'user', 'First message'),
+        createMockBubbleData('2', 'assistant', 'Second message'),
+        createMockBubbleData('3', 'user', 'Third message'),
+        createMockBubbleData('4', 'assistant', 'Last message'),
+      ];
+
+      render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={bubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证只有最后一个消息的 isLast 为 true
+      expect((bubbleList[0] as any).isLast).toBe(false);
+      expect((bubbleList[1] as any).isLast).toBe(false);
+      expect((bubbleList[2] as any).isLast).toBe(false);
+      expect((bubbleList[3] as any).isLast).toBe(true);
+    });
+
+    it('should set isLast to true for single bubble in the list', () => {
+      const bubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'user', 'Only message'),
+      ];
+
+      render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={bubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证单个消息的 isLast 为 true
+      expect((bubbleList[0] as any).isLast).toBe(true);
+    });
+
+    it('should update isLast when bubble list changes', () => {
+      const initialBubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'user', 'First message'),
+        createMockBubbleData('2', 'assistant', 'Second message'),
+      ];
+
+      const { rerender } = render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={initialBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证初始状态
+      expect((initialBubbleList[0] as any).isLast).toBe(false);
+      expect((initialBubbleList[1] as any).isLast).toBe(true);
+
+      // 添加新的消息
+      const updatedBubbleList: MessageBubbleData[] = [
+        ...initialBubbleList,
+        createMockBubbleData('3', 'user', 'Third message'),
+      ];
+
+      rerender(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={updatedBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证更新后的状态：之前的最后一个消息不再是最后一个
+      expect((updatedBubbleList[0] as any).isLast).toBe(false);
+      expect((updatedBubbleList[1] as any).isLast).toBe(false);
+      expect((updatedBubbleList[2] as any).isLast).toBe(true);
+    });
+
+    it('should update isLast when removing the last bubble', () => {
+      const initialBubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'user', 'First message'),
+        createMockBubbleData('2', 'assistant', 'Second message'),
+        createMockBubbleData('3', 'user', 'Third message'),
+      ];
+
+      const { rerender } = render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={initialBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证初始状态
+      expect((initialBubbleList[0] as any).isLast).toBe(false);
+      expect((initialBubbleList[1] as any).isLast).toBe(false);
+      expect((initialBubbleList[2] as any).isLast).toBe(true);
+
+      // 移除最后一个消息
+      const updatedBubbleList: MessageBubbleData[] = [
+        initialBubbleList[0],
+        initialBubbleList[1],
+      ];
+
+      rerender(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={updatedBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证更新后的状态：之前的倒数第二个消息现在成为最后一个
+      expect((updatedBubbleList[0] as any).isLast).toBe(false);
+      expect((updatedBubbleList[1] as any).isLast).toBe(true);
+    });
+
+    it('should maintain isLast property for different roles', () => {
+      const bubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'user', 'User message 1'),
+        createMockBubbleData('2', 'user', 'User message 2'),
+        createMockBubbleData('3', 'assistant', 'Assistant message 1'),
+        createMockBubbleData('4', 'assistant', 'Assistant message 2'),
+        createMockBubbleData('5', 'user', 'User message 3'),
+      ];
+
+      render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={bubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证无论角色如何，只有最后一个消息的 isLast 为 true
+      expect((bubbleList[0] as any).isLast).toBe(false);
+      expect((bubbleList[1] as any).isLast).toBe(false);
+      expect((bubbleList[2] as any).isLast).toBe(false);
+      expect((bubbleList[3] as any).isLast).toBe(false);
+      expect((bubbleList[4] as any).isLast).toBe(true);
+    });
+  });
+
   describe('isLatest property', () => {
     it('should set isLatest to true only for the last bubble in the list', () => {
       const bubbleList: MessageBubbleData[] = [
@@ -654,6 +784,146 @@ describe('BubbleList', () => {
       expect(mockOnTouchMove).toHaveBeenCalledTimes(1);
       expect(mockOnCancelLike).toBeDefined();
       expect(mockShouldShowCopy).toBeDefined();
+    });
+  });
+
+  describe('isLast and deps relationship', () => {
+    it('should update isLast correctly when new bubble is added', () => {
+      const initialBubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'assistant', 'First message'),
+        createMockBubbleData('2', 'assistant', 'Second message'),
+      ];
+
+      const { rerender } = render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={initialBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证初始状态
+      expect((initialBubbleList[0] as any).isLast).toBe(false);
+      expect((initialBubbleList[1] as any).isLast).toBe(true);
+
+      // 添加新的消息
+      const updatedBubbleList: MessageBubbleData[] = [
+        ...initialBubbleList,
+        createMockBubbleData('3', 'assistant', 'Third message'),
+      ];
+
+      rerender(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={updatedBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证 isLast 值已更新：之前的最后一个消息不再是最后一个
+      expect((updatedBubbleList[0] as any).isLast).toBe(false);
+      expect((updatedBubbleList[1] as any).isLast).toBe(false);
+      expect((updatedBubbleList[2] as any).isLast).toBe(true);
+    });
+
+    it('should update isLast correctly when multiple bubbles are added', () => {
+      const initialBubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'assistant', 'First message'),
+      ];
+
+      const { rerender } = render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={initialBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证初始状态：单个消息时是最后一个
+      expect((initialBubbleList[0] as any).isLast).toBe(true);
+
+      // 添加两个新消息
+      const updatedBubbleList: MessageBubbleData[] = [
+        ...initialBubbleList,
+        createMockBubbleData('2', 'assistant', 'Second message'),
+        createMockBubbleData('3', 'assistant', 'Third message'),
+      ];
+
+      rerender(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={updatedBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证所有消息的 isLast 状态
+      expect((updatedBubbleList[0] as any).isLast).toBe(false);
+      expect((updatedBubbleList[1] as any).isLast).toBe(false);
+      expect((updatedBubbleList[2] as any).isLast).toBe(true);
+    });
+
+    it('should correctly calculate isLast for each bubble in the list', () => {
+      const bubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'assistant', 'Message 1'),
+        createMockBubbleData('2', 'assistant', 'Message 2'),
+        createMockBubbleData('3', 'assistant', 'Message 3'),
+      ];
+
+      render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={bubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证每个消息的 isLast 状态
+      expect((bubbleList[0] as any).isLast).toBe(false);
+      expect((bubbleList[1] as any).isLast).toBe(false);
+      expect((bubbleList[2] as any).isLast).toBe(true);
+
+      // 验证 isLast 和 isLatest 保持一致
+      expect((bubbleList[0] as any).isLast).toBe(bubbleList[0].isLatest);
+      expect((bubbleList[1] as any).isLast).toBe(bubbleList[1].isLatest);
+      expect((bubbleList[2] as any).isLast).toBe(bubbleList[2].isLatest);
+    });
+
+    it('should handle empty bubble list gracefully', () => {
+      const bubbleList: MessageBubbleData[] = [];
+
+      expect(() => {
+        render(
+          <BubbleConfigProvide>
+            <BubbleList bubbleList={bubbleList} />
+          </BubbleConfigProvide>,
+        );
+      }).not.toThrow();
+    });
+
+    it('should update isLast when bubble is removed from the end', () => {
+      const initialBubbleList: MessageBubbleData[] = [
+        createMockBubbleData('1', 'assistant', 'Message 1'),
+        createMockBubbleData('2', 'assistant', 'Message 2'),
+        createMockBubbleData('3', 'assistant', 'Message 3'),
+      ];
+
+      const { rerender } = render(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={initialBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证初始状态
+      expect((initialBubbleList[0] as any).isLast).toBe(false);
+      expect((initialBubbleList[1] as any).isLast).toBe(false);
+      expect((initialBubbleList[2] as any).isLast).toBe(true);
+
+      // 移除最后一个消息
+      const updatedBubbleList: MessageBubbleData[] = [
+        initialBubbleList[0],
+        initialBubbleList[1],
+      ];
+
+      rerender(
+        <BubbleConfigProvide>
+          <BubbleList bubbleList={updatedBubbleList} />
+        </BubbleConfigProvide>,
+      );
+
+      // 验证更新后的状态
+      expect((updatedBubbleList[0] as any).isLast).toBe(false);
+      expect((updatedBubbleList[1] as any).isLast).toBe(true);
     });
   });
 });
