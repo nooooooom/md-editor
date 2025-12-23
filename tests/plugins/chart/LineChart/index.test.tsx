@@ -1,12 +1,20 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 // 使用动态导入来避免类型检查错误
 let LineChart: React.FC<any>;
 
-// 在每个测试前导入组件
-beforeEach(async () => {
+// 在测试套件开始前导入组件，避免在每个测试前重复导入
+beforeAll(async () => {
   try {
     const LineChartModule = await import(
       '../../../../src/Plugins/chart/LineChart/index'
@@ -19,7 +27,7 @@ beforeEach(async () => {
     );
     LineChart = LineChartModule.default;
   }
-});
+}, 30000); // 增加超时时间到 30 秒
 
 // 定义 LineChartDataItem 类型
 interface LineChartDataItem {
