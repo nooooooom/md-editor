@@ -267,6 +267,14 @@ export type BubbleListProps = {
         role?: 'user' | 'assistant';
       };
     }) => React.ReactNode;
+    /**
+     * 判断是否应该对指定索引的消息启用懒加载
+     * @description 返回 false 时，该消息将不启用懒加载，优先渲染
+     * @param index 消息索引
+     * @param total 消息总数
+     * @returns 是否启用懒加载
+     */
+    shouldLazyLoad?: (index: number, total: number) => boolean;
   };
 };
 
@@ -430,6 +438,15 @@ export const BubbleList: React.FC<BubbleListProps> = (props) => {
 
       // 如果启用了懒加载，用 LazyElement 包裹
       if (isLazyEnabled) {
+        // 检查是否应该对该消息启用懒加载
+        const shouldLazyLoad =
+          props.lazy?.shouldLazyLoad?.(index, totalCount) ?? true;
+
+        // 如果不需要懒加载，直接返回元素
+        if (!shouldLazyLoad) {
+          return bubbleElement;
+        }
+
         // 创建适配的 renderPlaceholder，将 role 信息添加到 elementInfo
         const adaptedRenderPlaceholder = props.lazy?.renderPlaceholder
           ? (

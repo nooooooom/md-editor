@@ -7,8 +7,8 @@ import {
   BubbleMetaData,
   MessageBubbleData,
 } from '@ant-design/agentic-ui';
-import { Switch, Space, Statistic } from 'antd';
-import React, { useMemo, useRef, useState } from 'react';
+import { Space, Statistic, Switch } from 'antd';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { BubbleDemoCard } from './BubbleDemoCard';
 
 // 创建模拟消息
@@ -101,6 +101,22 @@ export default () => {
     return { total: bubbleList.length, userCount, assistantCount };
   }, [bubbleList]);
 
+  // 初始滚动到底部，显示最新消息
+  // 使用 useLayoutEffect 在 DOM 更新后、浏览器绘制前立即设置滚动位置
+  // 直接设置 scrollTop 属性，避免任何动画效果
+  useLayoutEffect(() => {
+    const container = bubbleListRef.current;
+    if (!container) return;
+
+    // 使用 requestAnimationFrame 确保在浏览器渲染前执行
+    const rafId = requestAnimationFrame(() => {
+      // 直接设置 scrollTop，无动画，立即生效
+      container.scrollTop = container.scrollHeight;
+    });
+
+    return () => cancelAnimationFrame(rafId);
+  }, [lazyEnabled, bubbleList.length]);
+
   return (
     <BubbleDemoCard
       title="🚀 BubbleList 懒加载示例"
@@ -184,6 +200,11 @@ export default () => {
                 enable: true,
                 placeholderHeight: 80,
                 rootMargin: '200px',
+                // 最后 10 条消息不启用懒加载，优先渲染，确保初始时能看到最新消息
+                shouldLazyLoad: (index, total) => {
+                  const lastMessagesCount = 10;
+                  return index < total - lastMessagesCount;
+                },
                 renderPlaceholder: ({ style, elementInfo }) => (
                   <div
                     style={{
@@ -191,7 +212,8 @@ export default () => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+                      background:
+                        'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
                       backgroundSize: '200% 100%',
                       animation: 'loading 1.5s ease-in-out infinite',
                       borderRadius: 8,
@@ -200,8 +222,8 @@ export default () => {
                     }}
                   >
                     <span>
-                      {elementInfo?.role === 'user' ? '👤' : '🤖'} 加载中...
-                      ({elementInfo?.index !== undefined
+                      {elementInfo?.role === 'user' ? '👤' : '🤖'} 加载中... (
+                      {elementInfo?.index !== undefined
                         ? elementInfo.index + 1
                         : '?'}
                       /{elementInfo?.total || '?'})
@@ -272,4 +294,3 @@ export default () => {
     </BubbleDemoCard>
   );
 };
-
