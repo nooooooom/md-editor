@@ -864,6 +864,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
             {...eleProps}
             children={eleProps.children}
             readonly={readonly}
+            deps={props.deps}
           />
         </ErrorBoundary>
       );

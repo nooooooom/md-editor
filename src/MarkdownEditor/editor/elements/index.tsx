@@ -49,15 +49,28 @@ export const dragStart = (e: React.DragEvent) => {
 };
 
 /**
+ * 比较两个字符串数组是否相等
+ * @param prev - 前一个数组
+ * @param next - 下一个数组
+ * @returns 是否相等
+ */
+const areDepsEqual = (prev?: string[], next?: string[]): boolean => {
+  if (prev === next) return true;
+  if (!prev || !next) return prev === next;
+  if (prev.length !== next.length) return false;
+  return prev.every((val, index) => val === next[index]);
+};
+
+/**
  * 比较函数，用于优化 MElement 组件的渲染性能
- * 只比较 hash 来判断是否需要重新渲染
+ * 比较 hash 和 deps 来判断是否需要重新渲染
  */
 const areElementPropsEqual = (
-  prevProps: RenderElementProps & { readonly?: boolean },
-  nextProps: RenderElementProps & { readonly?: boolean },
+  prevProps: RenderElementProps & { readonly?: boolean; deps?: string[] },
+  nextProps: RenderElementProps & { readonly?: boolean; deps?: string[] },
 ) => {
-  // table-cell 始终重新渲染
-  if (nextProps.element?.type === 'table-cell') {
+  // 比较 deps，如果 deps 发生变化，需要重新渲染
+  if (!areDepsEqual(prevProps.deps, nextProps.deps)) {
     return false;
   }
 
@@ -77,6 +90,7 @@ const areElementPropsEqual = (
 const MElementComponent = (
   props: RenderElementProps & {
     readonly?: boolean;
+    deps?: string[];
   },
 ) => {
   debugInfo('MElementComponent - 渲染元素', {

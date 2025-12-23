@@ -144,6 +144,11 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
           },
           ...(props.markdownRenderConfig?.tableConfig || {}),
         }}
+        deps={[
+          String(props.originData?.isLast),
+          String(props.originData?.isFinished),
+          String(props.originData?.isAborted),
+        ]}
         rootContainer={htmlRef as any}
         editorStyle={{
           fontSize: 14,

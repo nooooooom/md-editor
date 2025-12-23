@@ -105,7 +105,12 @@ export const BubbleMessageDisplay: React.FC<
     return props.bubbleRenderConfig?.beforeMessageRender
       ? props.bubbleRenderConfig.beforeMessageRender(props, null)
       : null;
-  }, [props.bubbleRenderConfig?.beforeMessageRender, typing, props.originData]);
+  }, [
+    props.bubbleRenderConfig?.beforeMessageRender,
+    typing,
+    props.originData,
+    props.originData?.isLast,
+  ]);
 
   const afterContent = useMemo(() => {
     const userAfter = props.bubbleRenderConfig?.afterMessageRender
@@ -116,9 +121,8 @@ export const BubbleMessageDisplay: React.FC<
     props.bubbleRenderConfig?.afterMessageRender,
     typing,
     props.originData,
-    props.bubbleRenderConfig?.afterMessageRender,
+    props.originData?.isLast,
     contentAfterDom,
-    typing,
   ]);
 
   const memo = useMemo(() => {
@@ -421,6 +425,7 @@ export const BubbleMessageDisplay: React.FC<
     props?.originData?.feedback,
     props.originData?.isFinished,
     props.originData?.isAborted,
+    props.originData?.isLast,
     isExtraNull,
     props.deps,
     props.bubbleRenderConfig?.beforeMessageRender,

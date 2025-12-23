@@ -76,23 +76,94 @@ export interface MarkdownEditorInstance {
  * @param props
  */
 export type MarkdownEditorProps = {
+  /**
+   * 自定义 CSS 类名
+   * @description 用于为编辑器根容器添加自定义类名
+   * @example "my-markdown-editor"
+   */
   className?: string;
+  /**
+   * 编辑器宽度
+   * @description 支持字符串（如 '100%', '500px'）或数字（像素值）
+   * @example "100%" | 800
+   */
   width?: string | number;
+  /**
+   * 编辑器高度
+   * @description 支持字符串（如 '100%', '500px'）或数字（像素值）
+   * @example "100%" | 600
+   */
   height?: string | number;
+  /**
+   * 标签输入配置
+   * @description 配置标签输入组件的显示和行为
+   * @property {boolean} [enable] - 是否启用标签输入功能
+   * @property {string} [placeholder] - 标签输入框的占位符文本
+   * @property {'panel' | 'dropdown'} [type] - 标签输入组件的显示类型，'panel' 为面板模式，'dropdown' 为下拉模式
+   * @example
+   * ```tsx
+   * tagInputProps={{
+   *   enable: true,
+   *   placeholder: '输入标签...',
+   *   type: 'dropdown'
+   * }}
+   * ```
+   */
   tagInputProps?: {
     enable?: boolean;
     placeholder?: string;
     type?: 'panel' | 'dropdown';
   } & TagPopupProps;
 
+  /**
+   * 编辑器样式
+   * @description 自定义编辑器容器的内联样式
+   * @example { padding: '10px', backgroundColor: '#f5f5f5' }
+   */
   editorStyle?: React.CSSProperties;
 
+  /**
+   * 功能属性配置
+   * @description 提供自定义渲染和事件处理的能力
+   * @property {Function} render - 自定义节点渲染函数，用于覆盖默认的节点渲染逻辑
+   * @property {Function} [onOriginUrlClick] - 点击原文链接时的回调函数
+   * @property {Function} [onFootnoteDefinitionChange] - 脚注定义变更时的回调函数
+   * @example
+   * ```tsx
+   * fncProps={{
+   *   render: (props, defaultDom) => {
+   *     // 自定义渲染逻辑
+   *     return <CustomNode {...props} />;
+   *   },
+   *   onOriginUrlClick: (url) => {
+   *     window.open(url);
+   *   },
+   *   onFootnoteDefinitionChange: (data) => {
+   *     console.log('脚注定义变更:', data);
+   *   }
+   * }}
+   * ```
+   */
   fncProps?: {
+    /**
+     * 自定义节点渲染函数
+     * @param props - 包含节点属性和子节点的对象
+     * @param defaultDom - 默认的 DOM 渲染结果
+     * @returns 自定义渲染的 React 节点
+     */
     render: (
       props: CustomLeaf<Record<string, any>> & { children: React.ReactNode },
       defaultDom: React.ReactNode,
     ) => React.ReactNode;
+    /**
+     * 点击原文链接的回调函数
+     * @param url - 原文链接地址
+     */
     onOriginUrlClick?: (url?: string) => void;
+    /**
+     * 脚注定义变更的回调函数
+     * @param data - 脚注定义数据数组，包含 id、placeholder、origin_text、url、origin_url 等信息
+     */
     onFootnoteDefinitionChange?: (
       data: {
         id: any;
@@ -345,6 +416,13 @@ export type MarkdownEditorProps = {
     /** 自定义链接渲染函数 */
     onClick?: (url?: string) => boolean | void;
   };
+
+  /**
+   * 依赖数组
+   * @description 用于控制 MElement 组件是否刷新的依赖数组。当 deps 数组内容发生变化时，MElement 会重新渲染
+   * @example ['user-id', 'theme', 'locale']
+   */
+  deps?: string[];
 
   /**
    * 其他属性
