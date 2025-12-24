@@ -1,5 +1,8 @@
+import { ConfigProvider } from 'antd';
+import classNames from 'classnames';
 import Lottie, { LottieRef } from 'lottie-react';
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
+import { useStyle } from './style';
 
 export interface AbstractLottieProps {
   /**
@@ -88,6 +91,10 @@ export const AbstractLottie: React.FC<AbstractLottieProps> = ({
   style,
   size = '1em',
 }) => {
+  const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
+  const prefixCls = getPrefixCls('bubble-actions-lottie');
+  const { wrapSSR, hashId } = useStyle(prefixCls);
+
   const lottieRef = useRef(null) as LottieRef;
 
   const containerStyle: React.CSSProperties = {
@@ -107,17 +114,17 @@ export const AbstractLottie: React.FC<AbstractLottieProps> = ({
     }
   }, [active]);
 
-  return (
+  return wrapSSR(
     <Lottie
       style={containerStyle}
       lottieRef={lottieRef}
-      className={className}
+      className={classNames(prefixCls, hashId, className)}
       data-testid="lottie-animation"
       aria-hidden="true"
       animationData={animationData}
       loop={loop}
       autoplay={autoplay}
-    />
+    />,
   );
 };
 
