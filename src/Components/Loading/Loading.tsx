@@ -165,9 +165,10 @@ export const Loading = ({
   const mergedSize = size ?? (isNestedPattern ? 32 : '1em');
 
   const showPercent = percent !== undefined && percent !== null;
-  const showTip = tip !== false && tip !== null && (showPercent || tip);
+  const showTip =
+    tip !== false && tip !== null && (showPercent || tip !== undefined);
 
-  const text = showPercent ? `${percent}%` : tip;
+  const text = tip ?? (showPercent ? `${percent}%` : undefined);
 
   const tipElement =
     isNestedPattern && isString(text) ? (
