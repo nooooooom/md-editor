@@ -3,7 +3,7 @@ import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMergedState } from 'rc-util';
-import React, { memo, useContext, useMemo } from 'react';
+import React, { memo, useCallback, useContext, useMemo } from 'react';
 import { ActionIconBox } from '../Components/ActionIconBox';
 import { Loading } from '../Components/Loading';
 import { useRefFunction } from '../Hooks/useRefFunction';
@@ -54,7 +54,7 @@ const StatusIcon: React.FC<{
   status: TaskStatus;
   prefixCls: string;
   hashId: string;
-}> = ({ status, prefixCls, hashId }) => {
+}> = memo(({ status, prefixCls, hashId }) => {
   const statusMap: Record<TaskStatus, React.ReactNode> = {
     success: <SuccessFill />,
     loading: <Loading size={LOADING_SIZE} />,
@@ -78,7 +78,9 @@ const StatusIcon: React.FC<{
       {statusMap[status]}
     </div>
   );
-};
+});
+
+StatusIcon.displayName = 'StatusIcon';
 
 interface TaskListItemProps {
   item: TaskItem;
@@ -89,7 +91,7 @@ interface TaskListItemProps {
   onToggle: (key: string) => void;
 }
 
-const TaskListItem: React.FC<TaskListItemProps> = ({
+const TaskListItem: React.FC<TaskListItemProps> = memo(({
   item,
   isLast,
   prefixCls,
@@ -101,7 +103,10 @@ const TaskListItem: React.FC<TaskListItemProps> = ({
   const isCollapsed = !expandedKeys.includes(item.key);
   const hasContent = hasTaskContent(item.content);
 
-  const handleToggle = () => onToggle(item.key);
+  // 使用 useCallback 优化切换处理函数
+  const handleToggle = useCallback(() => {
+    onToggle(item.key);
+  }, [item.key, onToggle]);
 
   const arrowTitle = isCollapsed
     ? locale?.['taskList.expand'] || '展开'
@@ -204,7 +209,9 @@ const TaskListItem: React.FC<TaskListItemProps> = ({
       </div>
     </div>
   );
-};
+});
+
+TaskListItem.displayName = 'TaskListItem';
 
 const getDefaultExpandedKeys = (
   items: TaskItem[],

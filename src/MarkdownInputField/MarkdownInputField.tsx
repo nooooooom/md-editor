@@ -1,6 +1,6 @@
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { memo, useContext, useMemo, useState } from 'react';
 import { BaseMarkdownEditor } from '../MarkdownEditor';
 import { BorderBeamAnimation } from './BorderBeamAnimation';
 import { useFileUploadManager } from './FileUploadManager';
@@ -67,7 +67,7 @@ export type { MarkdownInputFieldProps };
  * - 支持自动完成功能
  * - 支持自定义渲染配置
  */
-export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
+const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
   tagInputProps,
   markdownProps,
   borderRadius = 16,
@@ -491,3 +491,8 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
     </>,
   );
 };
+
+MarkdownInputFieldComponent.displayName = 'MarkdownInputField';
+
+// 使用 React.memo 优化性能，避免不必要的重新渲染
+export const MarkdownInputField = memo(MarkdownInputFieldComponent);

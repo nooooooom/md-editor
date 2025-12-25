@@ -1,5 +1,7 @@
 import { ConfigProvider } from 'antd';
+import classNames from 'classnames';
 import React, {
+  memo,
   ReactNode,
   useCallback,
   useContext,
@@ -82,18 +84,21 @@ export interface AgenticLayoutProps {
  * - 支持自定义宽度和高度
  * - 集成 Ant Design 主题系统
  */
+// 常量定义
 const MIN_RIGHT_WIDTH = 400;
 const MAX_RIGHT_WIDTH_RATIO = 0.7;
+const DEFAULT_LEFT_WIDTH = 256;
+const DEFAULT_RIGHT_WIDTH = 540;
 
-export const AgenticLayout: React.FC<AgenticLayoutProps> = ({
+const AgenticLayoutComponent: React.FC<AgenticLayoutProps> = ({
   left,
   center,
   right,
   header,
   style,
   className,
-  leftWidth = 256,
-  rightWidth = 540,
+  leftWidth = DEFAULT_LEFT_WIDTH,
+  rightWidth = DEFAULT_RIGHT_WIDTH,
 }) => {
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const prefixCls = getPrefixCls('agentic-layout');
@@ -197,7 +202,10 @@ export const AgenticLayout: React.FC<AgenticLayoutProps> = ({
   }, [handleResizeMove, handleResizeEnd]);
 
   return wrapSSR(
-    <div className={`${prefixCls} ${className || ''} ${hashId}`} style={style}>
+    <div
+      className={classNames(prefixCls, className, hashId)}
+      style={style}
+    >
       {/* 主体内容区域 */}
       <div
         className={`${prefixCls}-body ${hashId}`}
@@ -206,16 +214,23 @@ export const AgenticLayout: React.FC<AgenticLayoutProps> = ({
         {/* 左侧边栏 */}
         {left && (
           <div
-            className={`${prefixCls}-sidebar ${prefixCls}-sidebar-left ${
-              leftCollapsed ? `${prefixCls}-sidebar-left-collapsed` : ''
-            } ${hashId}`}
+            className={classNames(
+              `${prefixCls}-sidebar`,
+              `${prefixCls}-sidebar-left`,
+              {
+                [`${prefixCls}-sidebar-left-collapsed`]: leftCollapsed,
+              },
+              hashId,
+            )}
             style={{
               width: leftCollapsed ? 0 : leftWidth,
               minWidth: leftCollapsed ? 0 : leftWidth,
               maxWidth: leftCollapsed ? 0 : leftWidth,
             }}
           >
-            <div className={`${prefixCls}-sidebar-content ${hashId}`}>
+            <div
+              className={classNames(`${prefixCls}-sidebar-content`, hashId)}
+            >
               {left}
             </div>
           </div>
@@ -236,13 +251,17 @@ export const AgenticLayout: React.FC<AgenticLayoutProps> = ({
               rightCollapsible={header.rightCollapsible ?? !!right}
             />
           )}
-          <div className={`${prefixCls}-main-content ${hashId}`}>{center}</div>
+          <div
+            className={classNames(`${prefixCls}-main-content`, hashId)}
+          >
+            {center}
+          </div>
         </div>
       </div>
       {/* 右侧边栏 */}
       {right && (
         <div
-          className={`${prefixCls}-sidebar-wrapper-right ${hashId}`}
+          className={classNames(`${prefixCls}-sidebar-wrapper-right`, hashId)}
           style={{
             display: 'flex',
             alignItems: 'stretch',
@@ -252,21 +271,32 @@ export const AgenticLayout: React.FC<AgenticLayoutProps> = ({
           {/* 拖拽手柄 */}
           {!rightCollapsed && (
             <div
-              className={`${prefixCls}-resize-handle ${prefixCls}-resize-handle-right ${hashId}`}
+              className={classNames(
+                `${prefixCls}-resize-handle`,
+                `${prefixCls}-resize-handle-right`,
+                hashId,
+              )}
               onMouseDown={handleResizeStart}
             />
           )}
           <div
-            className={`${prefixCls}-sidebar ${prefixCls}-sidebar-right ${
-              rightCollapsed ? `${prefixCls}-sidebar-right-collapsed` : ''
-            } ${hashId}`}
+            className={classNames(
+              `${prefixCls}-sidebar`,
+              `${prefixCls}-sidebar-right`,
+              {
+                [`${prefixCls}-sidebar-right-collapsed`]: rightCollapsed,
+              },
+              hashId,
+            )}
             style={{
               width: rightCollapsed ? 0 : currentRightWidth,
               minWidth: rightCollapsed ? 0 : currentRightWidth,
               maxWidth: rightCollapsed ? 0 : currentRightWidth,
             }}
           >
-            <div className={`${prefixCls}-sidebar-content ${hashId}`}>
+            <div
+              className={classNames(`${prefixCls}-sidebar-content`, hashId)}
+            >
               {right}
             </div>
           </div>
@@ -275,3 +305,6 @@ export const AgenticLayout: React.FC<AgenticLayoutProps> = ({
     </div>,
   );
 };
+
+// 使用 React.memo 优化性能，避免不必要的重新渲染
+export const AgenticLayout = memo(AgenticLayoutComponent);

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import copy from 'copy-to-clipboard';
 import React, {
   forwardRef,
+  memo,
   useCallback,
   useContext,
   useImperativeHandle,
@@ -452,6 +453,7 @@ const SchemaEditorComponent = forwardRef<SchemaEditorRef, SchemaEditorProps>(
 
 SchemaEditorComponent.displayName = 'SchemaEditor';
 
-export const SchemaEditor = SchemaEditorComponent;
+// 使用 React.memo 优化性能，避免不必要的重新渲染
+export const SchemaEditor = memo(SchemaEditorComponent);
 
 export default SchemaEditor;

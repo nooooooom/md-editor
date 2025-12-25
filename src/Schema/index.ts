@@ -12,6 +12,10 @@ import { SchemaValidator, mdDataSchemaValidator } from './validator';
 
 export type { LowCodeSchema } from './types';
 
+// 导出组件类型
+export type { SchemaEditorProps, SchemaEditorRef } from './SchemaEditor';
+export type { SchemaFormProps } from './SchemaForm';
+
 export {
   SchemaEditor,
   SchemaForm,

@@ -1,5 +1,11 @@
 import { ConfigProvider } from 'antd';
-import React, { forwardRef, useContext, useImperativeHandle } from 'react';
+import classNames from 'classnames';
+import React, {
+  forwardRef,
+  memo,
+  useContext,
+  useImperativeHandle,
+} from 'react';
 import { LayoutHeader } from '../Components/LayoutHeader';
 import useAutoScroll from '../Hooks/useAutoScroll';
 import { useStyle } from './style';
@@ -70,7 +76,7 @@ import type { ChatLayoutProps, ChatLayoutRef } from './types';
  *
  * @returns {React.ReactElement} 渲染的聊天布局组件
  */
-const ChatLayout = forwardRef<ChatLayoutRef, ChatLayoutProps>(
+const ChatLayoutComponent = forwardRef<ChatLayoutRef, ChatLayoutProps>(
   (
     {
       header,
@@ -98,33 +104,30 @@ const ChatLayout = forwardRef<ChatLayoutRef, ChatLayoutProps>(
       scrollToBottom,
     }));
 
-    return wrapSSR(
-      <div
-        className={`${prefixCls} ${className || ''} ${hashId}`}
-        style={style}
-      >
-        {/* 头部区域 */}
-        {header && <LayoutHeader {...header} />}
+    const rootClassName = classNames(prefixCls, className, hashId);
+    const contentClassName = classNames(`${prefixCls}-content`, hashId);
+    const scrollableClassName = classNames(
+      `${prefixCls}-content-scrollable`,
+      hashId,
+    );
+    const footerClassName = classNames(`${prefixCls}-footer`, hashId);
 
-        {/* 内容区域 */}
-        <div className={`${prefixCls}-content ${hashId}`}>
-          <div
-            className={`${prefixCls}-content-scrollable ${hashId}`}
-            ref={containerRef}
-          >
+    return wrapSSR(
+      <div className={rootClassName} style={style}>
+        {header && <LayoutHeader {...header} />}
+        <div className={contentClassName}>
+          <div className={scrollableClassName} ref={containerRef}>
             {children}
-            <div
-              style={{ height: footer ? footerHeight : 0, width: '100%' }}
-            ></div>
+            {footer && (
+              <div
+                style={{ height: footerHeight, width: '100%' }}
+                aria-hidden="true"
+              />
+            )}
           </div>
         </div>
-
-        {/* 底部区域 */}
         {footer && (
-          <div
-            className={`${prefixCls}-footer ${hashId}`}
-            style={{ minHeight: footerHeight }}
-          >
+          <div className={footerClassName} style={{ minHeight: footerHeight }}>
             {footer}
           </div>
         )}
@@ -132,8 +135,12 @@ const ChatLayout = forwardRef<ChatLayoutRef, ChatLayoutProps>(
     );
   },
 );
+
+ChatLayoutComponent.displayName = 'ChatLayout';
+
+// 使用 React.memo 优化性能，避免不必要的重新渲染
+export const ChatLayout = memo(ChatLayoutComponent);
 // 保持向后兼容，导出 ChatFlowHeader 作为 LayoutHeader 的别名
 export { LayoutHeader as ChatFlowHeader } from '../Components/LayoutHeader';
 export type { LayoutHeaderProps as ChatFlowHeaderProps } from '../Components/LayoutHeader';
 export type { ChatLayoutProps, ChatLayoutRef } from './types';
-export { ChatLayout };

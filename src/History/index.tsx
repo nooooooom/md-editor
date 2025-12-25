@@ -1,7 +1,7 @@
 ﻿import { HistoryOutlined } from '@ant-design/icons';
 import { ConfigProvider, Popover } from 'antd';
 import classNames from 'classnames';
-import React, { useContext, useRef } from 'react';
+import React, { memo, useContext, useMemo, useRef } from 'react';
 import useClickAway from '../Hooks/useClickAway';
 import { ActionIconBox, BubbleConfigContext } from '../index';
 import {
@@ -53,7 +53,7 @@ export * from './utils';
  * 当历史记录为空时，可通过 emptyRender 自定义空状态显示。
  * 通过 loading 属性可以在 GroupMenu 区域显示加载动画。
  */
-export const History: React.FC<HistoryProps> = (props) => {
+const HistoryComponent: React.FC<HistoryProps> = (props) => {
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const menuPrefixCls = getPrefixCls('agentic-chat-history-menu');
   const { locale } = useContext(BubbleConfigContext) || {};
@@ -107,16 +107,19 @@ export const History: React.FC<HistoryProps> = (props) => {
     runningId: props.agent?.runningId,
   });
 
-  const EmptyComponent = () =>
-    searchKeyword ? (
-      <HistoryEmpty />
-    ) : props.emptyRender ? (
-      props.emptyRender()
-    ) : (
-      <></>
-    );
+  // 使用 useMemo 优化空组件渲染
+  const EmptyComponent = useMemo(() => {
+    if (searchKeyword) {
+      return <HistoryEmpty />;
+    }
+    if (props.emptyRender) {
+      return props.emptyRender();
+    }
+    return null;
+  }, [searchKeyword, props.emptyRender]);
 
-  const LoadMoreComponent: React.FC = () => {
+  // 使用 useMemo 优化加载更多组件渲染
+  const LoadMoreComponent = useMemo(() => {
     if (props.loadMoreRender) {
       return props.loadMoreRender();
     }
@@ -137,7 +140,16 @@ export const History: React.FC<HistoryProps> = (props) => {
         })}
       />
     );
-  };
+  }, [
+    props.loadMoreRender,
+    props.agent?.enabled,
+    props.agent?.onLoadMore,
+    props.loading,
+    handleLoadMore,
+    props.type,
+    menuPrefixCls,
+    hashId,
+  ]);
 
   if (props.standalone) {
     return wrapSSR(
@@ -179,7 +191,7 @@ export const History: React.FC<HistoryProps> = (props) => {
           {props.slots?.beforeHistoryList?.(filteredList)}
 
           {items?.length === 0 && !props.loading ? (
-            <EmptyComponent />
+            EmptyComponent
           ) : (
             <>
               <GroupMenu
@@ -189,7 +201,7 @@ export const History: React.FC<HistoryProps> = (props) => {
                 className={menuPrefixCls}
                 loading={props.loading}
               />
-              <LoadMoreComponent />
+              {LoadMoreComponent}
             </>
           )}
         </div>
@@ -214,9 +226,7 @@ export const History: React.FC<HistoryProps> = (props) => {
       content={
         <>
           {items?.length === 0 && !props?.loading ? (
-            <div data-testid="empty-state-popover">
-              <EmptyComponent />
-            </div>
+            <div data-testid="empty-state-popover">{EmptyComponent}</div>
           ) : (
             <GroupMenu
               selectedKeys={[props.sessionId]}
@@ -226,7 +236,7 @@ export const History: React.FC<HistoryProps> = (props) => {
               loading={props.loading}
             />
           )}
-          <LoadMoreComponent />
+          {LoadMoreComponent}
         </>
       }
     >
@@ -250,3 +260,8 @@ export const History: React.FC<HistoryProps> = (props) => {
     </Popover>
   );
 };
+
+HistoryComponent.displayName = 'History';
+
+// 使用 React.memo 优化性能，避免不必要的重新渲染
+export const History = memo(HistoryComponent);
