@@ -7,15 +7,45 @@ import { StopIcon } from '../../AgentRunBar/icons';
 import { I18nContext } from '../../I18n';
 import { useStyle } from './style';
 
+/**
+ * 按钮颜色配置
+ */
+export type SendButtonColors = {
+  /** 默认状态下的图标颜色 */
+  icon?: string;
+  /** Hover 状态下的图标颜色 */
+  iconHover?: string;
+  /** 默认状态下的背景颜色 */
+  background?: string;
+  /** Hover 状态下的背景颜色 */
+  backgroundHover?: string;
+};
+
+/**
+ * 按钮定制化属性
+ */
+export type SendButtonCustomizationProps = {
+  compact?: boolean;
+  colors?: SendButtonColors;
+};
+
+const DEFAULT_SEND_BUTTON_COLORS = {
+  icon: '#00183D',
+  iconHover: '#fff',
+  background: '#001C39',
+  backgroundHover: '#14161C',
+};
+
 function SendIcon(
   props: React.SVGProps<SVGSVGElement> & {
     hover?: boolean;
     disabled?: boolean;
     typing?: boolean;
     onInit?: () => void;
+    colors?: SendButtonColors;
   },
 ) {
-  const { hover, typing, onInit, ...rest } = props;
+  const { hover, typing, onInit, colors, ...rest } = props;
 
   useEffect(() => {
     onInit?.();
@@ -24,6 +54,15 @@ function SendIcon(
   if (typing) {
     return <StopIcon {...rest} />;
   }
+
+  const currentColors = {
+    icon: colors?.icon ?? DEFAULT_SEND_BUTTON_COLORS.icon,
+    iconHover: colors?.iconHover ?? DEFAULT_SEND_BUTTON_COLORS.iconHover,
+    background: colors?.background ?? DEFAULT_SEND_BUTTON_COLORS.background,
+    backgroundHover:
+      colors?.backgroundHover ?? DEFAULT_SEND_BUTTON_COLORS.backgroundHover,
+  };
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +78,7 @@ function SendIcon(
         r="0.5em"
         initial={false}
         animate={{
-          fill: hover ? '#14161C' : '#001C39',
+          fill: hover ? currentColors.backgroundHover : currentColors.background,
           fillOpacity: hover ? 1 : 0.03530000150203705,
         }}
         transition={{
@@ -53,7 +92,7 @@ function SendIcon(
           fillRule="evenodd"
           initial={false}
           animate={{
-            fill: hover ? '#fff' : '#00183D',
+            fill: hover ? currentColors.iconHover : currentColors.icon,
             fillOpacity: hover ? 1 : 0.24709999561309814,
           }}
           transition={{
@@ -111,6 +150,12 @@ type SendButtonProps = {
    * Whether the button is disabled.
    */
   disabled?: boolean;
+
+  /**
+   * 自定义按钮颜色
+   * Custom colors for the button.
+   */
+  colors?: SendButtonColors;
 };
 
 /**
@@ -129,6 +174,7 @@ type SendButtonProps = {
  * @param {React.CSSProperties} [props.style] - 应用于按钮容器的自定义样式
  * @param {() => void} [props.onInit] - 组件初始化时调用的可选回调函数
  * @param {boolean} [props.compact] - 是否使用紧凑模式样式
+ * @param {SendButtonColors} [props.colors] - 自定义按钮颜色
  *
  * @example
  * ```tsx
@@ -138,6 +184,12 @@ type SendButtonProps = {
  *   typing={false}
  *   onClick={() => console.log('发送消息')}
  *   compact={false}
+ *   colors={{
+ *     icon: '#666',
+ *     iconHover: '#fff',
+ *     background: '#f0f0f0',
+ *     backgroundHover: '#1890ff'
+ *   }}
  * />
  * ```
  *
@@ -147,10 +199,11 @@ type SendButtonProps = {
  * - 支持悬停、禁用、输入中等多种状态
  * - 提供流畅的动画效果
  * - 支持紧凑模式显示
+ * - 支持自定义颜色配置
  * - 在SSR环境下不渲染
  */
 export const SendButton: React.FC<SendButtonProps> = (props) => {
-  const { isSendable, disabled, typing, onClick, style } = props;
+  const { isSendable, disabled, typing, onClick, style, colors } = props;
   useEffect(() => {
     props.onInit?.();
   }, []);
@@ -210,6 +263,7 @@ export const SendButton: React.FC<SendButtonProps> = (props) => {
             hover={isSendable && !disabled}
             disabled={disabled}
             typing={typing}
+            colors={colors}
           />
         </ErrorBoundary>
       </div>

@@ -232,6 +232,7 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
       allowEmptySubmit: props.allowEmptySubmit,
       actionsRender: props.actionsRender,
       toolsRender: props.toolsRender,
+      sendButtonProps: props.sendButtonProps,
     },
     fileMap,
     setFileMap,

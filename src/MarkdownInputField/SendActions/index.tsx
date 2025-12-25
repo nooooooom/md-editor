@@ -8,6 +8,7 @@ import { I18nContext } from '../../I18n';
 import type { AttachmentButtonProps } from '../AttachmentButton';
 import { AttachmentButton } from '../AttachmentButton';
 import type { AttachmentFile } from '../AttachmentButton/types';
+import type { SendButtonCustomizationProps } from '../SendButton';
 import { SendButton } from '../SendButton';
 import type { CreateRecognizer } from '../VoiceInput';
 import { VoiceInputButton } from '../VoiceInput';
@@ -82,6 +83,9 @@ export interface SendActionsProps {
 
   /** resize 回调 */
   onResize?: (width: number) => void;
+
+  /** 发送按钮配置 */
+  sendButtonProps?: SendButtonCustomizationProps;
 }
 
 /**
@@ -110,6 +114,7 @@ export const SendActions: React.FC<SendActionsProps> = ({
   hashId = '',
   hasTools = false,
   onResize,
+  sendButtonProps,
 }) => {
   const fileMap = attachment?.fileMap;
 
@@ -173,6 +178,7 @@ export const SendActions: React.FC<SendActionsProps> = ({
           }
           onSend?.();
         }}
+        {...sendButtonProps}
       />,
     ].filter(Boolean);
   }, [
@@ -192,6 +198,7 @@ export const SendActions: React.FC<SendActionsProps> = ({
     onSend,
     onStop,
     fileMap,
+    sendButtonProps,
   ]);
 
   const actionsList = actionsRender

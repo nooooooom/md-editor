@@ -81,6 +81,7 @@ interface UseSendActionsNodeParams {
     | 'allowEmptySubmit'
     | 'actionsRender'
     | 'toolsRender'
+    | 'sendButtonProps'
   >;
   fileMap?: Map<string, AttachmentFile>;
   setFileMap?: (fileMap?: Map<string, AttachmentFile>) => void;
@@ -156,6 +157,7 @@ export const useSendActionsNode = ({
         hashId,
         hasTools: !!sendProps.toolsRender,
         onResize: setRightPadding,
+        sendButtonProps: sendProps.sendButtonProps,
       }),
     [
       sendProps.attachment,
@@ -166,6 +168,7 @@ export const useSendActionsNode = ({
       sendProps.allowEmptySubmit,
       sendProps.actionsRender,
       sendProps.toolsRender,
+      sendProps.sendButtonProps,
       fileMap,
       setFileMap,
       supportedFormat,
