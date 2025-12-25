@@ -2,8 +2,8 @@
 title: AILabel AI 标签
 atomId: AILabel
 group:
-  title: 对话流
-  order: 3
+  title: 入口
+  order: 1
 ---
 
 # AILabel AI 标签
