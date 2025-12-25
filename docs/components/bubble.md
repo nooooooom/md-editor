@@ -21,6 +21,15 @@ Bubble 组件是一个功能丰富的聊天消息气泡组件，为现代化对�
 - 💡 **Pure 模式**：提供简洁的无边框模式，适合嵌入式场景
 - 🔄 **消息连续性优化**：智能隐藏连续消息的重复头像和标题，提升对话体验
 
+## ⚠️ 事件命名变更说明
+
+为了符合组件事件命名规范，以下事件名已更新（旧的事件名仍然支持，但建议使用新的事件名）：
+
+- `onDisLike` → `onDislike`（点踩回调）
+- `onCancelLike` → `onLikeCancel`（取消点赞回调，符合 Like 子组件事件命名规范）
+
+> **注意**：旧的事件名仍然支持，以保持向后兼容性。新代码建议使用新的事件名。
+
 ## 快速开始
 
 ### 基本用法
@@ -61,9 +70,13 @@ const props = {
   onLike: () => {
     message.success('点赞成功');
   },
-  onDisLike: () => {
+  onDislike: () => {
     message.info('点踩成功');
   },
+  // 或者使用已废弃的 onDisLike（保持向后兼容）
+  // onDisLike: () => {
+  //   message.info('点踩成功');
+  // },
   onReply: () => {
     message.info('回复成功');
   },
@@ -374,7 +387,10 @@ export default () => (
 | 属性          | 说明           | 类型                                  | 默认值 |
 | ------------- | -------------- | ------------------------------------- | ------ |
 | onLike        | 点赞回调函数   | `(bubble: MessageBubbleData) => void` | -      |
-| onDisLike     | 点踩回调函数   | `(bubble: MessageBubbleData) => void` | -      |
+| onDislike     | 点踩回调函数（符合命名规范） | `(bubble: MessageBubbleData) => void` | -      |
+| onDisLike     | 点踩回调函数（已废弃，请使用 onDislike） | `(bubble: MessageBubbleData) => void` | -      |
+| onLikeCancel  | Like 子组件取消事件（符合命名规范） | `(bubble: MessageBubbleData) => void` | -      |
+| onCancelLike  | 取消点赞回调（已废弃，请使用 onLikeCancel） | `(bubble: MessageBubbleData) => void` | -      |
 | onReply       | 回复回调函数   | `(message: string) => void`           | -      |
 | onAvatarClick | 头像点击回调   | `() => void`                          | -      |
 | onDoubleClick | 双击回调函数   | `() => void`                          | -      |
@@ -1103,10 +1119,24 @@ const messageWithFiles: MessageBubbleData = {
     await api.like(bubble.id);
     message.success('点赞成功');
   }}
-  onDisLike={async (bubble) => {
+  onDislike={async (bubble) => {
     await api.dislike(bubble.id);
     message.info('已点踩');
   }}
+  // 或者使用已废弃的 onDisLike（保持向后兼容）
+  // onDisLike={async (bubble) => {
+  //   await api.dislike(bubble.id);
+  //   message.info('已点踩');
+  // }}
+  onLikeCancel={async (bubble) => {
+    await api.cancelLike(bubble.id);
+    message.info('已取消点赞');
+  }}
+  // 或者使用已废弃的 onCancelLike（保持向后兼容）
+  // onCancelLike={async (bubble) => {
+  //   await api.cancelLike(bubble.id);
+  //   message.info('已取消点赞');
+  // }}
   onReply={(content) => {
     addMessage({ role: 'user', content });
   }}

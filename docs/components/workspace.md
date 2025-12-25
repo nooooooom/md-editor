@@ -19,6 +19,14 @@ Workspace 是一个功能强大的工作空间组件，提供了标签页式的�
 - 🎛️ **自定义内容**: 支持自定义组件和内容渲染（通过 customContent 或 Workspace.Custom）
 - 📱 **响应式设计**: 适配不同屏幕尺寸，提供良好的用户体验
 
+## ⚠️ 事件命名变更说明
+
+为了符合组件事件命名规范，以下事件名已更新（旧的事件名仍然支持，但建议使用新的事件名）：
+
+- `onToggleGroup` → `onGroupToggle`（Group 子组件切换事件，符合命名规范）
+
+> **注意**：旧的事件名仍然支持，以保持向后兼容性。新代码建议使用新的事件名。
+
 ## 代码演示
 
 ### 基础用法
@@ -151,7 +159,8 @@ Workspace 是一个功能强大的工作空间组件，提供了标签页式的�
 | onGroupDownload     | 组下载回调                                                    | `(files: FileNode[], groupType: FileType) => void`                                                              | -       |
 | onDownload          | 单文件下载回调                                                | `(file: FileNode) => void`                                                                                      | -       |
 | onFileClick         | 文件点击回调                                                  | `(file: FileNode) => void`                                                                                      | -       |
-| onToggleGroup       | 组展开/收起回调                                               | `(groupType: FileType, collapsed: boolean) => void`                                                             | -       |
+| onGroupToggle       | Group 子组件切换事件（符合命名规范）                         | `(groupType: FileType, collapsed: boolean) => void`                                                             | -       |
+| onToggleGroup       | 组展开/收起回调（已废弃，请使用 onGroupToggle）              | `(groupType: FileType, collapsed: boolean) => void`                                                             | -       |
 | onPreview           | 文件预览回调（返回替换预览内容或异步返回）                    | `(file: FileNode) => void \| false \| FileNode \| ReactNode \| Promise<void \| false \| FileNode \| ReactNode>` | -       |
 | onBack              | 预览页返回回调（返回 false 阻止默认返回）                     | `(file: FileNode) => void \| boolean \| Promise<void \| boolean>`                                               | -       |
 | onShare             | 分享回调（列表与预览页均会触发）                              | `(file: FileNode, ctx?: { anchorEl?: HTMLElement; origin: 'list' \| 'preview' }) => void`                       | -       |
