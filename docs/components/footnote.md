@@ -6,9 +6,11 @@ group:
   order: 4
 ---
 
-# Footnote 脚注
+# 脚注
 
-脚注功能用于在 Markdown 内容中添加引用标记和补充说明，支持弹框预览和来源汇总展示。
+脚注是 Bubble 组件的内置功能，用于在 Markdown 内容中添加引用标记和补充说明，支持弹框预览和来源汇总展示。
+
+> 💡 脚注功能通过 `Bubble` 组件的 `markdownRenderConfig.fncProps` 配置使用，无需单独引入。
 
 ## ✨ 功能特点
 
