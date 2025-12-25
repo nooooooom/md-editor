@@ -302,8 +302,13 @@ export interface BubbleProps<T = Record<string, any>>
 
   /**
    * 不喜欢回调
+   * @deprecated 请使用 onDislike 替代（符合命名规范），但为保持兼容性暂时保留
    */
   onDisLike?: (
+    bubble: MessageBubbleData<Record<string, any>>,
+  ) => Promise<void> | void;
+  /** 不喜欢回调 */
+  onDislike?: (
     bubble: MessageBubbleData<Record<string, any>>,
   ) => Promise<void> | void;
 
@@ -317,10 +322,16 @@ export interface BubbleProps<T = Record<string, any>>
   /**
    * 取消点赞的回调函数
    * @description 当用户点击取消点赞按钮时触发
+   * @deprecated 请使用 onLikeCancel 替代（符合命名规范），但为保持兼容性暂时保留
    * @callback
    * @optional
    */
   onCancelLike?: (bubble: MessageBubbleData<Record<string, any>>) => void;
+  /**
+   * Like 子组件取消事件
+   * @description 当用户点击取消点赞按钮时触发
+   */
+  onLikeCancel?: (bubble: MessageBubbleData<Record<string, any>>) => void;
 
   /**
    * 回复回调

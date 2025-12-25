@@ -26,7 +26,8 @@ import { VoiceButton } from './VoiceButton';
  * @param {Object} props.bubble - 聊天项的数据对象。
  * @param {boolean} props.readonly - 是否为只读模式。
  * @param {Function} [props.onLike] - 点赞操作的回调函数。
- * @param {Function} [props.onDisLike] - 踩操作的回调函数。
+ * @param {Function} [props.onDislike] - 踩操作的回调函数（符合命名规范）
+ * @param {Function} [props.onDisLike] - 踩操作的回调函数（已废弃，请使用 onDislike）
  *
  * @returns {JSX.Element} 返回一个包含操作按钮的 JSX 元素。
  *
@@ -74,14 +75,14 @@ export const BubbleExtra = ({
   const shouldShowDisLike =
     !originalData?.extra?.answerStatus &&
     !readonly &&
-    (props.onDisLike || originalData?.feedback) &&
+    (props.onDislike || props.onDisLike || originalData?.feedback) &&
     originalData?.feedback !== 'thumbsUp';
 
   // 获取点赞按钮的标题文本
   const likeButtonTitle = useMemo(() => {
     if (alreadyFeedback && originalData?.feedback === 'thumbsUp') {
       // 已经点赞的情况
-      if (props.onCancelLike) {
+      if (props.onLikeCancel || props.onCancelLike) {
         return context?.locale?.['chat.message.cancel-like'] || '取消点赞';
       } else {
         return (
@@ -95,7 +96,7 @@ export const BubbleExtra = ({
   }, [
     alreadyFeedback,
     originalData?.feedback,
-    !!props.onCancelLike,
+    !!(props.onLikeCancel || props.onCancelLike),
     context?.locale,
   ]);
 
@@ -131,7 +132,12 @@ export const BubbleExtra = ({
               if (alreadyFeedback) {
                 // 如果已经点赞且支持取消点赞
                 if (originalData?.feedback === 'thumbsUp') {
-                  await props.onCancelLike?.(bubble.originData as any);
+                  // 优先使用新的事件名，保持向后兼容
+                  if (props.onLikeCancel) {
+                    await props.onLikeCancel(bubble.originData as any);
+                  } else if (props.onCancelLike) {
+                    await props.onCancelLike(bubble.originData as any);
+                  }
                 }
                 return;
               }
@@ -156,7 +162,7 @@ export const BubbleExtra = ({
       originalData?.isFinished,
       typing,
       feedbackLoading,
-      props.onCancelLike,
+      props.onLikeCancel || props.onCancelLike,
     ],
   );
 
@@ -174,7 +180,12 @@ export const BubbleExtra = ({
                 // message.error('您已经点过赞或踩了');
                 return;
               }
-              await props.onDisLike?.();
+              // 优先使用新的事件名，保持向后兼容
+              if (props.onDislike) {
+                await props.onDislike();
+              } else if (props.onDisLike) {
+                await props.onDisLike();
+              }
             } catch (error) {}
           }}
         >

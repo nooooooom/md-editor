@@ -117,6 +117,7 @@ export const PureBubble: React.FC<
         rightRender={props?.bubbleRenderConfig?.extraRightRender}
         onReply={props.onReply}
         onCancelLike={props.onCancelLike}
+        onLikeCancel={props.onLikeCancel}
         shouldShowCopy={props.shouldShowCopy}
         useSpeech={props.useSpeech}
         shouldShowVoice={props.shouldShowVoice}
@@ -125,6 +126,18 @@ export const PureBubble: React.FC<
             ? async () => {
                 try {
                   await props.onDisLike?.(props.originData as any);
+                  props.bubbleRef?.current?.setMessageItem?.(props.id!, {
+                    feedback: 'thumbsDown',
+                  } as any);
+                } catch (error) {}
+              }
+            : undefined
+        }
+        onDislike={
+          props.onDislike
+            ? async () => {
+                try {
+                  await props.onDislike?.(props.originData as any);
                   props.bubbleRef?.current?.setMessageItem?.(props.id!, {
                     feedback: 'thumbsDown',
                   } as any);

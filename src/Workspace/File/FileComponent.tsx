@@ -659,7 +659,13 @@ export const FileComponent: FC<{
   onShare?: FileProps['onShare'];
   onFileClick?: FileProps['onFileClick'];
   onLocate?: FileProps['onLocate'];
+  /**
+   * Group 子组件切换事件
+   * @deprecated 请使用 onGroupToggle 替代（符合命名规范）
+   */
   onToggleGroup?: FileProps['onToggleGroup'];
+  /** Group 子组件切换事件 */
+  onGroupToggle?: FileProps['onGroupToggle'];
   onPreview?: FileProps['onPreview'];
   onBack?: FileProps['onBack'];
   /** 重置标识，用于重置预览状态（内部使用） */
@@ -698,6 +704,7 @@ export const FileComponent: FC<{
   onFileClick,
   onLocate,
   onToggleGroup,
+  onGroupToggle,
   onPreview,
   onBack,
   resetKey,
@@ -828,8 +835,12 @@ export const FileComponent: FC<{
       ...prev,
       [groupId]: collapsed,
     }));
-    // 如果外部提供了回调，也调用它
-    onToggleGroup?.(type, collapsed);
+    // 优先使用新的事件名，保持向后兼容
+    if (onGroupToggle) {
+      onGroupToggle(type, collapsed);
+    } else if (onToggleGroup) {
+      onToggleGroup(type, collapsed);
+    }
   };
 
   // 包装后的返回逻辑，允许外部拦截

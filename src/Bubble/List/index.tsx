@@ -194,9 +194,19 @@ export type BubbleListProps = {
     bubbleListItemAvatarClassName?: string;
   };
 
+  /**
+   * @deprecated 请使用 onDislike 替代（符合命名规范）
+   */
   onDisLike?: BubbleProps['onDisLike'];
+  /** 不喜欢回调 */
+  onDislike?: BubbleProps['onDislike'];
   onLike?: BubbleProps['onLike'];
+  /**
+   * @deprecated 请使用 onLikeCancel 替代（符合命名规范）
+   */
   onCancelLike?: BubbleProps['onCancelLike'];
+  /** Like 子组件取消事件 */
+  onLikeCancel?: BubbleProps['onLikeCancel'];
   onReply?: BubbleProps['onReply'];
   onAvatarClick?: BubbleProps['onAvatarClick'];
   onDoubleClick?: BubbleProps['onDoubleClick'];
@@ -303,9 +313,11 @@ export type BubbleListProps = {
  * @param {Function} [props.onWheel] - 滚轮事件回调
  * @param {Function} [props.onTouchMove] - 触摸移动事件回调
  * @param {Function} [props.onLike] - 点赞事件回调
- * @param {Function} [props.onDisLike] - 点踩事件回调
+ * @param {Function} [props.onDislike] - 点踩事件回调（符合命名规范）
+ * @param {Function} [props.onDisLike] - 点踩事件回调（已废弃，请使用 onDislike）
  * @param {Function} [props.onReply] - 回复事件回调
- * @param {Function} [props.onCancelLike] - 取消点赞事件回调
+ * @param {Function} [props.onLikeCancel] - 取消点赞事件回调（符合命名规范）
+ * @param {Function} [props.onCancelLike] - 取消点赞事件回调（已废弃，请使用 onLikeCancel）
  * @param {Function} [props.onAvatarClick] - 头像点击事件回调
  * @param {Function} [props.onDoubleClick] - 双击事件回调
  * @param {boolean|Function} [props.shouldShowCopy] - 是否显示复制按钮
@@ -426,8 +438,10 @@ export const BubbleList: React.FC<BubbleListProps> = (props) => {
           readonly={props.readonly}
           onReply={props.onReply}
           onDisLike={props.onDisLike}
+          onDislike={props.onDislike}
           onLike={props.onLike}
           onCancelLike={props.onCancelLike}
+          onLikeCancel={props.onLikeCancel}
           onAvatarClick={props.onAvatarClick}
           onDoubleClick={props.onDoubleClick}
           customConfig={props?.bubbleRenderConfig?.customConfig}

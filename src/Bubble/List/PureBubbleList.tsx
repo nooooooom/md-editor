@@ -29,9 +29,19 @@ export interface PureBubbleListProps {
   classNames?: BubbleProps['classNames'];
   markdownRenderConfig?: BubbleProps['markdownRenderConfig'];
   docListProps?: BubbleProps['docListProps'];
+  /**
+   * @deprecated 请使用 onDislike 替代（符合命名规范）
+   */
   onDisLike?: BubbleProps['onDisLike'];
+  /** 不喜欢回调 */
+  onDislike?: BubbleProps['onDislike'];
   onLike?: BubbleProps['onLike'];
+  /**
+   * @deprecated 请使用 onLikeCancel 替代（符合命名规范）
+   */
   onCancelLike?: BubbleProps['onCancelLike'];
+  /** Like 子组件取消事件 */
+  onLikeCancel?: BubbleProps['onLikeCancel'];
   onReply?: BubbleProps['onReply'];
   onAvatarClick?: BubbleProps['onAvatarClick'];
   onDoubleClick?: BubbleProps['onDoubleClick'];
@@ -101,7 +111,9 @@ export const PureBubbleList: React.FC<PureBubbleListProps> = (props) => {
     markdownRenderConfig,
     onAvatarClick,
     onCancelLike,
+    onLikeCancel,
     onDisLike,
+    onDislike,
     onDoubleClick,
     onLike,
     onReply,
@@ -185,8 +197,10 @@ export const PureBubbleList: React.FC<PureBubbleListProps> = (props) => {
           readonly={props.readonly}
           onReply={onReply}
           onDisLike={onDisLike}
+          onDislike={onDislike}
           onLike={onLike}
           onCancelLike={onCancelLike}
+          onLikeCancel={onLikeCancel}
           onAvatarClick={onAvatarClick}
           onDoubleClick={onDoubleClick}
           customConfig={bubbleRenderConfig?.customConfig}

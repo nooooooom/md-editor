@@ -352,11 +352,20 @@ export interface FileActionRef {
 // 文件组件属性
 export interface FileProps extends BaseChildProps {
   nodes: (GroupNode | FileNode)[];
+  /** Group 子组件下载事件 */
   onGroupDownload?: (files: FileNode[], groupType: FileType) => void;
+  /** 文件下载事件 */
   onDownload?: (file: FileNode) => void;
+  /** File 子组件点击事件 */
   onFileClick?: (file: FileNode) => void;
   onLocate?: (file: FileNode) => void;
+  /**
+   * Group 子组件切换事件
+   * @deprecated 请使用 onGroupToggle 替代（符合命名规范），但为保持兼容性暂时保留
+   */
   onToggleGroup?: (groupType: FileType, collapsed: boolean) => void;
+  /** Group 子组件切换事件 */
+  onGroupToggle?: (groupType: FileType, collapsed: boolean) => void;
   /** 重置标识，用于重置预览状态（内部使用） */
   resetKey?: number;
   onPreview?: (
