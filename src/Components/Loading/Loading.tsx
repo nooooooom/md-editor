@@ -1,6 +1,8 @@
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
+import { isString } from 'lodash';
 import React, { useContext } from 'react';
+import { TextLoading } from '../lotties';
 import { LoadingLottieProps } from '../lotties/LoadingLottie';
 import Indicator from './Indicator';
 import { prefixCls, useStyle } from './style';
@@ -163,6 +165,23 @@ export const Loading = ({
   const mergedSize = size ?? (isNestedPattern ? 32 : '1em');
 
   const showPercent = percent !== undefined && percent !== null;
+  const showTip =
+    tip !== false && tip !== null && (showPercent || tip !== undefined);
+
+  const text = tip ?? (showPercent ? `${percent}%` : undefined);
+
+  const tipElement =
+    isNestedPattern && isString(text) ? (
+      <TextLoading
+        text={text}
+        className={classNames(`${baseCls}-tip`, hashId)}
+        style={styles?.tip}
+      />
+    ) : (
+      <div className={classNames(`${baseCls}-tip`, hashId)} style={styles?.tip}>
+        {text}
+      </div>
+    );
 
   const loadingElement = (
     <div
@@ -182,14 +201,7 @@ export const Loading = ({
         percent={percent}
         style={styles?.indicator}
       />
-      {tip || (tip !== false && tip !== null && showPercent) ? (
-        <div
-          className={classNames(`${baseCls}-tip`, hashId)}
-          style={styles?.tip}
-        >
-          {tip || `${percent}%`}
-        </div>
-      ) : null}
+      {showTip ? tipElement : null}
     </div>
   );
 

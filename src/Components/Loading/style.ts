@@ -5,13 +5,18 @@ import {
   useEditorStyleRegister,
 } from '../../Hooks/useStyle';
 
-const shimmerAnimation = new Keyframes('shimmer', {
-  '0%': {
-    backgroundPosition: '200% 50%',
-  },
-  '100%': {
-    backgroundPosition: '0% 50%',
-  },
+const beforeAnimation = new Keyframes('beforeAnimation', {
+  '0%, 100%': { transform: 'translate(0, 0)' },
+  '25%': { transform: 'translate(20%, 10%)' },
+  '50%': { transform: 'translate(30%, 20%)' },
+  '75%': { transform: 'translate(15%, 15%)' },
+});
+
+const afterAnimation = new Keyframes('afterAnimation', {
+  '0%, 100%': { transform: 'translate(0, 0)' },
+  '25%': { transform: 'translate(-20%, 10%)' },
+  '50%': { transform: 'translate(-30%, -15%)' },
+  '75%': { transform: 'translate(-15%, -10%)' },
 });
 
 const genStyle: GenerateStyle<ChatTokenType> = (token) => {
@@ -33,12 +38,9 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       },
 
       [`${token.componentCls}-tip`]: {
-        fontFamily: 'PingFang SC',
-        fontSize: 13,
-        fontWeight: 500,
-        lineHeight: '18px',
-        letterSpacing: 0,
         color: 'var(--color-gray-text-secondary)',
+        font: 'var(--font-text-body-emphasized-base)',
+        letterSpacing: 'var(--letter-spacing-body-emphasized-base, normal)',
       },
     },
 
@@ -46,26 +48,43 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       position: 'relative',
 
       [`&${token.componentCls}-spinning`]: {
-        background:
-          'linear-gradient(90deg, rgba(240, 251, 254, 1) 0%, rgba(245, 249, 255, 1) 50%, rgba(241, 240, 255, 1) 100%)',
+        background: 'var(--color-primary-bg-page, #f5f9ff)',
         borderRadius: 'var(--radius-card-lg, 22px)',
         overflow: 'hidden',
 
-        '&::before': {
-          content: '""',
+        '&:before, &:after': {
+          content: "''",
           position: 'absolute',
-          top: 0,
-          insetInlineStart: 0,
-          width: '100%',
-          height: '100%',
+          borderRadius: '50%',
+          willChange: 'transform',
+          pointerEvents: 'none',
+        },
+
+        '&::before': {
+          width: '120%',
+          height: '160%',
+          top: '-30%',
+          left: '-40%',
           background:
-            'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)',
-          animationName: shimmerAnimation,
-          animationDuration: '3s',
-          animationTimingFunction: 'linear',
+            'radial-gradient(ellipse 70% 60% at 50% 50%, var(--color-sub2-2, #f0fbfe) 0%, transparent 70%)',
+          animationName: beforeAnimation,
+          animationDuration: '6s',
+          animationTimingFunction: 'ease-in-out',
           animationIterationCount: 'infinite',
-          transition: 'background 0.25s cubic-bezier(0.645, 0.045, 0.355, 1)',
-          zIndex: 1,
+        },
+
+        '&::after': {
+          width: '100%',
+          height: '140%',
+          top: '-30%',
+          right: '-40%',
+          background:
+            'radial-gradient(ellipse 70% 60% at 50% 50%, var(--color-sub1-2, #f1f0ff) 0%, transparent 60%)',
+          filter: 'blur(60px)',
+          animationName: afterAnimation,
+          animationDuration: '7s',
+          animationTimingFunction: 'ease-in-out',
+          animationIterationCount: 'infinite',
         },
 
         [`& > ${token.componentCls}`]: {
