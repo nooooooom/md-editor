@@ -164,43 +164,6 @@ const message: MessageBubbleData = {
 | TXT  | `text/plain`         |
 | MD   | `text/markdown`      |
 
-### 自定义文件操作
-
-```tsx | pure
-import { Bubble, AttachmentFile } from '@ant-design/agentic-ui';
-import { message } from 'antd';
-
-const handlePreview = (file: AttachmentFile) => {
-  if (file.type.startsWith('image/')) {
-    // 图片预览
-    window.open(file.previewUrl || file.url, '_blank');
-  } else if (file.type === 'application/pdf') {
-    // PDF 预览
-    window.open(file.url, '_blank');
-  } else {
-    message.info('该文件类型暂不支持预览');
-  }
-};
-
-const handleDownload = (file: AttachmentFile) => {
-  const link = document.createElement('a');
-  link.href = file.url;
-  link.download = file.name;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  message.success(`开始下载: ${file.name}`);
-};
-
-<Bubble
-  originData={message}
-  fileViewEvents={({ onPreview, onDownload }) => ({
-    onPreview: handlePreview,
-    onDownload: handleDownload,
-  })}
-/>;
-```
-
 ### 限制显示数量
 
 当文件较多时，可以限制初始显示数量：

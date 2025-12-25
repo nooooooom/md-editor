@@ -75,46 +75,114 @@ group:
 
 ### 自定义脚注渲染
 
-通过 `render` 函数自定义脚注引用的显示方式：
+通过 `render` 函数自定义脚注引用的显示方式，实现自定义的 Popover 弹框效果：
 
 ```tsx | pure
-import { Bubble } from '@ant-design/agentic-ui';
+import {
+  Bubble,
+  MessageBubbleData,
+  useRefFunction,
+} from '@ant-design/agentic-ui';
 import { Popover } from 'antd';
+import React, { useState } from 'react';
 
-const renderFootnote = (props, children) => {
-  const { identifier } = props;
-  // 根据 identifier 查找脚注定义
-  const footnoteData = findFootnote(identifier);
+// 脚注定义类型
+interface FootnoteDefinition {
+  id: string;
+  placeholder: string;
+  origin_text: string;
+  url: string;
+  origin_url: string;
+}
+
+export default () => {
+  // 存储脚注定义列表
+  const [footnoteList, setFootnoteList] = useState<FootnoteDefinition[]>([]);
+
+  // 消息数据
+  const message: MessageBubbleData = {
+    id: '1',
+    role: 'assistant',
+    content: `这是包含脚注的内容[^1]，以及另一个脚注[^2]。
+
+[^1]: 第一个脚注说明
+[^2]: [参考链接](https://ant.design)`,
+    createAt: Date.now(),
+    updateAt: Date.now(),
+    meta: {
+      avatar:
+        'https://mdn.alipayobjects.com/huamei_re70wt/afts/img/A*ed7ZTbwtgIQAAAAAQOAAAAgAemuEAQ/original',
+      title: 'AI Assistant',
+    },
+  };
+
+  // 使用 useRefFunction 确保回调函数引用稳定
+  const renderFootnote = useRefFunction(
+    (props: { identifier?: string }, children: React.ReactNode) => {
+      const { identifier } = props;
+      const footnoteData = footnoteList.find(
+        (item) => item.placeholder === identifier,
+      );
+
+      if (!footnoteData) return children;
+
+      // 解析链接信息
+      const href = footnoteData.url;
+      let hostText = '链接';
+      try {
+        hostText = href ? new URL(href).hostname.replace(/^www\./, '') : '链接';
+      } catch {
+        hostText = '链接';
+      }
+
+      return (
+        <Popover
+          styles={{
+            body: {
+              padding: 12,
+              borderRadius: 8,
+            },
+          }}
+          content={
+            <div style={{ maxWidth: 280 }}>
+              <div style={{ marginBottom: 8, fontWeight: 500 }}>
+                {footnoteData.origin_text || hostText}
+              </div>
+              {href && (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontSize: 12, color: '#1677ff' }}
+                >
+                  {hostText} ↗
+                </a>
+              )}
+            </div>
+          }
+        >
+          {children}
+        </Popover>
+      );
+    },
+  );
 
   return (
-    <Popover
-      content={
-        <div>
-          <div>{footnoteData.origin_text}</div>
-          {footnoteData.url && (
-            <a href={footnoteData.url} target="_blank">
-              查看来源
-            </a>
-          )}
-        </div>
-      }
-    >
-      {children}
-    </Popover>
+    <Bubble
+      originData={message}
+      avatar={message.meta!}
+      pure
+      markdownRenderConfig={{
+        fncProps: {
+          render: renderFootnote,
+          onFootnoteDefinitionChange: (list) => {
+            setFootnoteList(list);
+          },
+        },
+      }}
+    />
   );
 };
-
-<Bubble
-  originData={message}
-  markdownRenderConfig={{
-    fncProps: {
-      render: renderFootnote,
-      onFootnoteDefinitionChange: (list) => {
-        console.log('脚注定义列表:', list);
-      },
-    },
-  }}
-/>;
 ```
 
 ### 脚注来源汇总
