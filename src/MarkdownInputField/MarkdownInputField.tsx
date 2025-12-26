@@ -190,6 +190,7 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
       onSend: props.onSend,
       allowEmptySubmit: props.allowEmptySubmit,
       markdownProps,
+      attachment: props.attachment,
     },
     markdownEditorRef,
     inputRef,

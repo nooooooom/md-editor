@@ -248,7 +248,14 @@ const App = () => {
   const [value, setValue] = React.useState('');
 
   return (
-    <div>
+    <div
+      style={{
+        padding: 12,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+      }}
+    >
       <MarkdownInputField
         value={value}
         toolsRender={() => [

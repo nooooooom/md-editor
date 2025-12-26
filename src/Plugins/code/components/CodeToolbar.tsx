@@ -8,7 +8,7 @@ import { CloseCircleOutlined } from '@ant-design/icons';
 import { ChevronsUpDown, Copy, Moon } from '@sofa-design/icons';
 import { message, Segmented } from 'antd';
 import copy from 'copy-to-clipboard';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { ActionIconBox } from '../../../Components/ActionIconBox';
 import { I18nContext } from '../../../I18n';
 import { useEditorStore } from '../../../MarkdownEditor/editor/store';
@@ -16,6 +16,51 @@ import { CodeNode } from '../../../MarkdownEditor/el';
 import { langIconMap } from '../langIconMap';
 import { LanguageSelector, LanguageSelectorProps } from './LanguageSelector';
 import { LoadImage } from './LoadImage';
+
+/**
+ * 检测 HTML 代码中是否包含 JavaScript
+ * @param htmlCode HTML 代码字符串
+ * @returns 如果包含 JavaScript 返回 true，否则返回 false
+ */
+function containsJavaScript(htmlCode: string): boolean {
+  if (!htmlCode || typeof htmlCode !== 'string') {
+    return false;
+  }
+
+  const code = htmlCode.toLowerCase().trim();
+
+  // 检测 <script> 标签
+  if (/<script[\s>]/.test(code) || /<\/script>/.test(code)) {
+    return true;
+  }
+
+  // 检测事件处理器属性（onclick, onerror, onload 等）
+  if (/on\w+\s*=/i.test(code)) {
+    return true;
+  }
+
+  // 检测 javascript: URL
+  if (/javascript\s*:/i.test(code)) {
+    return true;
+  }
+
+  // 检测 eval() 调用
+  if (/\beval\s*\(/i.test(code)) {
+    return true;
+  }
+
+  // 检测 Function() 构造函数
+  if (/\bFunction\s*\(/i.test(code)) {
+    return true;
+  }
+
+  // 检测 setTimeout/setInterval 中的字符串代码
+  if (/(setTimeout|setInterval)\s*\([^,]*['"`]/i.test(code)) {
+    return true;
+  }
+
+  return false;
+}
 /**
  * 代码工具栏组件的属性接口
  */
@@ -78,7 +123,7 @@ export const CodeToolbar = (props: CodeToolbarProps) => {
   const { editorProps } = useEditorStore();
   const disableHtmlPreview = editorProps.codeProps?.disableHtmlPreview ?? false;
   const viewModeLabels = editorProps.codeProps?.viewModeLabels;
-
+  
   const {
     element,
     readonly,
@@ -91,6 +136,18 @@ export const CodeToolbar = (props: CodeToolbarProps) => {
     setTheme,
     viewMode = 'code',
   } = props;
+  
+  // 检测 HTML 代码中是否包含 JavaScript
+  const hasJavaScript = useMemo(() => {
+    const language = element?.language?.toLowerCase();
+    if (language === 'html') {
+      return containsJavaScript(element?.value || '');
+    }
+    return false;
+  }, [element?.language, element?.value]);
+  
+  // 如果禁用了 HTML 预览或包含 JavaScript，则禁用预览
+  const shouldDisablePreview = disableHtmlPreview || hasJavaScript;
   return (
     <div
       data-testid="code-toolbar"
@@ -208,8 +265,8 @@ export const CodeToolbar = (props: CodeToolbarProps) => {
         ) : null}
 
         {/* HTML/Markdown 视图模式切换按钮 */}
-        {/* 如果禁用了 HTML 预览且当前是 HTML 代码块，则不显示切换按钮 */}
-        {(element?.language === 'html' && !disableHtmlPreview) ||
+        {/* 如果禁用了 HTML 预览或包含 JavaScript，则不显示切换按钮 */}
+        {(element?.language === 'html' && !shouldDisablePreview) ||
         element?.language === 'markdown' ? (
           <Segmented
             className={theme === 'chaos' ? 'chaos-segmented' : ''}

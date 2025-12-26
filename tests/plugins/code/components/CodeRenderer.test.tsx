@@ -370,4 +370,170 @@ describe('CodeRenderer Component', () => {
       expect(screen.getByTestId('code-container')).toBeInTheDocument();
     });
   });
+
+  describe('JavaScript 自动检测功能测试', () => {
+    beforeEach(() => {
+      // 重置 mockEditorStore 的配置
+      mockEditorStore.editorProps.codeProps = {
+        hideToolBar: false,
+        disableHtmlPreview: false,
+      };
+    });
+
+    it('当 HTML 代码包含 <script> 标签时，应该自动禁用预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<script>alert("xss")</script><div>Content</div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview 组件
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该显示代码编辑器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+      expect(screen.getByTestId('ace-editor-container')).toBeInTheDocument();
+    });
+
+    it('当 HTML 代码包含事件处理器时，应该自动禁用预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<div onclick="alert(\'xss\')">Click me</div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview 组件
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该显示代码编辑器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当 HTML 代码包含 onerror 事件处理器时，应该自动禁用预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<img src="x" onerror="alert(\'xss\')">',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview 组件
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该显示代码编辑器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当 HTML 代码包含 javascript: URL 时，应该自动禁用预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<a href="javascript:alert(\'xss\')">Link</a>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview 组件
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该显示代码编辑器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当 HTML 代码包含 eval() 调用时，应该自动禁用预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<div>eval("alert(\'xss\')")</div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview 组件
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该显示代码编辑器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当 HTML 代码包含 Function() 构造函数时，应该自动禁用预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<div>Function("alert(\'xss\')")</div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview 组件
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该显示代码编辑器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当 HTML 代码不包含 JavaScript 时，应该正常显示预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<div><h1>Hello World</h1><p>Safe content</p></div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 应该显示代码容器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当 HTML 代码包含纯 CSS 时，应该正常显示预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<style>.test { color: red; }</style><div class="test">Content</div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 应该显示代码容器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当非 HTML 代码包含 JavaScript 时，不应该禁用预览（因为不是 HTML）', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'javascript',
+          value: 'function test() { alert("xss"); }',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // JavaScript 代码块应该正常渲染，不受影响
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+      expect(screen.getByTestId('ace-editor-container')).toBeInTheDocument();
+    });
+
+    it('当 HTML 代码包含 setTimeout 字符串代码时，应该自动禁用预览', () => {
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<div>setTimeout("alert(\'xss\')", 1000)</div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview 组件
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该显示代码编辑器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+  });
 });

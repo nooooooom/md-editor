@@ -16,6 +16,7 @@ interface UseMarkdownInputFieldHandlersParams {
     | 'onSend'
     | 'allowEmptySubmit'
     | 'markdownProps'
+    | 'attachment'
   >;
   markdownEditorRef: React.MutableRefObject<MarkdownEditorInstance | undefined>;
   inputRef: React.RefObject<HTMLDivElement>;
@@ -107,11 +108,22 @@ export const useMarkdownInputFieldHandlers = ({
   // 图片粘贴上传
   const handlePaste = useRefFunction(
     async (e: React.ClipboardEvent<HTMLDivElement>) => {
+      // 优先使用 props.attachment，如果没有则使用 markdownProps?.attachment
+      const attachmentConfig =
+        props.attachment || props.markdownProps?.attachment;
+      // 如果没有配置 upload 或 uploadWithResponse，不支持粘贴图片
+      if (!attachmentConfig?.upload && !attachmentConfig?.uploadWithResponse) {
+        return;
+      }
       const imageFiles = (await getFileListFromDataTransferItems(e)).filter(
         (file) => file.type.startsWith('image/'),
       );
+      // 如果没有图片文件，直接返回
+      if (imageFiles.length === 0) {
+        return;
+      }
       upLoadFileToServer(imageFiles, {
-        ...props.markdownProps?.attachment,
+        ...attachmentConfig,
         fileMap,
         onFileMapChange: setFileMap,
       });

@@ -22,6 +22,51 @@ import {
   ThinkBlock,
 } from './index';
 
+/**
+ * 检测 HTML 代码中是否包含 JavaScript
+ * @param htmlCode HTML 代码字符串
+ * @returns 如果包含 JavaScript 返回 true，否则返回 false
+ */
+function containsJavaScript(htmlCode: string): boolean {
+  if (!htmlCode || typeof htmlCode !== 'string') {
+    return false;
+  }
+
+  const code = htmlCode.toLowerCase().trim();
+
+  // 检测 <script> 标签
+  if (/<script[\s>]/.test(code) || /<\/script>/.test(code)) {
+    return true;
+  }
+
+  // 检测事件处理器属性（onclick, onerror, onload 等）
+  if (/on\w+\s*=/i.test(code)) {
+    return true;
+  }
+
+  // 检测 javascript: URL
+  if (/javascript\s*:/i.test(code)) {
+    return true;
+  }
+
+  // 检测 eval() 调用
+  if (/\beval\s*\(/i.test(code)) {
+    return true;
+  }
+
+  // 检测 Function() 构造函数
+  if (/\bFunction\s*\(/i.test(code)) {
+    return true;
+  }
+
+  // 检测 setTimeout/setInterval 中的字符串代码
+  if (/(setTimeout|setInterval)\s*\([^,]*['"`]/i.test(code)) {
+    return true;
+  }
+
+  return false;
+}
+
 // 简单的 CSV -> Markdown table 转换器
 
 /**
@@ -59,10 +104,18 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
   // 如果是 markdown 或 html，默认打开预览模式
   // 但如果禁用了 HTML 预览，则强制使用代码模式
   const disableHtmlPreview = editorProps.codeProps?.disableHtmlPreview ?? false;
+  const language = props.element?.language?.toLowerCase();
+  const htmlValue = props.element?.value || '';
+  
+  // 检测 HTML 代码中是否包含 JavaScript
+  const hasJavaScript = language === 'html' && containsJavaScript(htmlValue);
+  
+  // 如果禁用了 HTML 预览或包含 JavaScript，强制使用代码模式
+  const shouldDisablePreview = disableHtmlPreview || hasJavaScript;
+  
   const [viewMode, setViewMode] = useState<'preview' | 'code'>(() => {
-    const language = props.element?.language?.toLowerCase();
-    // 如果禁用了 HTML 预览且语言是 HTML，强制使用代码模式
-    if (disableHtmlPreview && language === 'html') {
+    // 如果禁用了 HTML 预览或包含 JavaScript，强制使用代码模式
+    if (shouldDisablePreview && language === 'html') {
       return 'code';
     }
     return language === 'html' || language === 'markdown' ? 'preview' : 'code';
@@ -89,9 +142,8 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
 
   // 视图模式切换处理函数
   const handleViewModeToggle = () => {
-    // 如果禁用了 HTML 预览且当前是 HTML 代码块，不允许切换到预览模式
-    const language = props.element?.language?.toLowerCase();
-    if (disableHtmlPreview && language === 'html') {
+    // 如果禁用了 HTML 预览或包含 JavaScript，不允许切换到预览模式
+    if (shouldDisablePreview && language === 'html') {
       setViewMode('code');
       return;
     }
@@ -133,13 +185,12 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
     }
   }, [isUnclosed, readonly, props.element?.otherProps?.finished, update]);
 
-  // 如果禁用了 HTML 预览且当前是 HTML 代码块，强制使用代码模式
+  // 如果禁用了 HTML 预览或包含 JavaScript，强制使用代码模式
   useEffect(() => {
-    const language = props.element?.language?.toLowerCase();
-    if (disableHtmlPreview && language === 'html' && viewMode === 'preview') {
+    if (shouldDisablePreview && language === 'html' && viewMode === 'preview') {
       setViewMode('code');
     }
-  }, [disableHtmlPreview, props.element?.language, viewMode]);
+  }, [shouldDisablePreview, language, viewMode]);
 
   // 渲染组件
   return useMemo(() => {
@@ -207,7 +258,7 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
               >
                 {viewMode === 'preview' &&
                   props.element.language === 'html' &&
-                  !disableHtmlPreview && (
+                  !shouldDisablePreview && (
                     <HtmlPreview htmlStr={props.element?.value} />
                   )}
                 {viewMode === 'preview' &&
@@ -249,6 +300,9 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
     isSelected,
     editorProps.codeProps?.hideToolBar,
     editorProps.codeProps?.disableHtmlPreview,
+    shouldDisablePreview,
+    hasJavaScript,
+    htmlValue,
     toolbarProps,
     handleHtmlPreviewClose,
     viewMode,
