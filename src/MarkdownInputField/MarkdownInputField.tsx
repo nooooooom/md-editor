@@ -1,7 +1,8 @@
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { BaseMarkdownEditor } from '../MarkdownEditor';
+import { BorderBeamAnimation } from './BorderBeamAnimation';
 import { useFileUploadManager } from './FileUploadManager';
 import { useMarkdownInputFieldActions } from './hooks/useMarkdownInputFieldActions';
 import { useMarkdownInputFieldHandlers } from './hooks/useMarkdownInputFieldHandlers';
@@ -96,6 +97,10 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
     onChange: props.onChange,
     attachment: props.attachment,
   });
+
+  // 边框光束动画状态
+  const [isFocused, setIsFocused] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
 
   // 布局管理
   const {
@@ -303,6 +308,7 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
             [`${baseCls}-loading`]: isLoading,
             [`${baseCls}-is-multi-row`]: isMultiRowLayout,
             [`${baseCls}-enlarged`]: isEnlarged,
+            [`${baseCls}-focused`]: isFocused,
           })}
           style={{
             ...props.style,
@@ -329,10 +335,16 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
           onMouseLeave={() => setHover(false)}
           onKeyDown={handleKeyDown}
         >
+          <BorderBeamAnimation
+            isVisible={isFocused && !animationComplete}
+            borderRadius={borderRadius || 16}
+            onAnimationComplete={() => setAnimationComplete(true)}
+          />
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
+              borderRadius: 0,
               borderTopLeftRadius: 'inherit',
               borderTopRightRadius: 'inherit',
               maxHeight: editorMaxHeight,
@@ -403,10 +415,14 @@ export const MarkdownInputField: React.FC<MarkdownInputFieldProps> = ({
                 onFocus={(value, schema, e) => {
                   onFocus?.(value, schema, e);
                   activeInput(true);
+                  setIsFocused(true);
+                  setAnimationComplete(false);
                 }}
                 onBlur={(value, schema, e) => {
                   onBlur?.(value, schema, e);
                   activeInput(false);
+                  setIsFocused(false);
+                  setAnimationComplete(false);
                 }}
                 onPaste={(e) => {
                   handlePaste(e);
