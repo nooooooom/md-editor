@@ -443,6 +443,44 @@ export type MarkdownEditorProps = {
   deps?: string[];
 
   /**
+   * Apaasify 自定义渲染配置
+   * @description 用于自定义渲染 apaasify 代码块的内容
+   * @property {boolean} enable - 是否启用自定义渲染
+   * @property {Function} render - 自定义渲染函数，接收 Schema 组件的 props 和 originData，返回 React 节点
+   * @example
+   * ```tsx
+   * <MarkdownEditor
+   *   apaasify={{
+   *     enable: true,
+   *     render: (props, originData) => {
+   *       return <CustomSchemaRenderer schema={props.element.value} />;
+   *     }
+   *   }}
+   * />
+   * ```
+   */
+  apaasify?: {
+    enable?: boolean;
+    render?: (
+      props: import('slate-react').RenderElementProps,
+      originData?: import('../Bubble/type').MessageBubbleData,
+    ) => React.ReactNode;
+  };
+
+  /**
+   * Apassify 自定义渲染配置（兼容旧版本）
+   * @description 与 apaasify 功能相同，用于向后兼容
+   * @deprecated 请使用 apaasify 代替
+   */
+  apassify?: {
+    enable?: boolean;
+    render?: (
+      props: import('slate-react').RenderElementProps,
+      originData?: import('../Bubble/type').MessageBubbleData,
+    ) => React.ReactNode;
+  };
+
+  /**
    * 其他属性
    */
   [key: string]: any;

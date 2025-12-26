@@ -83,7 +83,7 @@ export const Bubble: React.FC<
       originData
         ? { ...originData, ...(isStringContent && { content }) }
         : undefined,
-    [originData, isStringContent, content],
+    [originData, isStringContent, originData?.isLast, content],
   );
 
   /** 构建传递给子组件的 props */

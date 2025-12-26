@@ -276,7 +276,6 @@ export const BubbleMessageDisplay: React.FC<
         />
       );
     }
-
     return (
       <MarkdownPreview
         markdownRenderConfig={props.markdownRenderConfig}
