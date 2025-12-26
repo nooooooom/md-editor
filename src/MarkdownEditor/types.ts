@@ -190,6 +190,11 @@ export type MarkdownEditorProps = {
    *     Languages: ['javascript', 'python', 'typescript'],
    *     showLineNumbers: true,
    *     wrap: true,
+   *     disableHtmlPreview: true, // 禁用 HTML 预览
+   *     viewModeLabels: {
+   *       preview: 'Preview', // 自定义预览标签
+   *       code: 'Code', // 自定义代码标签
+   *     },
    *   }}
    * />
    * ```
@@ -197,6 +202,10 @@ export type MarkdownEditorProps = {
    * @property {string[]} [Languages] - 支持的编程语言列表
    * @property {boolean} [hideToolBar] - 是否隐藏代码块工具栏
    * @property {boolean} [alwaysExpandedDeepThink] - 是否始终展开深度思考块
+   * @property {boolean} [disableHtmlPreview] - 是否禁用 HTML 代码块的预览功能，禁用后只显示代码模式
+   * @property {Object} [viewModeLabels] - 预览/代码切换按钮的标签配置
+   * @property {string} [viewModeLabels.preview] - 预览模式的标签文本，默认为 '预览'
+   * @property {string} [viewModeLabels.code] - 代码模式的标签文本，默认为 '代码'
    * @property {string} [theme] - 代码编辑器主题，如 'chrome', 'monokai', 'github', 'dracula' 等
    * @property {number} [fontSize] - 代码字体大小，默认 12
    * @property {number} [tabSize] - Tab 缩进大小，默认 4
@@ -208,6 +217,15 @@ export type MarkdownEditorProps = {
     Languages?: string[];
     hideToolBar?: boolean;
     alwaysExpandedDeepThink?: boolean;
+    /** 是否禁用 HTML 代码块的预览功能，禁用后只显示代码模式 */
+    disableHtmlPreview?: boolean;
+    /** 预览/代码切换按钮的标签配置 */
+    viewModeLabels?: {
+      /** 预览模式的标签文本，默认为 '预览' */
+      preview?: string;
+      /** 代码模式的标签文本，默认为 '代码' */
+      code?: string;
+    };
   } & Partial<Ace.EditorOptions>;
 
   anchorProps?: AnchorProps;

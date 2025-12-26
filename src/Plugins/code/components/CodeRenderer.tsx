@@ -57,8 +57,14 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
 
   // 视图模式状态管理（用于HTML和Markdown）
   // 如果是 markdown 或 html，默认打开预览模式
+  // 但如果禁用了 HTML 预览，则强制使用代码模式
+  const disableHtmlPreview = editorProps.codeProps?.disableHtmlPreview ?? false;
   const [viewMode, setViewMode] = useState<'preview' | 'code'>(() => {
     const language = props.element?.language?.toLowerCase();
+    // 如果禁用了 HTML 预览且语言是 HTML，强制使用代码模式
+    if (disableHtmlPreview && language === 'html') {
+      return 'code';
+    }
     return language === 'html' || language === 'markdown' ? 'preview' : 'code';
   });
 
@@ -83,6 +89,12 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
 
   // 视图模式切换处理函数
   const handleViewModeToggle = () => {
+    // 如果禁用了 HTML 预览且当前是 HTML 代码块，不允许切换到预览模式
+    const language = props.element?.language?.toLowerCase();
+    if (disableHtmlPreview && language === 'html') {
+      setViewMode('code');
+      return;
+    }
     setViewMode((prev) => (prev === 'preview' ? 'code' : 'preview'));
   };
 
@@ -120,6 +132,14 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
       };
     }
   }, [isUnclosed, readonly, props.element?.otherProps?.finished, update]);
+
+  // 如果禁用了 HTML 预览且当前是 HTML 代码块，强制使用代码模式
+  useEffect(() => {
+    const language = props.element?.language?.toLowerCase();
+    if (disableHtmlPreview && language === 'html' && viewMode === 'preview') {
+      setViewMode('code');
+    }
+  }, [disableHtmlPreview, props.element?.language, viewMode]);
 
   // 渲染组件
   return useMemo(() => {
@@ -186,7 +206,8 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
                 }}
               >
                 {viewMode === 'preview' &&
-                  props.element.language === 'html' && (
+                  props.element.language === 'html' &&
+                  !disableHtmlPreview && (
                     <HtmlPreview htmlStr={props.element?.value} />
                   )}
                 {viewMode === 'preview' &&
@@ -227,9 +248,11 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
     state.htmlStr,
     isSelected,
     editorProps.codeProps?.hideToolBar,
+    editorProps.codeProps?.disableHtmlPreview,
     toolbarProps,
     handleHtmlPreviewClose,
     viewMode,
     handleViewModeToggle,
+    disableHtmlPreview,
   ]);
 }

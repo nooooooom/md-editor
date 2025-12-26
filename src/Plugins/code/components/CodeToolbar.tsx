@@ -11,6 +11,7 @@ import copy from 'copy-to-clipboard';
 import React, { useContext } from 'react';
 import { ActionIconBox } from '../../../Components/ActionIconBox';
 import { I18nContext } from '../../../I18n';
+import { useEditorStore } from '../../../MarkdownEditor/editor/store';
 import { CodeNode } from '../../../MarkdownEditor/el';
 import { langIconMap } from '../langIconMap';
 import { LanguageSelector, LanguageSelectorProps } from './LanguageSelector';
@@ -73,6 +74,10 @@ export interface CodeToolbarProps {
 export const CodeToolbar = (props: CodeToolbarProps) => {
   // 获取国际化上下文
   const i18n = useContext(I18nContext);
+  // 获取编辑器配置
+  const { editorProps } = useEditorStore();
+  const disableHtmlPreview = editorProps.codeProps?.disableHtmlPreview ?? false;
+  const viewModeLabels = editorProps.codeProps?.viewModeLabels;
 
   const {
     element,
@@ -203,17 +208,19 @@ export const CodeToolbar = (props: CodeToolbarProps) => {
         ) : null}
 
         {/* HTML/Markdown 视图模式切换按钮 */}
-        {element?.language === 'html' || element?.language === 'markdown' ? (
+        {/* 如果禁用了 HTML 预览且当前是 HTML 代码块，则不显示切换按钮 */}
+        {(element?.language === 'html' && !disableHtmlPreview) ||
+        element?.language === 'markdown' ? (
           <Segmented
             className={theme === 'chaos' ? 'chaos-segmented' : ''}
             data-testid="preview"
             options={[
               {
-                label: '预览',
+                label: viewModeLabels?.preview || '预览',
                 value: 'preview',
               },
               {
-                label: '代码',
+                label: viewModeLabels?.code || '代码',
                 value: 'code',
               },
             ]}

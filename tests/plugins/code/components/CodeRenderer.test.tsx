@@ -20,6 +20,7 @@ const mockEditorStore = {
   editorProps: {
     codeProps: {
       hideToolBar: false,
+      disableHtmlPreview: false,
     },
   },
   markdownEditorRef: {
@@ -275,6 +276,97 @@ describe('CodeRenderer Component', () => {
         },
       };
       render(<CodeRenderer {...props} />);
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+  });
+
+  describe('disableHtmlPreview 功能测试', () => {
+    beforeEach(() => {
+      // 重置 mockEditorStore 的配置
+      mockEditorStore.editorProps.codeProps = {
+        hideToolBar: false,
+        disableHtmlPreview: false,
+      };
+    });
+
+    it('当 disableHtmlPreview 为 false 时，HTML 代码块应该显示预览', () => {
+      mockEditorStore.editorProps.codeProps.disableHtmlPreview = false;
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<div>Test HTML</div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 应该渲染 HTML 预览（如果 viewMode 是 preview）
+      // 注意：由于默认 viewMode 是 preview，所以应该显示预览
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当 disableHtmlPreview 为 true 时，HTML 代码块不应该渲染 HtmlPreview 组件', () => {
+      mockEditorStore.editorProps.codeProps.disableHtmlPreview = true;
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<div>Test HTML</div>',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview 组件
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该显示代码编辑器
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+    });
+
+    it('当 disableHtmlPreview 为 true 时，HTML 代码块应该强制使用代码模式', () => {
+      mockEditorStore.editorProps.codeProps.disableHtmlPreview = true;
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'html',
+          value: '<div>Test HTML</div>',
+        },
+      };
+      const { container } = render(<CodeRenderer {...props} />);
+      // 不应该渲染 HtmlPreview
+      expect(screen.queryByTestId('html-preview')).not.toBeInTheDocument();
+      // 应该渲染代码编辑器容器
+      expect(screen.getByTestId('ace-editor-container')).toBeInTheDocument();
+    });
+
+    it('当 disableHtmlPreview 为 true 时，非 HTML 代码块不受影响', () => {
+      mockEditorStore.editorProps.codeProps.disableHtmlPreview = true;
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'javascript',
+          value: 'console.log("Hello");',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // JavaScript 代码块应该正常渲染
+      expect(screen.getByTestId('code-container')).toBeInTheDocument();
+      expect(screen.getByTestId('ace-editor-container')).toBeInTheDocument();
+    });
+
+    it('当 disableHtmlPreview 为 true 时，Markdown 代码块不受影响', () => {
+      mockEditorStore.editorProps.codeProps.disableHtmlPreview = true;
+      const props = {
+        ...defaultProps,
+        element: {
+          ...defaultProps.element,
+          language: 'markdown',
+          value: '# Markdown Content',
+        },
+      };
+      render(<CodeRenderer {...props} />);
+      // Markdown 代码块应该正常渲染
       expect(screen.getByTestId('code-container')).toBeInTheDocument();
     });
   });
