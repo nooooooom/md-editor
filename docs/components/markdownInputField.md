@@ -279,6 +279,15 @@ const App = () => {
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }}
       />
+      <MarkdownInputField
+        value={value}
+        onChange={(newValue) => setValue(newValue)}
+        placeholder="请输入内容..."
+        onSend={async (text) => {
+          console.log('发送内容:', text);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }}
+      />
       <div>
         <h4>Props 说明</h4>
         <ul>

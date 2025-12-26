@@ -229,7 +229,6 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         right: 12,
         boxSizing: 'border-box',
         zIndex: 99,
-        bottom: 12,
         display: 'flex',
         gap: '4px',
         alignItems: 'center',
