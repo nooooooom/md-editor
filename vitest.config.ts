@@ -14,6 +14,7 @@ export default defineConfig({
     globals: true,
     setupFiles: './tests/setupTests.ts',
     testTimeout: 500000,
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
     alias: {
       '@ant-design/agentic-ui': path.resolve(__dirname, './src'),
       '@schema-element-editor/host-sdk/core': path.resolve(

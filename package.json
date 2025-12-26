@@ -27,8 +27,8 @@
     "report:demo": "node scripts/generateDemoReport.js",
     "start": "pnpm run dev",
     "test": "vitest  --run",
-    "test:e2e": "vitest run tests/e2e",
     "test:coverage": "vitest --run --coverage",
+    "test:e2e": "vitest run tests/e2e",
     "tsc": "tsc --noEmit"
   },
   "lint-staged": {
