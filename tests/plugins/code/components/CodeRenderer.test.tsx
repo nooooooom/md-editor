@@ -4,35 +4,53 @@
 
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
-import React from 'react';
+import React, { createContext } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodeRenderer } from '../../../../src/Plugins/code/components/CodeRenderer';
 
-// 最小化的 mock
-const mockEditorStore = {
-  store: {
-    editor: {
-      focus: vi.fn(),
+// 使用 vi.hoisted() 定义变量，使其与 vi.mock 一起被提升
+const { mockEditorStore } = vi.hoisted(() => {
+  return {
+    mockEditorStore: {
+      store: {
+        editor: {
+          focus: vi.fn(),
+        },
+      },
+      readonly: false,
+      typewriter: false,
+      editorProps: {
+        codeProps: {
+          hideToolBar: false,
+          disableHtmlPreview: false,
+        },
+      },
+      markdownEditorRef: {
+        current: {
+          focus: vi.fn(),
+        },
+      },
     },
-  },
-  readonly: false,
-  typewriter: false,
-  editorProps: {
-    codeProps: {
-      hideToolBar: false,
-      disableHtmlPreview: false,
-    },
-  },
-  markdownEditorRef: {
-    current: {
-      focus: vi.fn(),
-    },
-  },
-};
+  };
+});
 
 // Mock 核心依赖
-vi.mock('../../../../src/MarkdownEditor/editor/store', () => ({
-  useEditorStore: () => mockEditorStore,
+vi.mock('../../../../src/MarkdownEditor/editor/store', async () => {
+  const React = await import('react');
+  return {
+    useEditorStore: () => mockEditorStore,
+    EditorStore: class EditorStore {},
+    EditorStoreContext: React.createContext(mockEditorStore),
+  };
+});
+
+// Mock MarkdownEditor 组件
+vi.mock('../../../../src/MarkdownEditor', () => ({
+  MarkdownEditor: ({ initValue, ...props }: any) => (
+    <div data-testid="markdown-editor">
+      <div data-testid="markdown-content">{initValue}</div>
+    </div>
+  ),
 }));
 
 // Mock hooks

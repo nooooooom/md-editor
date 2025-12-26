@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { message } from 'antd';
 import copy from 'copy-to-clipboard';
-import React from 'react';
+import React, { createContext } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CodeNode } from '../../../../src/MarkdownEditor/el';
 import {
@@ -10,17 +10,23 @@ import {
   CodeToolbarProps,
 } from '../../../../src/Plugins/code/components/CodeToolbar';
 
-// Mock useEditorStore
-const mockEditorStore = {
-  editorProps: {
-    codeProps: {
-      disableHtmlPreview: false,
+// 使用 vi.hoisted() 定义变量，使其与 vi.mock 一起被提升
+const { mockEditorStore } = vi.hoisted(() => {
+  return {
+    mockEditorStore: {
+      editorProps: {
+        codeProps: {
+          disableHtmlPreview: false,
+        },
+      },
     },
-  },
-};
+  };
+});
 
 vi.mock('../../../../src/MarkdownEditor/editor/store', () => ({
   useEditorStore: () => mockEditorStore,
+  EditorStore: class EditorStore {},
+  EditorStoreContext: createContext(mockEditorStore),
 }));
 
 // Mock 依赖
