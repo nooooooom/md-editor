@@ -108,7 +108,12 @@ const HistoryComponent: React.FC<HistoryProps> = (props) => {
   });
 
   // 使用 useMemo 优化空组件渲染
+  // 注意：只有在 items 为空时才需要渲染空组件
+  const shouldShowEmpty = items?.length === 0 && !props.loading;
   const EmptyComponent = useMemo(() => {
+    if (!shouldShowEmpty) {
+      return null;
+    }
     if (searchKeyword) {
       return <HistoryEmpty />;
     }
@@ -116,7 +121,7 @@ const HistoryComponent: React.FC<HistoryProps> = (props) => {
       return props.emptyRender();
     }
     return null;
-  }, [searchKeyword, props.emptyRender]);
+  }, [shouldShowEmpty, searchKeyword, props.emptyRender]);
 
   // 使用 useMemo 优化加载更多组件渲染
   const LoadMoreComponent = useMemo(() => {
@@ -190,7 +195,7 @@ const HistoryComponent: React.FC<HistoryProps> = (props) => {
         >
           {props.slots?.beforeHistoryList?.(filteredList)}
 
-          {items?.length === 0 && !props.loading ? (
+          {shouldShowEmpty ? (
             EmptyComponent
           ) : (
             <>
@@ -225,7 +230,7 @@ const HistoryComponent: React.FC<HistoryProps> = (props) => {
       getPopupContainer={(p) => p.parentElement || document.body}
       content={
         <>
-          {items?.length === 0 && !props?.loading ? (
+          {shouldShowEmpty ? (
             <div data-testid="empty-state-popover">{EmptyComponent}</div>
           ) : (
             <GroupMenu

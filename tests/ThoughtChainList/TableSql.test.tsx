@@ -104,11 +104,11 @@ describe('TableSql', () => {
 
   describe('编辑器模式', () => {
     it('应该支持编辑模式', () => {
-      const onChangeItem = vi.fn();
+      const onItemChange = vi.fn();
 
       render(
         <TestWrapper>
-          <TableSql {...defaultProps} onChangeItem={onChangeItem} />
+          <TableSql {...defaultProps} onItemChange={onItemChange} />
         </TestWrapper>,
       );
 
@@ -117,11 +117,11 @@ describe('TableSql', () => {
     });
 
     it('应该在编辑模式下显示编辑器', () => {
-      const onChangeItem = vi.fn();
+      const onItemChange = vi.fn();
 
       const { container } = render(
         <TestWrapper>
-          <TableSql {...defaultProps} onChangeItem={onChangeItem} />
+          <TableSql {...defaultProps} onItemChange={onItemChange} />
         </TestWrapper>,
       );
 
@@ -279,16 +279,16 @@ describe('TableSql', () => {
       expect(screen.getByTestId('markdown-editor')).toBeInTheDocument();
     });
 
-    it('应该在没有 onChangeItem 时隐藏编辑按钮', () => {
+    it('应该在没有 onItemChange 时隐藏编辑按钮', () => {
       const { container } = render(
         <TestWrapper>
-          <TableSql {...defaultProps} onChangeItem={undefined} />
+          <TableSql {...defaultProps} onItemChange={undefined} />
         </TestWrapper>,
       );
 
       // 编辑按钮应该不存在
       const editIcons = container.querySelectorAll('[data-icon="edit"]');
-      // 如果没有 onChangeItem，编辑按钮应该不存在
+      // 如果没有 onItemChange，编辑按钮应该不存在
       expect(editIcons.length).toBe(0);
     });
   });

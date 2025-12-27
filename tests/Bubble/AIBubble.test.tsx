@@ -165,16 +165,16 @@ describe('AIBubble', () => {
     expect(screen.getByText('AI message content')).toBeInTheDocument();
   });
 
-  // 测试行384-386: onDisLike 异常处理
-  it('should handle onDisLike error gracefully', async () => {
+  // 测试行384-386: onDislike 异常处理
+  it('should handle onDislike error gracefully', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const onDisLike = vi.fn().mockRejectedValue(new Error('Dislike failed'));
+    const onDislike = vi.fn().mockRejectedValue(new Error('Dislike failed'));
 
     render(
       <BubbleConfigProvide>
         <AIBubble
           {...defaultProps}
-          onDisLike={onDisLike}
+          onDislike={onDislike}
           originData={{
             ...defaultProps.originData,
             role: 'assistant' as RoleType,
@@ -189,7 +189,7 @@ describe('AIBubble', () => {
     if (dislikeButton) {
       fireEvent.click(dislikeButton);
       await waitFor(() => {
-        expect(onDisLike).toHaveBeenCalled();
+        expect(onDislike).toHaveBeenCalled();
       });
     }
 

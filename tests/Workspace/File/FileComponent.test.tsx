@@ -422,7 +422,7 @@ describe('FileComponent', () => {
 
       render(
         <TestWrapper>
-          <FileComponent nodes={nodes} onToggleGroup={handleToggle} />
+          <FileComponent nodes={nodes} onGroupToggle={handleToggle} />
         </TestWrapper>,
       );
 

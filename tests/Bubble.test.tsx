@@ -331,11 +331,11 @@ describe('Bubble', () => {
     expect(copyButton).not.toBeInTheDocument();
   });
 
-  it('should call onCancelLike when cancel like button is clicked', async () => {
-    const onCancelLike = vi.fn();
+  it('should call onLikeCancel when cancel like button is clicked', async () => {
+    const onLikeCancel = vi.fn();
     const propsWithFeedback = {
       ...defaultProps,
-      onCancelLike,
+      onLikeCancel,
       onLike: vi.fn(),
       originData: {
         ...defaultProps.originData,
@@ -362,20 +362,20 @@ describe('Bubble', () => {
     if (likeButton) {
       fireEvent.click(likeButton);
       await waitFor(() => {
-        expect(onCancelLike).toHaveBeenCalled();
+        expect(onLikeCancel).toHaveBeenCalled();
       });
     }
   });
 
-  it('should handle onCancelLike with error gracefully', async () => {
-    const onCancelLike = vi
+  it('should handle onLikeCancel with error gracefully', async () => {
+    const onLikeCancel = vi
       .fn()
       .mockRejectedValue(new Error('Cancel like failed'));
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const propsWithFeedback = {
       ...defaultProps,
-      onCancelLike,
+      onLikeCancel,
       onLike: vi.fn(),
       originData: {
         ...defaultProps.originData,
@@ -398,7 +398,7 @@ describe('Bubble', () => {
     if (likeButton) {
       fireEvent.click(likeButton);
       await waitFor(() => {
-        expect(onCancelLike).toHaveBeenCalled();
+        expect(onLikeCancel).toHaveBeenCalled();
       });
     }
 

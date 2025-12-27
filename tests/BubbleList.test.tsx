@@ -277,24 +277,24 @@ describe('BubbleList', () => {
     });
   });
 
-  describe('onCancelLike callback', () => {
-    it('should call onCancelLike when provided', () => {
+  describe('onLikeCancel callback', () => {
+    it('should call onLikeCancel when provided', () => {
       const bubbleList: MessageBubbleData[] = [
         createMockBubbleData('1', 'user', 'Test message'),
       ];
-      const mockOnCancelLike = vi.fn();
+      const mockOnLikeCancel = vi.fn();
 
       render(
         <BubbleConfigProvide>
-          <BubbleList bubbleList={bubbleList} onCancelLike={mockOnCancelLike} />
+          <BubbleList bubbleList={bubbleList} onLikeCancel={mockOnLikeCancel} />
         </BubbleConfigProvide>,
       );
 
       // 验证回调函数被正确传递
-      expect(mockOnCancelLike).toBeDefined();
+      expect(mockOnLikeCancel).toBeDefined();
     });
 
-    it('should handle onCancelLike when not provided', () => {
+    it('should handle onLikeCancel when not provided', () => {
       const bubbleList: MessageBubbleData[] = [
         createMockBubbleData('1', 'user', 'Test message'),
       ];
@@ -499,7 +499,7 @@ describe('BubbleList', () => {
       const mockOnScroll = vi.fn();
       const mockOnWheel = vi.fn();
       const mockOnTouchMove = vi.fn();
-      const mockOnCancelLike = vi.fn();
+      const mockOnLikeCancel = vi.fn();
       const mockShouldShowCopy = vi.fn(() => true);
 
       const { container } = render(
@@ -509,7 +509,7 @@ describe('BubbleList', () => {
             onScroll={mockOnScroll}
             onWheel={mockOnWheel}
             onTouchMove={mockOnTouchMove}
-            onCancelLike={mockOnCancelLike}
+            onLikeCancel={mockOnLikeCancel}
             shouldShowCopy={mockShouldShowCopy}
           />
         </BubbleConfigProvide>,
@@ -527,29 +527,29 @@ describe('BubbleList', () => {
       expect(mockOnScroll).toHaveBeenCalledTimes(1);
       expect(mockOnWheel).toHaveBeenCalledTimes(1);
       expect(mockOnTouchMove).toHaveBeenCalledTimes(1);
-      expect(mockOnCancelLike).toBeDefined();
+      expect(mockOnLikeCancel).toBeDefined();
       expect(mockShouldShowCopy).toBeDefined();
     });
   });
 
-  describe('onCancelLike callback', () => {
-    it('should call onCancelLike when provided', () => {
+  describe('onLikeCancel callback', () => {
+    it('should call onLikeCancel when provided', () => {
       const bubbleList: MessageBubbleData[] = [
         createMockBubbleData('1', 'user', 'Test message'),
       ];
-      const mockOnCancelLike = vi.fn();
+      const mockOnLikeCancel = vi.fn();
 
       render(
         <BubbleConfigProvide>
-          <BubbleList bubbleList={bubbleList} onCancelLike={mockOnCancelLike} />
+          <BubbleList bubbleList={bubbleList} onLikeCancel={mockOnLikeCancel} />
         </BubbleConfigProvide>,
       );
 
       // 验证回调函数被正确传递
-      expect(mockOnCancelLike).toBeDefined();
+      expect(mockOnLikeCancel).toBeDefined();
     });
 
-    it('should handle onCancelLike when not provided', () => {
+    it('should handle onLikeCancel when not provided', () => {
       const bubbleList: MessageBubbleData[] = [
         createMockBubbleData('1', 'user', 'Test message'),
       ];
@@ -754,7 +754,7 @@ describe('BubbleList', () => {
       const mockOnScroll = vi.fn();
       const mockOnWheel = vi.fn();
       const mockOnTouchMove = vi.fn();
-      const mockOnCancelLike = vi.fn();
+      const mockOnLikeCancel = vi.fn();
       const mockShouldShowCopy = vi.fn(() => true);
 
       const { container } = render(
@@ -764,7 +764,7 @@ describe('BubbleList', () => {
             onScroll={mockOnScroll}
             onWheel={mockOnWheel}
             onTouchMove={mockOnTouchMove}
-            onCancelLike={mockOnCancelLike}
+            onLikeCancel={mockOnLikeCancel}
             shouldShowCopy={mockShouldShowCopy}
           />
         </BubbleConfigProvide>,
@@ -782,7 +782,7 @@ describe('BubbleList', () => {
       expect(mockOnScroll).toHaveBeenCalledTimes(1);
       expect(mockOnWheel).toHaveBeenCalledTimes(1);
       expect(mockOnTouchMove).toHaveBeenCalledTimes(1);
-      expect(mockOnCancelLike).toBeDefined();
+      expect(mockOnLikeCancel).toBeDefined();
       expect(mockShouldShowCopy).toBeDefined();
     });
   });

@@ -42,7 +42,7 @@ vi.mock('../../src/Bubble/MessagesContent/MarkdownPreview', () => ({
 vi.mock('../../src/Bubble/MessagesContent/BubbleExtra', () => ({
   BubbleExtra: ({
     onLike,
-    onDisLike,
+    onDislike,
     onReply,
     style,
     readonly,
@@ -57,7 +57,7 @@ vi.mock('../../src/Bubble/MessagesContent/BubbleExtra', () => ({
       <button data-testid="like-btn" onClick={onLike}>
         Like
       </button>
-      <button data-testid="dislike-btn" onClick={onDisLike}>
+      <button data-testid="dislike-btn" onClick={onDislike}>
         Dislike
       </button>
       <button data-testid="reply-btn" onClick={() => onReply?.('test reply')}>
@@ -287,7 +287,7 @@ describe('BubbleMessageDisplay', () => {
     readonly: false,
     placement: 'left',
     onLike: vi.fn(),
-    onDisLike: vi.fn(),
+    onDislike: vi.fn(),
     onReply: vi.fn(),
     bubbleRenderConfig: {
       extraRender: (props: any, defaultDom: any) => defaultDom, // 返回默认的 BubbleExtra 组件
@@ -487,10 +487,10 @@ describe('BubbleMessageDisplay', () => {
     });
 
     it('应该处理点踩功能', async () => {
-      const onDisLike = vi.fn();
+      const onDislike = vi.fn();
       const props = {
         ...defaultProps,
-        onDisLike,
+        onDislike,
         bubbleRenderConfig: {
           extraRender: (props: any, defaultDom: any) => defaultDom, // 确保 BubbleExtra 被渲染
         },
@@ -502,7 +502,7 @@ describe('BubbleMessageDisplay', () => {
       fireEvent.click(dislikeButton);
 
       await waitFor(() => {
-        expect(onDisLike).toHaveBeenCalled();
+        expect(onDislike).toHaveBeenCalled();
       });
     });
 
@@ -744,7 +744,7 @@ describe('BubbleMessageDisplay', () => {
       const props = {
         ...defaultProps,
         onLike: vi.fn(),
-        onDisLike: vi.fn(),
+        onDislike: vi.fn(),
         bubbleRenderConfig: {
           extraRender: (props: any, defaultDom: any) => defaultDom, // 确保 BubbleExtra 被渲染
         },

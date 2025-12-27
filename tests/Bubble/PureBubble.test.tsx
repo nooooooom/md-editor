@@ -287,15 +287,15 @@ describe('PureBubble', () => {
     expect(screen.getByText('Test message content')).toBeInTheDocument();
   });
 
-  it('should handle onDisLike error gracefully', async () => {
+  it('should handle onDislike error gracefully', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const onDisLike = vi.fn().mockRejectedValue(new Error('Dislike failed'));
+    const onDislike = vi.fn().mockRejectedValue(new Error('Dislike failed'));
 
     render(
       <BubbleConfigProvide>
         <PureBubble
           {...defaultProps}
-          onDisLike={onDisLike}
+          onDislike={onDislike}
           originData={{
             ...defaultProps.originData,
             feedback: 'thumbsUp',
@@ -309,7 +309,7 @@ describe('PureBubble', () => {
     if (dislikeButton) {
       fireEvent.click(dislikeButton);
       await waitFor(() => {
-        expect(onDisLike).toHaveBeenCalled();
+        expect(onDislike).toHaveBeenCalled();
       });
     }
 

@@ -159,8 +159,10 @@ describe('ChatLayout', () => {
     const scrollable = container.querySelector(
       '.ant-chat-layout-content-scrollable',
     );
-    const spacer = scrollable?.lastElementChild as HTMLElement;
-    expect(spacer).toHaveStyle('height: 0px');
+    // 当没有 footer 时，spacer 元素不应该存在
+    // 查找带有 aria-hidden="true" 的 spacer 元素
+    const spacer = scrollable?.querySelector('[aria-hidden="true"]');
+    expect(spacer).toBeNull();
   });
 
   it('supports scrollBehavior prop with smooth value', () => {

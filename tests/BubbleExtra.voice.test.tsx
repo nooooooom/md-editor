@@ -181,7 +181,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,
@@ -199,7 +199,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={false}
         />
       </BubbleConfigProvide>,
@@ -223,7 +223,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={bubbleWithEmpty as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,
@@ -262,7 +262,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,
@@ -307,7 +307,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
           useSpeech={mockAdapter}
         />
@@ -333,7 +333,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,
@@ -372,7 +372,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,
@@ -417,7 +417,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,
@@ -446,7 +446,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           useSpeech={adapter}
           shouldShowVoice={true}
         />
@@ -472,7 +472,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           useSpeech={adapter}
           shouldShowVoice={true}
         />
@@ -512,7 +512,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={defaultBubbleProps as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,
@@ -537,7 +537,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={abortedBubble as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,
@@ -560,7 +560,7 @@ describe('BubbleExtra - VoiceButton / shouldShowVoice / useSpeech', () => {
         <BubbleExtra
           bubble={bubbleWithAnswerStatus as any}
           onLike={vi.fn()}
-          onDisLike={vi.fn()}
+          onDislike={vi.fn()}
           shouldShowVoice={true}
         />
       </BubbleConfigProvide>,

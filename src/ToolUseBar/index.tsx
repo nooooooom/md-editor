@@ -11,6 +11,7 @@ interface ToolUseBarProps {
   tools?: ToolCall[];
   onToolClick?: (id: string) => void;
   className?: string;
+  style?: React.CSSProperties;
   activeKeys?: string[];
   defaultActiveKeys?: string[];
   onActiveKeysChange?: (activeKeys: string[]) => void;
@@ -42,7 +43,7 @@ interface ToolUseBarProps {
  * @param {(keys: string[]) => void} [props.onExpandedKeysChange] - 展开状态变化回调
  * @param {(tool: ToolUseItem) => void} [props.onToolClick] - 工具点击回调
  * @param {string} [props.className] - 自定义CSS类名
- * @param {React.CSSProperties} [props.style] - 自定义样式
+ * @param {React.CSSProperties} [props.style] - 自定义样式，可用于设置固定宽度和高度以防止页面抖动
  *
  * @example
  * ```tsx
@@ -71,6 +72,7 @@ const ToolUseBarComponent: React.FC<ToolUseBarProps> = ({
   onActiveKeysChange,
   onExpandedKeysChange,
   light = false,
+  style,
   ...props
 }) => {
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
@@ -166,10 +168,16 @@ const ToolUseBarComponent: React.FC<ToolUseBarProps> = ({
   }, [prefixCls, hashId, props.className]);
 
   if (!tools?.length)
-    return <div className={containerClassName} data-testid="ToolUse" />;
+    return (
+      <div
+        className={containerClassName}
+        style={style}
+        data-testid="ToolUse"
+      />
+    );
 
   return wrapSSR(
-    <div className={containerClassName} data-testid="ToolUse">
+    <div className={containerClassName} style={style} data-testid="ToolUse">
       {toolItems}
     </div>,
   );
