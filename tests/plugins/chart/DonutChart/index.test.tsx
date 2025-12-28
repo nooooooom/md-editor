@@ -414,4 +414,110 @@ describe('DonutChart', () => {
       expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
     });
   });
+
+  describe('classNames 和 styles 支持', () => {
+    it('应该支持 ChartClassNames 对象格式的 classNames', () => {
+      const classNames = {
+        root: 'custom-root-class',
+        toolbar: 'custom-toolbar-class',
+      };
+
+      render(
+        <TestWrapper>
+          <DonutChart data={mockData} classNames={classNames} />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
+    });
+
+    it('应该支持 ChartStyles 对象格式的 styles', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+        toolbar: { padding: '10px' },
+      };
+
+      render(
+        <TestWrapper>
+          <DonutChart data={mockData} styles={styles} />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
+    });
+
+    it('应该合并 classNames 和 className', () => {
+      const classNames = {
+        root: 'custom-root-class',
+      };
+
+      render(
+        <TestWrapper>
+          <DonutChart
+            data={mockData}
+            classNames={classNames}
+            className="additional-class"
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
+    });
+
+    it('应该合并 styles 和 style', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+      };
+
+      render(
+        <TestWrapper>
+          <DonutChart
+            data={mockData}
+            styles={styles}
+            style={{ padding: '10px' }}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
+    });
+
+    it('应该正确处理 styles?.root 的合并顺序', () => {
+      const styles = {
+        root: { backgroundColor: 'red' },
+      };
+
+      render(
+        <TestWrapper>
+          <DonutChart
+            data={mockData}
+            styles={styles}
+            style={{ width: '500px', height: '300px' }}
+          />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
+    });
+
+    it('应该处理 classNames 为 undefined 的情况', () => {
+      render(
+        <TestWrapper>
+          <DonutChart data={mockData} classNames={undefined} />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
+    });
+
+    it('应该处理 styles 为 undefined 的情况', () => {
+      render(
+        <TestWrapper>
+          <DonutChart data={mockData} styles={undefined} />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('doughnut-chart')).toBeInTheDocument();
+    });
+  });
 });

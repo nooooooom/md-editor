@@ -73,6 +73,13 @@ export type { ScatterChartDataItem, ScatterChartProps } from './ScatterChart';
 export { defaultColorList } from './const';
 export { debounce as chartDebounce, stringFormatNumber } from './utils';
 
+// 类型导出
+export type {
+  ChartClassNames,
+  ChartStyles,
+  ClassNameType,
+} from './types/classNames';
+
 // 复用组件与类型导出
 export { ChartFilter, ChartToolBar, downloadChart } from './components';
 export type {

@@ -194,5 +194,105 @@ describe('BarChart maxBarThickness 功能测试', () => {
     const chartElement = container.querySelector('[data-testid="bar-chart"]');
     expect(chartElement).toBeInTheDocument();
   });
+
+  describe('classNames 和 styles 支持', () => {
+    it('应该支持 ChartClassNames 对象格式的 classNames', () => {
+      const classNames = {
+        root: 'custom-root-class',
+        toolbar: 'custom-toolbar-class',
+        statisticContainer: 'custom-statistic-class',
+        filter: 'custom-filter-class',
+        wrapper: 'custom-wrapper-class',
+        chart: 'custom-chart-class',
+      };
+
+      const { container } = render(
+        <BarChart data={basicData} classNames={classNames} />,
+      );
+
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+    });
+
+    it('应该支持 ChartStyles 对象格式的 styles', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+        toolbar: { padding: '10px' },
+        statisticContainer: { display: 'flex' },
+        filter: { marginBottom: '10px' },
+        wrapper: { marginTop: '20px' },
+        chart: { minHeight: '300px' },
+      };
+
+      const { container } = render(
+        <BarChart data={basicData} styles={styles} />,
+      );
+
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+    });
+
+    it('应该合并 classNames 和 className', () => {
+      const classNames = {
+        root: 'custom-root-class',
+      };
+
+      const { container } = render(
+        <BarChart
+          data={basicData}
+          classNames={classNames}
+          className="additional-class"
+        />,
+      );
+
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+    });
+
+    it('应该合并 styles 和 style', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+      };
+
+      const { container } = render(
+        <BarChart
+          data={basicData}
+          styles={styles}
+          style={{ padding: '10px' }}
+        />,
+      );
+
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+    });
+
+    it('应该正确处理 styles?.root 的合并顺序', () => {
+      const styles = {
+        root: { backgroundColor: 'red', width: '600px' },
+      };
+
+      const { container } = render(
+        <BarChart
+          data={basicData}
+          styles={styles}
+          style={{ width: '500px', height: '300px' }}
+        />,
+      );
+
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+    });
+
+    it('应该处理 classNames 为 undefined 的情况', () => {
+      const { container } = render(
+        <BarChart data={basicData} classNames={undefined} />,
+      );
+
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+    });
+
+    it('应该处理 styles 为 undefined 的情况', () => {
+      const { container } = render(
+        <BarChart data={basicData} styles={undefined} />,
+      );
+
+      expect(container.querySelector('[data-testid="bar-chart"]')).toBeInTheDocument();
+    });
+  });
 });
 

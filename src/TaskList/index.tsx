@@ -91,125 +91,123 @@ interface TaskListItemProps {
   onToggle: (key: string) => void;
 }
 
-const TaskListItem: React.FC<TaskListItemProps> = memo(({
-  item,
-  isLast,
-  prefixCls,
-  hashId,
-  expandedKeys,
-  onToggle,
-}) => {
-  const { locale } = useContext(I18nContext);
-  const isCollapsed = !expandedKeys.includes(item.key);
-  const hasContent = hasTaskContent(item.content);
+const TaskListItem: React.FC<TaskListItemProps> = memo(
+  ({ item, isLast, prefixCls, hashId, expandedKeys, onToggle }) => {
+    const { locale } = useContext(I18nContext);
+    const isCollapsed = !expandedKeys.includes(item.key);
+    const hasContent = hasTaskContent(item.content);
 
-  // 使用 useCallback 优化切换处理函数
-  const handleToggle = useCallback(() => {
-    onToggle(item.key);
-  }, [item.key, onToggle]);
+    // 使用 useCallback 优化切换处理函数
+    const handleToggle = useCallback(() => {
+      onToggle(item.key);
+    }, [item.key, onToggle]);
 
-  const arrowTitle = isCollapsed
-    ? locale?.['taskList.expand'] || '展开'
-    : locale?.['taskList.collapse'] || '收起';
+    const arrowTitle = isCollapsed
+      ? locale?.['taskList.expand'] || '展开'
+      : locale?.['taskList.collapse'] || '收起';
 
-  const contentVariants = useMemo(
-    () => ({
-      expanded: {
-        height: 'auto',
-        opacity: 1,
-      },
-      collapsed: {
-        height: 0,
-        opacity: 0,
-      },
-    }),
-    [],
-  );
+    const contentVariants = useMemo(
+      () => ({
+        expanded: {
+          height: 'auto',
+          opacity: 1,
+        },
+        collapsed: {
+          height: 0,
+          opacity: 0,
+        },
+      }),
+      [],
+    );
 
-  const contentTransition = useMemo(
-    () => ({
-      height: {
-        duration: 0.26,
-        ease: [0.4, 0, 0.2, 1],
-      },
-      opacity: {
-        duration: 0.2,
-        ease: 'linear',
-      },
-    }),
-    [],
-  );
-  return (
-    <div
-      key={item.key}
-      className={buildClassName(`${prefixCls}-thoughtChainItem`, hashId)}
-      data-testid="task-list-thoughtChainItem"
-    >
+    const contentTransition = useMemo(
+      () => ({
+        height: {
+          duration: 0.26,
+          ease: [0.4, 0, 0.2, 1],
+        },
+        opacity: {
+          duration: 0.2,
+          ease: 'linear',
+        },
+      }),
+      [],
+    );
+    return (
       <div
-        className={buildClassName(`${prefixCls}-left`, hashId)}
-        onClick={handleToggle}
-        data-testid="task-list-left"
+        key={item.key}
+        className={buildClassName(`${prefixCls}-thoughtChainItem`, hashId)}
+        data-testid="task-list-thoughtChainItem"
       >
-        <StatusIcon
-          status={item.status}
-          prefixCls={prefixCls}
-          hashId={hashId}
-        />
-        <div className={buildClassName(`${prefixCls}-content-left`, hashId)}>
-          {!isLast && (
-            <div
-              className={buildClassName(`${prefixCls}-dash-line`, hashId)}
-              data-testid="task-list-dash-line"
-            />
-          )}
-        </div>
-      </div>
-      <div className={buildClassName(`${prefixCls}-right`, hashId)}>
         <div
-          className={buildClassName(`${prefixCls}-top`, hashId)}
+          className={buildClassName(`${prefixCls}-left`, hashId)}
           onClick={handleToggle}
+          data-testid="task-list-left"
         >
-          <div className={buildClassName(`${prefixCls}-title`, hashId)}>
-            {item.title}
+          <StatusIcon
+            status={item.status}
+            prefixCls={prefixCls}
+            hashId={hashId}
+          />
+          <div className={buildClassName(`${prefixCls}-content-left`, hashId)}>
+            {!isLast && (
+              <div
+                className={buildClassName(`${prefixCls}-dash-line`, hashId)}
+                data-testid="task-list-dash-line"
+              />
+            )}
           </div>
-          {hasContent && (
-            <div
-              className={buildClassName(`${prefixCls}-arrowContainer`, hashId)}
-              onClick={handleToggle}
-              data-testid="task-list-arrowContainer"
-            >
-              <ActionIconBox
-                title={arrowTitle}
-                iconStyle={getArrowRotation(isCollapsed)}
-                loading={false}
-                onClick={handleToggle}
-              >
-                <ChevronUp data-testid="task-list-arrow" />
-              </ActionIconBox>
-            </div>
-          )}
         </div>
-        <AnimatePresence initial={false}>
-          {!isCollapsed && (
-            <motion.div
-              key="task-content"
-              variants={contentVariants}
-              initial="collapsed"
-              animate="expanded"
-              exit="collapsed"
-              transition={contentTransition}
-              className={buildClassName(`${prefixCls}-body`, hashId)}
-            >
-              <div className={buildClassName(`${prefixCls}-content`, hashId)}>
-                {item.content}
+        <div className={buildClassName(`${prefixCls}-right`, hashId)}>
+          <div
+            className={buildClassName(`${prefixCls}-top`, hashId)}
+            onClick={handleToggle}
+          >
+            <div className={buildClassName(`${prefixCls}-title`, hashId)}>
+              {item.title}
+            </div>
+            {hasContent && (
+              <div
+                className={buildClassName(
+                  `${prefixCls}-arrowContainer`,
+                  hashId,
+                )}
+                onClick={handleToggle}
+                data-testid="task-list-arrowContainer"
+              >
+                <ActionIconBox
+                  title={arrowTitle}
+                  iconStyle={getArrowRotation(isCollapsed)}
+                  loading={false}
+                  onClick={handleToggle}
+                >
+                  <ChevronUp data-testid="task-list-arrow" />
+                </ActionIconBox>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            )}
+          </div>
+          <AnimatePresence initial={false}>
+            {!isCollapsed && (
+              <motion.div
+                key="task-content"
+                variants={contentVariants}
+                initial="collapsed"
+                animate="expanded"
+                exit="collapsed"
+                transition={contentTransition}
+                className={buildClassName(`${prefixCls}-body`, hashId)}
+              >
+                <div className={buildClassName(`${prefixCls}-content`, hashId)}>
+                  {item.content}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 TaskListItem.displayName = 'TaskListItem';
 

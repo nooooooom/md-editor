@@ -707,4 +707,92 @@ describe('FunnelChart', () => {
       }
     });
   });
+
+  describe('classNames 和 styles 支持', () => {
+    it('应该支持 ChartClassNames 对象格式的 classNames', () => {
+      const classNames = {
+        root: 'custom-root-class',
+        toolbar: 'custom-toolbar-class',
+        statisticContainer: 'custom-statistic-class',
+        wrapper: 'custom-wrapper-class',
+      };
+
+      render(<FunnelChart data={sampleData} classNames={classNames} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该支持 ChartStyles 对象格式的 styles', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+        toolbar: { padding: '10px' },
+        statisticContainer: { display: 'flex' },
+        wrapper: { marginTop: '20px' },
+      };
+
+      render(<FunnelChart data={sampleData} styles={styles} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该合并 classNames 和 className', () => {
+      const classNames = {
+        root: 'custom-root-class',
+      };
+
+      render(
+        <FunnelChart
+          data={sampleData}
+          classNames={classNames}
+          className="additional-class"
+        />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该合并 styles 和 style', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+      };
+
+      render(
+        <FunnelChart
+          data={sampleData}
+          styles={styles}
+          style={{ padding: '10px' }}
+        />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该正确处理 styles?.root 的合并顺序', () => {
+      const styles = {
+        root: { backgroundColor: 'red' },
+      };
+
+      render(
+        <FunnelChart
+          data={sampleData}
+          styles={styles}
+          style={{ width: '500px', height: '300px' }}
+        />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该处理 classNames 为 undefined 的情况', () => {
+      render(<FunnelChart data={sampleData} classNames={undefined} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该处理 styles 为 undefined 的情况', () => {
+      render(<FunnelChart data={sampleData} styles={undefined} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+  });
 });

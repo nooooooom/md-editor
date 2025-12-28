@@ -134,10 +134,7 @@ const AILabelComponent = React.forwardRef<HTMLSpanElement, AILabelProps>(
         return { ...style };
       }
 
-      const horizontalOffset = Number.parseInt(
-        String(offset[0]),
-        10,
-      );
+      const horizontalOffset = Number.parseInt(String(offset[0]), 10);
 
       const offsetStyle: React.CSSProperties = {
         marginTop: offset[1],

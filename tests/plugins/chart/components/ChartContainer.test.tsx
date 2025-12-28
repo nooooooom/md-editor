@@ -180,4 +180,142 @@ describe('ChartContainer', () => {
 
     expect(container.firstChild).toBeInTheDocument();
   });
+
+  describe('classNames 和 styles 支持', () => {
+    it('应该支持 ChartClassNames 对象格式的 classNames', () => {
+      const classNames = {
+        root: 'custom-root-class',
+        toolbar: 'custom-toolbar-class',
+      };
+
+      const { container } = render(
+        <ChartContainer baseClassName="test-chart" classNames={classNames}>
+          <div>图表内容</div>
+        </ChartContainer>,
+      );
+
+      const chartContainer = container.firstChild as HTMLElement;
+      expect(chartContainer.className).toContain('custom-root-class');
+    });
+
+    it('应该支持 ChartStyles 对象格式的 styles', () => {
+      const styles = {
+        root: { width: '500px', height: '300px', backgroundColor: 'red' },
+      };
+
+      const { container } = render(
+        <ChartContainer baseClassName="test-chart" styles={styles}>
+          <div>图表内容</div>
+        </ChartContainer>,
+      );
+
+      const chartContainer = container.firstChild as HTMLElement;
+      expect(chartContainer.style.width).toBe('500px');
+      expect(chartContainer.style.height).toBe('300px');
+      expect(chartContainer.style.backgroundColor).toBe('red');
+    });
+
+    it('应该合并 classNames 和 className', () => {
+      const classNames = {
+        root: 'custom-root-class',
+      };
+
+      const { container } = render(
+        <ChartContainer
+          baseClassName="test-chart"
+          classNames={classNames}
+          className="additional-class"
+        >
+          <div>图表内容</div>
+        </ChartContainer>,
+      );
+
+      const chartContainer = container.firstChild as HTMLElement;
+      expect(chartContainer.className).toContain('custom-root-class');
+      expect(chartContainer.className).toContain('additional-class');
+    });
+
+    it('应该合并 styles 和 style', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+      };
+
+      const { container } = render(
+        <ChartContainer
+          baseClassName="test-chart"
+          styles={styles}
+          style={{ padding: '10px' }}
+        >
+          <div>图表内容</div>
+        </ChartContainer>,
+      );
+
+      const chartContainer = container.firstChild as HTMLElement;
+      expect(chartContainer.style.width).toBe('500px');
+      expect(chartContainer.style.height).toBe('300px');
+      expect(chartContainer.style.padding).toBe('10px');
+    });
+
+    it('应该支持所有层级的 classNames', () => {
+      const classNames = {
+        root: 'root-class',
+        toolbar: 'toolbar-class',
+        statisticContainer: 'statistic-class',
+        filter: 'filter-class',
+        wrapper: 'wrapper-class',
+        chart: 'chart-class',
+      };
+
+      const { container } = render(
+        <ChartContainer baseClassName="test-chart" classNames={classNames}>
+          <div>图表内容</div>
+        </ChartContainer>,
+      );
+
+      const chartContainer = container.firstChild as HTMLElement;
+      expect(chartContainer.className).toContain('root-class');
+    });
+
+    it('应该支持所有层级的 styles', () => {
+      const styles = {
+        root: { width: '100px' },
+        toolbar: { padding: '10px' },
+        statisticContainer: { display: 'flex' },
+        filter: { marginBottom: '10px' },
+        wrapper: { marginTop: '20px' },
+        chart: { minHeight: '300px' },
+      };
+
+      const { container } = render(
+        <ChartContainer baseClassName="test-chart" styles={styles}>
+          <div>图表内容</div>
+        </ChartContainer>,
+      );
+
+      const chartContainer = container.firstChild as HTMLElement;
+      expect(chartContainer.style.width).toBe('100px');
+    });
+
+    it('应该处理 classNames 为 undefined 的情况', () => {
+      const { container } = render(
+        <ChartContainer baseClassName="test-chart" classNames={undefined}>
+          <div>图表内容</div>
+        </ChartContainer>,
+      );
+
+      const chartContainer = container.firstChild as HTMLElement;
+      expect(chartContainer).toBeInTheDocument();
+    });
+
+    it('应该处理 styles 为 undefined 的情况', () => {
+      const { container } = render(
+        <ChartContainer baseClassName="test-chart" styles={undefined}>
+          <div>图表内容</div>
+        </ChartContainer>,
+      );
+
+      const chartContainer = container.firstChild as HTMLElement;
+      expect(chartContainer).toBeInTheDocument();
+    });
+  });
 });

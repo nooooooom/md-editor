@@ -384,17 +384,17 @@ export default () => (
 
 #### 交互回调
 
-| 属性          | 说明           | 类型                                  | 默认值 |
-| ------------- | -------------- | ------------------------------------- | ------ |
-| onLike        | 点赞回调函数   | `(bubble: MessageBubbleData) => void` | -      |
-| onDislike     | 点踩回调函数（符合命名规范） | `(bubble: MessageBubbleData) => void` | -      |
-| onDisLike     | 点踩回调函数（已废弃，请使用 onDislike） | `(bubble: MessageBubbleData) => void` | -      |
-| onLikeCancel  | Like 子组件取消事件（符合命名规范） | `(bubble: MessageBubbleData) => void` | -      |
+| 属性          | 说明                                        | 类型                                  | 默认值 |
+| ------------- | ------------------------------------------- | ------------------------------------- | ------ |
+| onLike        | 点赞回调函数                                | `(bubble: MessageBubbleData) => void` | -      |
+| onDislike     | 点踩回调函数（符合命名规范）                | `(bubble: MessageBubbleData) => void` | -      |
+| onDisLike     | 点踩回调函数（已废弃，请使用 onDislike）    | `(bubble: MessageBubbleData) => void` | -      |
+| onLikeCancel  | Like 子组件取消事件（符合命名规范）         | `(bubble: MessageBubbleData) => void` | -      |
 | onCancelLike  | 取消点赞回调（已废弃，请使用 onLikeCancel） | `(bubble: MessageBubbleData) => void` | -      |
-| onReply       | 回复回调函数   | `(message: string) => void`           | -      |
-| onAvatarClick | 头像点击回调   | `() => void`                          | -      |
-| onDoubleClick | 双击回调函数   | `() => void`                          | -      |
-| preMessage    | 前一条消息数据 | `MessageBubbleData \| undefined`      | -      |
+| onReply       | 回复回调函数                                | `(message: string) => void`           | -      |
+| onAvatarClick | 头像点击回调                                | `() => void`                          | -      |
+| onDoubleClick | 双击回调函数                                | `() => void`                          | -      |
+| preMessage    | 前一条消息数据                              | `MessageBubbleData \| undefined`      | -      |
 
 ### BubbleList 消息列表组件
 

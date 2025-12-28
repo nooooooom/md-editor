@@ -106,13 +106,13 @@ export function CodeRenderer(props: ElementProps<CodeNode>) {
   const disableHtmlPreview = editorProps.codeProps?.disableHtmlPreview ?? false;
   const language = props.element?.language?.toLowerCase();
   const htmlValue = props.element?.value || '';
-  
+
   // 检测 HTML 代码中是否包含 JavaScript
   const hasJavaScript = language === 'html' && containsJavaScript(htmlValue);
-  
+
   // 如果禁用了 HTML 预览或包含 JavaScript，强制使用代码模式
   const shouldDisablePreview = disableHtmlPreview || hasJavaScript;
-  
+
   const [viewMode, setViewMode] = useState<'preview' | 'code'>(() => {
     // 如果禁用了 HTML 预览或包含 JavaScript，强制使用代码模式
     if (shouldDisablePreview && language === 'html') {

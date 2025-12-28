@@ -285,6 +285,116 @@ describe('LineChart', () => {
     });
   });
 
+  describe('classNames 和 styles 支持', () => {
+    it('应该支持 ChartClassNames 对象格式的 classNames', () => {
+      const classNames = {
+        root: 'custom-root-class',
+        toolbar: 'custom-toolbar-class',
+      };
+
+      render(<LineChart data={mockData} classNames={classNames} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该支持 ChartStyles 对象格式的 styles', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+        toolbar: { padding: '10px' },
+      };
+
+      render(<LineChart data={mockData} styles={styles} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该合并 classNames 和 className', () => {
+      const classNames = {
+        root: 'custom-root-class',
+      };
+
+      render(
+        <LineChart
+          data={mockData}
+          classNames={classNames}
+          className="additional-class"
+        />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该合并 styles 和 style', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+      };
+
+      render(
+        <LineChart data={mockData} styles={styles} style={{ padding: '10px' }} />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该支持所有层级的 classNames', () => {
+      const classNames = {
+        root: 'root-class',
+        toolbar: 'toolbar-class',
+        statisticContainer: 'statistic-class',
+        filter: 'filter-class',
+        wrapper: 'wrapper-class',
+        chart: 'chart-class',
+      };
+
+      render(<LineChart data={mockData} classNames={classNames} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该支持所有层级的 styles', () => {
+      const styles = {
+        root: { width: '100px' },
+        toolbar: { padding: '10px' },
+        statisticContainer: { display: 'flex' },
+        filter: { marginBottom: '10px' },
+        wrapper: { marginTop: '20px' },
+        chart: { minHeight: '300px' },
+      };
+
+      render(<LineChart data={mockData} styles={styles} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该处理 classNames 为 undefined 的情况', () => {
+      render(<LineChart data={mockData} classNames={undefined} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该处理 styles 为 undefined 的情况', () => {
+      render(<LineChart data={mockData} styles={undefined} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该正确处理 styles?.root 的合并', () => {
+      const styles = {
+        root: { backgroundColor: 'red' },
+      };
+
+      render(
+        <LineChart
+          data={mockData}
+          styles={styles}
+          style={{ width: '500px', height: '300px' }}
+        />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+  });
+
   describe('图表配置测试', () => {
     it('应该正确处理图例显示配置', () => {
       render(<LineChart data={mockData} showLegend={false} />);

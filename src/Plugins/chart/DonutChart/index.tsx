@@ -6,7 +6,6 @@ import {
   Legend,
   Tooltip,
 } from 'chart.js';
-import classNames from 'classnames';
 import React, { useContext, useMemo, useRef, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import {
@@ -17,6 +16,7 @@ import {
   downloadChart,
 } from '../components';
 import { defaultColorList } from '../const';
+import classNames from 'classnames';
 import {
   SINGLE_MODE_DESKTOP_CUTOUT,
   SINGLE_MODE_MOBILE_CUTOUT,
@@ -85,6 +85,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
   width = 200,
   height = 200,
   className,
+  classNames: classNamesProp,
   title,
   showToolbar = true,
   onDownload,
@@ -296,10 +297,15 @@ const DonutChart: React.FC<DonutChartProps> = ({
   return (
     <ChartContainer
       baseClassName={baseClassName}
-      className={className}
+      className={classNames(
+        classNamesProp?.root,
+        className,
+      )}
       variant={props.variant}
       style={{
         ['--donut-item-min-width' as any]: `${dimensions.width}px`,
+        ...props.style,
+        ...props.styles?.root,
       }}
     >
       {showToolbar && (
@@ -339,10 +345,9 @@ const DonutChart: React.FC<DonutChartProps> = ({
           )}
           {statistics && (
             <div
-              className={classNames(
-                `${baseClassName}-statistic-container`,
-                hashId,
-              )}
+              className={[`${baseClassName}-statistic-container`, hashId]
+                .filter(Boolean)
+                .join(' ')}
             >
               {statistics.map((config, index) => (
                 <ChartStatistic

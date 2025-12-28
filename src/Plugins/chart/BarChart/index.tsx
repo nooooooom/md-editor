@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from 'chart.js';
 import ChartDataLabels, { Context } from 'chartjs-plugin-datalabels';
-import classNames from 'classnames';
+import classNamesLib from 'classnames';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -24,6 +24,7 @@ import {
 } from '../components';
 import { defaultColorList } from '../const';
 import { StatisticConfigType } from '../hooks/useChartStatistic';
+import type { ChartClassNames, ChartStyles } from '../types/classNames';
 import {
   ChartDataItem,
   extractAndSortXValues,
@@ -126,6 +127,8 @@ export interface BarChartProps extends ChartContainerProps {
   height?: number | string;
   /** 自定义CSS类名 */
   className?: string;
+  /** 自定义CSS类名（支持对象格式，为每层DOM设置类名） */
+  classNames?: ChartClassNames;
   /** 数据时间 */
   dataTime?: string;
   /** 图表主题 */
@@ -177,6 +180,8 @@ export interface BarChartProps extends ChartContainerProps {
   statistic?: StatisticConfigType;
   /** 是否显示加载状态（当图表未闭合时显示） */
   loading?: boolean;
+  /** 自定义样式对象（支持对象格式，为每层DOM设置样式） */
+  styles?: ChartStyles;
 }
 
 // 正负柱状图颜色（与需求给定的 rgba 保持一致）
@@ -189,6 +194,9 @@ const BarChart: React.FC<BarChartProps> = ({
   width = 600,
   height = 400,
   className,
+  classNames,
+  style,
+  styles,
   dataTime,
   theme = 'light',
   color,
@@ -250,7 +258,7 @@ const BarChart: React.FC<BarChartProps> = ({
   // 样式注册
   const context = useContext(ConfigProvider.ConfigContext);
   const baseClassName = context?.getPrefixCls('bar-chart-container');
-  const { wrapSSR, hashId } = useStyle(baseClassName);
+  const { wrapSSR } = useStyle(baseClassName);
 
   const chartRef = useRef<ChartJS<'bar'>>(null);
 
@@ -934,17 +942,44 @@ const BarChart: React.FC<BarChartProps> = ({
     downloadChart(chartRef.current, 'bar-chart');
   };
 
+  const rootClassName = classNamesLib(classNames?.root, className);
+  const rootStyle = {
+    width: responsiveWidth,
+    height: responsiveHeight,
+    ...style,
+    ...styles?.root,
+  };
+
+  const toolbarClassName = classNamesLib(classNames?.toolbar);
+  const toolbarStyle = styles?.toolbar;
+
+  const statisticContainerClassName = classNamesLib(
+    classNames?.statisticContainer,
+    `${baseClassName}-statistic-container`,
+  );
+  const statisticContainerStyle = styles?.statisticContainer;
+
+  const filterClassName = classNamesLib(classNames?.filter);
+  const filterStyle = styles?.filter;
+
+  const wrapperClassName = classNamesLib(
+    classNames?.wrapper,
+    `${baseClassName}-wrapper`,
+  );
+  const wrapperStyle = {
+    marginTop: '20px',
+    height: responsiveHeight,
+    ...styles?.wrapper,
+  };
+
   return wrapSSR(
     <ChartContainer
       baseClassName={baseClassName}
-      className={className}
+      className={rootClassName}
       theme={theme}
       isMobile={isMobile}
       variant={variant}
-      style={{
-        width: responsiveWidth,
-        height: responsiveHeight,
-      }}
+      style={rootStyle}
     >
       <ChartToolBar
         title={title}
@@ -953,6 +988,8 @@ const BarChart: React.FC<BarChartProps> = ({
         extra={toolbarExtra}
         dataTime={dataTime}
         loading={loading}
+        className={toolbarClassName}
+        style={toolbarStyle}
         filter={
           renderFilterInToolbar && filterOptions && filterOptions.length > 1 ? (
             <ChartFilter
@@ -966,6 +1003,8 @@ const BarChart: React.FC<BarChartProps> = ({
               })}
               theme={theme}
               variant="compact"
+              className={filterClassName}
+              style={filterStyle}
             />
           ) : undefined
         }
@@ -973,7 +1012,8 @@ const BarChart: React.FC<BarChartProps> = ({
 
       {statistics && (
         <div
-          className={classNames(`${baseClassName}-statistic-container`, hashId)}
+          className={statisticContainerClassName}
+          style={statisticContainerStyle}
         >
           {statistics.map((config, index) => (
             <ChartStatistic key={index} {...config} theme={theme} />
@@ -992,13 +1032,12 @@ const BarChart: React.FC<BarChartProps> = ({
             onSelectionChange: setSelectedFilterLabel,
           })}
           theme={theme}
+          className={filterClassName}
+          style={filterStyle}
         />
       )}
 
-      <div
-        className={`${baseClassName}-wrapper`}
-        style={{ marginTop: '20px', height: responsiveHeight }}
-      >
+      <div className={wrapperClassName} style={wrapperStyle}>
         <Bar
           ref={chartRef}
           data={processedData}

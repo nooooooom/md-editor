@@ -202,10 +202,7 @@ const AgenticLayoutComponent: React.FC<AgenticLayoutProps> = ({
   }, [handleResizeMove, handleResizeEnd]);
 
   return wrapSSR(
-    <div
-      className={classNames(prefixCls, className, hashId)}
-      style={style}
-    >
+    <div className={classNames(prefixCls, className, hashId)} style={style}>
       {/* 主体内容区域 */}
       <div
         className={`${prefixCls}-body ${hashId}`}
@@ -228,9 +225,7 @@ const AgenticLayoutComponent: React.FC<AgenticLayoutProps> = ({
               maxWidth: leftCollapsed ? 0 : leftWidth,
             }}
           >
-            <div
-              className={classNames(`${prefixCls}-sidebar-content`, hashId)}
-            >
+            <div className={classNames(`${prefixCls}-sidebar-content`, hashId)}>
               {left}
             </div>
           </div>
@@ -251,9 +246,7 @@ const AgenticLayoutComponent: React.FC<AgenticLayoutProps> = ({
               rightCollapsible={header.rightCollapsible ?? !!right}
             />
           )}
-          <div
-            className={classNames(`${prefixCls}-main-content`, hashId)}
-          >
+          <div className={classNames(`${prefixCls}-main-content`, hashId)}>
             {center}
           </div>
         </div>
@@ -294,9 +287,7 @@ const AgenticLayoutComponent: React.FC<AgenticLayoutProps> = ({
               maxWidth: rightCollapsed ? 0 : currentRightWidth,
             }}
           >
-            <div
-              className={classNames(`${prefixCls}-sidebar-content`, hashId)}
-            >
+            <div className={classNames(`${prefixCls}-sidebar-content`, hashId)}>
               {right}
             </div>
           </div>

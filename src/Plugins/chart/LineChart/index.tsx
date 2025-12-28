@@ -19,6 +19,7 @@ import {
   useResponsiveSize,
 } from '../hooks';
 import { StatisticConfigType } from '../hooks/useChartStatistic';
+import type { ChartClassNames, ChartStyles } from '../types/classNames';
 import {
   ChartDataItem,
   extractAndSortXValues,
@@ -57,6 +58,8 @@ export interface LineChartProps extends ChartContainerProps {
   height?: number | string;
   /** 自定义CSS类名 */
   className?: string;
+  /** 自定义CSS类名（支持对象格式，为每层DOM设置类名） */
+  classNames?: ChartClassNames;
   /** 数据时间 */
   dataTime?: string;
   /** 图表主题 */
@@ -87,6 +90,8 @@ export interface LineChartProps extends ChartContainerProps {
   statistic?: StatisticConfigType;
   /** 是否显示加载状态（当图表未闭合时显示） */
   loading?: boolean;
+  /** 自定义样式对象（支持对象格式，为每层DOM设置样式） */
+  styles?: ChartStyles;
 }
 
 const LineChart: React.FC<LineChartProps> = ({
@@ -95,6 +100,7 @@ const LineChart: React.FC<LineChartProps> = ({
   width = 600,
   height = 400,
   className,
+  classNames: classNamesProp,
   dataTime,
   theme = 'light',
   color,
@@ -323,20 +329,30 @@ const LineChart: React.FC<LineChartProps> = ({
     downloadChart(chartRef.current, 'line-chart');
   };
 
+  const rootClassName = classNames(classNamesProp?.root, className);
+  const rootStyle = {
+    width: responsiveWidth,
+    ...props.style,
+    ...props.styles?.root,
+  };
+
+  const toolbarClassName = classNames(classNamesProp?.toolbar);
+  const toolbarStyle = props.styles?.toolbar;
+
   return wrapSSR(
     <ChartContainer
       baseClassName={baseClassName}
-      className={className}
+      className={rootClassName}
       theme={theme}
       isMobile={isMobile}
       variant={props.variant}
-      style={{
-        width: responsiveWidth,
-      }}
+      style={rootStyle}
     >
       <ChartToolBar
         title={title}
         theme={theme}
+        className={toolbarClassName}
+        style={toolbarStyle}
         onDownload={handleDownload}
         extra={toolbarExtra}
         dataTime={dataTime}

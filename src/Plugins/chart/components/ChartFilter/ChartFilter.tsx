@@ -1,6 +1,5 @@
 import { ChevronDown } from '@sofa-design/icons';
 import { Button, ConfigProvider, Dropdown, Segmented } from 'antd';
-import classNames from 'classnames';
 import React, { useContext, useMemo, useRef } from 'react';
 import { I18nContext } from '../../../../I18n';
 import { debounce } from '../../utils';
@@ -24,8 +23,13 @@ export interface ChartFilterProps {
   selectedCustomSelection?: string;
   onSelectionChange?: (region: string) => void;
   className?: string;
+  /** 自定义CSS类名（支持多个类名） */
+  classNames?: string | string[] | Record<string, boolean | undefined>;
+  style?: React.CSSProperties;
   theme?: 'light' | 'dark';
   variant?: 'default' | 'compact';
+  /** 自定义样式对象（支持多个样式对象） */
+  styles?: React.CSSProperties | React.CSSProperties[];
 }
 
 const ChartFilterComponent: React.FC<ChartFilterProps> = ({
@@ -36,6 +40,9 @@ const ChartFilterComponent: React.FC<ChartFilterProps> = ({
   selectedCustomSelection,
   onSelectionChange,
   className = '',
+  classNames: classNamesProp,
+  style,
+  styles,
   theme = 'light',
   variant = 'default',
 }) => {
@@ -107,19 +114,30 @@ const ChartFilterComponent: React.FC<ChartFilterProps> = ({
     return null;
   }
 
+  const mergedClassName = [
+    prefixCls,
+    `${prefixCls}-${theme}`,
+    `${prefixCls}-${variant}`,
+    hashId,
+    className,
+    classNamesProp,
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const mergedStyle = {
+    ...style,
+    ...(Array.isArray(styles) ? Object.assign({}, ...styles) : styles || {}),
+  };
+
   return wrapSSR(
-    <div
-      className={classNames(
-        prefixCls,
-        `${prefixCls}-${theme}`,
-        `${prefixCls}-${variant}`,
-        hashId,
-        className,
-      )}
-    >
+    <div className={mergedClassName} style={mergedStyle}>
       {/* 地区筛选器，统一逻辑，只有可选时才显示 */}
       {customOptions && customOptions.length > 1 && (
-        <div className={classNames(`${prefixCls}-region-filter`, hashId)}>
+        <div
+          className={[`${prefixCls}-region-filter`, hashId]
+            .filter(Boolean)
+            .join(' ')}
+        >
           <Dropdown
             menu={{
               items: customOptions.map((item) => {
@@ -137,7 +155,9 @@ const ChartFilterComponent: React.FC<ChartFilterProps> = ({
             <Button
               type="default"
               size="small"
-              className={classNames(`${prefixCls}-region-dropdown-btn`, hashId)}
+              className={[`${prefixCls}-region-dropdown-btn`, hashId]
+                .filter(Boolean)
+                .join(' ')}
             >
               <span>
                 {customOptions.find((r) => r.key === selectedCustomSelection)
@@ -146,7 +166,9 @@ const ChartFilterComponent: React.FC<ChartFilterProps> = ({
                   '全部'}
               </span>
               <ChevronDown
-                className={classNames(`${prefixCls}-dropdown-icon`, hashId)}
+                className={[`${prefixCls}-dropdown-icon`, hashId]
+                  .filter(Boolean)
+                  .join(' ')}
               />
             </Button>
           </Dropdown>
@@ -158,11 +180,13 @@ const ChartFilterComponent: React.FC<ChartFilterProps> = ({
           options={filterOptions || []}
           value={selectedFilter}
           size="small"
-          className={classNames(
+          className={[
             `${prefixCls}-segmented-filter`,
             'custom-segmented',
             hashId,
-          )}
+          ]
+            .filter(Boolean)
+            .join(' ')}
           onChange={(value) => handleFilterChange(value as string)}
         />
       )}

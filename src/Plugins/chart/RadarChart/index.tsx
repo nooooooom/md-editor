@@ -10,7 +10,6 @@ import {
   RadialLinearScale,
   Tooltip,
 } from 'chart.js';
-import classNames from 'classnames';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Radar } from 'react-chartjs-2';
 import ChartStatistic from '../ChartStatistic';
@@ -23,6 +22,8 @@ import {
 } from '../components';
 import { defaultColorList } from '../const';
 import { StatisticConfigType } from '../hooks/useChartStatistic';
+import type { ChartClassNames, ChartStyles } from '../types/classNames';
+import classNames from 'classnames';
 import { useStyle } from './style';
 
 let radarChartComponentsRegistered = false;
@@ -57,6 +58,8 @@ interface RadarChartProps extends ChartContainerProps {
   pointBackgroundColor?: string;
   /** 自定义CSS类名 */
   className?: string;
+  /** 自定义CSS类名（支持对象格式，为每层DOM设置类名） */
+  classNames?: ChartClassNames;
   /** 数据时间 */
   dataTime?: string;
   /** 自定义主色（可选），支持 string 或 string[]；数组按序对应各数据序列 */
@@ -71,6 +74,8 @@ interface RadarChartProps extends ChartContainerProps {
   textMaxWidth?: number;
   /** 是否显示加载状态（当图表未闭合时显示） */
   loading?: boolean;
+  /** 自定义样式对象（支持对象格式，为每层DOM设置样式） */
+  styles?: ChartStyles;
 }
 
 const RadarChart: React.FC<RadarChartProps> = ({
@@ -79,6 +84,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
   width = 600,
   height = 400,
   className,
+  classNames: classNamesProp,
   toolbarExtra,
   renderFilterInToolbar = false,
   dataTime,
@@ -225,6 +231,8 @@ const RadarChart: React.FC<RadarChartProps> = ({
     ),
   );
 
+  const classNamesObj = classNamesProp || props.classNames;
+
   // 如果没有有效数据，返回空状态
   if (
     safeData.length === 0 ||
@@ -235,12 +243,18 @@ const RadarChart: React.FC<RadarChartProps> = ({
       <ChartContainer
         baseClassName={classNames(`${prefixCls}-container`)}
         theme={'light'}
-        className={classNames(hashId, className)}
+        className={classNames(
+          classNamesObj?.root,
+          hashId,
+          className,
+        )}
         isMobile={isMobile}
         variant={props.variant}
         style={{
           width: responsiveWidth,
           height: responsiveHeight,
+          ...props.style,
+          ...props.styles?.root,
         }}
       >
         <ChartToolBar
@@ -650,12 +664,18 @@ const RadarChart: React.FC<RadarChartProps> = ({
       <ChartContainer
         baseClassName={classNames(`${prefixCls}-container`)}
         theme={currentConfig.theme}
-        className={classNames(hashId, className)}
+        className={classNames(
+          classNamesObj?.root,
+          hashId,
+          className,
+        )}
         isMobile={isMobile}
         variant={props.variant}
         style={{
           width: responsiveWidth,
           height: responsiveHeight,
+          ...props.style,
+          ...props.styles?.root,
         }}
       >
         <ChartToolBar
@@ -722,12 +742,18 @@ const RadarChart: React.FC<RadarChartProps> = ({
       <ChartContainer
         baseClassName={classNames(`${prefixCls}-container`)}
         theme={'light'}
-        className={classNames(hashId, className)}
+        className={classNames(
+          classNamesObj?.root,
+          hashId,
+          className,
+        )}
         isMobile={isMobile}
         variant={props.variant}
         style={{
           width: responsiveWidth,
           height: responsiveHeight,
+          ...props.style,
+          ...props.styles?.root,
         }}
       >
         <ChartToolBar

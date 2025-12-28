@@ -5,7 +5,6 @@ import {
   ChartOptions,
   ScriptableContext,
 } from 'chart.js';
-import classNames from 'classnames';
 import React, { useContext, useMemo, useRef } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -31,6 +30,7 @@ import {
   hexToRgba,
   registerLineChartComponents,
 } from '../utils';
+import classNames from 'classnames';
 import { useStyle } from './style';
 
 /**
@@ -142,6 +142,8 @@ export interface AreaChartProps extends ChartContainerProps {
   height?: number | string;
   /** 自定义CSS类名 */
   className?: string;
+  /** 自定义CSS类名（支持对象格式，为每层DOM设置类名） */
+  classNames?: ChartClassNames;
   /** 数据时间 */
   dataTime?: string;
   /** 图表主题 */
@@ -172,6 +174,8 @@ export interface AreaChartProps extends ChartContainerProps {
   statistic?: StatisticConfigType;
   /** 是否显示加载状态（当图表未闭合时显示） */
   loading?: boolean;
+  /** 自定义样式对象（支持对象格式，为每层DOM设置样式） */
+  styles?: ChartStyles;
 }
 
 /**
@@ -207,6 +211,9 @@ const AreaChart: React.FC<AreaChartProps> = ({
   width = 600,
   height = 400,
   className,
+  classNames: classNamesProp,
+  style,
+  styles: stylesProp,
   dataTime,
   theme = 'light',
   color,
@@ -443,22 +450,35 @@ const AreaChart: React.FC<AreaChartProps> = ({
     downloadChart(chartRef.current, 'area-chart');
   };
 
+  const rootClassName = classNames(
+    classNamesProp?.root,
+    className,
+  );
+  const rootStyle = {
+    width: responsiveWidth,
+    height: responsiveHeight,
+    ...style,
+    ...stylesProp?.root,
+  };
+
+  const toolbarClassName = classNames(classNamesProp?.toolbar);
+  const toolbarStyle = stylesProp?.toolbar;
+
   return wrapSSR(
     <ChartContainer
       baseClassName={baseClassName}
-      className={className}
+      className={rootClassName}
       theme={theme}
       isMobile={isMobile}
       variant={variant}
-      style={{
-        width: responsiveWidth,
-        height: responsiveHeight,
-      }}
+      style={rootStyle}
     >
       <ChartToolBar
         title={title}
         theme={theme}
         onDownload={handleDownload}
+        className={toolbarClassName}
+        style={toolbarStyle}
         extra={toolbarExtra}
         dataTime={dataTime}
         loading={loading}

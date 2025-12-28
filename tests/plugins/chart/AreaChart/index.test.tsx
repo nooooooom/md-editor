@@ -28,7 +28,9 @@ vi.mock('react-chartjs-2', () => ({
 
 // Mock components
 vi.mock('../../../../src/Plugins/chart/components', async () => {
-  const actual = await vi.importActual('../../../../src/Plugins/chart/components');
+  const actual = await vi.importActual(
+    '../../../../src/Plugins/chart/components',
+  );
   return {
     ...actual,
     ChartContainer: ({ children, ...props }: any) => (
@@ -52,10 +54,16 @@ vi.mock('../../../../src/Plugins/chart/components', async () => {
     ),
     ChartToolBar: ({ title, onDownload, dataTime, extra }: any) => (
       <div data-testid="chart-toolbar">
-        {(title || '面积图') && <span data-testid="chart-title">{title || '面积图'}</span>}
+        {(title || '面积图') && (
+          <span data-testid="chart-title">{title || '面积图'}</span>
+        )}
         {dataTime && <span data-testid="chart-datatime">{dataTime}</span>}
         {extra}
-        <button type="button" onClick={onDownload} data-testid="download-button">
+        <button
+          type="button"
+          onClick={onDownload}
+          data-testid="download-button"
+        >
           下载
         </button>
       </div>
@@ -108,7 +116,7 @@ vi.mock('../../../../src/Plugins/chart/utils', () => ({
   hexToRgba: vi.fn((hex, alpha) => `rgba(0,0,0,${alpha})`),
   registerLineChartComponents: vi.fn(),
   getDataHash: vi.fn(() => 'mock-hash'),
-  ChartDataItem: function() {},
+  ChartDataItem: function () {},
 }));
 
 // Mock style hook
@@ -167,10 +175,18 @@ describe('AreaChart', () => {
       safeData: sampleData,
     }));
 
-    vi.mocked(utils.extractAndSortXValues).mockImplementation(() => ['Q1', 'Q2', 'Q3']);
-    vi.mocked(utils.findDataPointByXValue).mockImplementation((data: any, xValue: any, type: any) => {
-      return data.find((item: any) => item.x === xValue && item.type === type);
-    });
+    vi.mocked(utils.extractAndSortXValues).mockImplementation(() => [
+      'Q1',
+      'Q2',
+      'Q3',
+    ]);
+    vi.mocked(utils.findDataPointByXValue).mockImplementation(
+      (data: any, xValue: any, type: any) => {
+        return data.find(
+          (item: any) => item.x === xValue && item.type === type,
+        );
+      },
+    );
   });
 
   describe('基本渲染测试', () => {
@@ -388,11 +404,7 @@ describe('AreaChart', () => {
 
     it('应该支持自定义颜色', () => {
       render(
-        <AreaChart
-          data={sampleData}
-          color="#ff0000"
-          title="自定义颜色"
-        />,
+        <AreaChart data={sampleData} color="#ff0000" title="自定义颜色" />,
       );
 
       expect(screen.getByTestId('area-chart')).toBeInTheDocument();
@@ -415,11 +427,7 @@ describe('AreaChart', () => {
   describe('图例配置测试', () => {
     it('应该支持隐藏图例', () => {
       render(
-        <AreaChart
-          data={sampleData}
-          showLegend={false}
-          title="隐藏图例"
-        />,
+        <AreaChart data={sampleData} showLegend={false} title="隐藏图例" />,
       );
 
       expect(screen.getByTestId('area-chart')).toBeInTheDocument();
@@ -451,13 +459,7 @@ describe('AreaChart', () => {
 
   describe('网格配置测试', () => {
     it('应该支持隐藏网格线', () => {
-      render(
-        <AreaChart
-          data={sampleData}
-          showGrid={false}
-          title="隐藏网格"
-        />,
-      );
+      render(<AreaChart data={sampleData} showGrid={false} title="隐藏网格" />);
 
       expect(screen.getByTestId('area-chart')).toBeInTheDocument();
     });
@@ -465,25 +467,13 @@ describe('AreaChart', () => {
 
   describe('轴配置测试', () => {
     it('应该支持隐藏X轴', () => {
-      render(
-        <AreaChart
-          data={sampleData}
-          hiddenX={true}
-          title="隐藏X轴"
-        />,
-      );
+      render(<AreaChart data={sampleData} hiddenX={true} title="隐藏X轴" />);
 
       expect(screen.getByTestId('area-chart')).toBeInTheDocument();
     });
 
     it('应该支持隐藏Y轴', () => {
-      render(
-        <AreaChart
-          data={sampleData}
-          hiddenY={true}
-          title="隐藏Y轴"
-        />,
-      );
+      render(<AreaChart data={sampleData} hiddenY={true} title="隐藏Y轴" />);
 
       expect(screen.getByTestId('area-chart')).toBeInTheDocument();
     });
@@ -536,11 +526,13 @@ describe('AreaChart', () => {
       // 查找所有工具栏并检查最后一个（最新渲染的）
       const toolbars = screen.getAllByTestId('chart-toolbar');
       const lastToolbar = toolbars[toolbars.length - 1];
-      
+
       expect(lastToolbar).toBeInTheDocument();
-      
+
       // 在最后一个工具栏中查找额外按钮
-      const extraButtonElement = lastToolbar.querySelector('[data-testid="extra-button"]');
+      const extraButtonElement = lastToolbar.querySelector(
+        '[data-testid="extra-button"]',
+      );
       expect(extraButtonElement).toBeInTheDocument();
     });
   });
@@ -602,15 +594,12 @@ describe('AreaChart', () => {
     });
 
     it('应该处理多个数据集的颜色分配', () => {
-      const multiTypeData: any[] = Array.from(
-        { length: 15 },
-        (_, i) => ({
-          category: 'A组',
-          type: `团队${i + 1}`,
-          x: 'Q1',
-          y: 80,
-        }),
-      );
+      const multiTypeData: any[] = Array.from({ length: 15 }, (_, i) => ({
+        category: 'A组',
+        type: `团队${i + 1}`,
+        x: 'Q1',
+        y: 80,
+      }));
 
       render(<AreaChart data={multiTypeData} title="多数据集颜色" />);
 
@@ -620,9 +609,7 @@ describe('AreaChart', () => {
 
   describe('加载状态测试', () => {
     it('应该支持 loading 属性', () => {
-      render(
-        <AreaChart data={sampleData} loading={true} title="加载状态" />,
-      );
+      render(<AreaChart data={sampleData} loading={true} title="加载状态" />);
 
       expect(screen.getByTestId('chart-container')).toBeInTheDocument();
     });
@@ -653,6 +640,90 @@ describe('AreaChart', () => {
           title="工具栏筛选器"
         />,
       );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+  });
+
+  describe('classNames 和 styles 支持', () => {
+    it('应该支持 ChartClassNames 对象格式的 classNames', () => {
+      const classNames = {
+        root: 'custom-root-class',
+        toolbar: 'custom-toolbar-class',
+      };
+
+      render(<AreaChart data={sampleData} classNames={classNames} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该支持 ChartStyles 对象格式的 styles', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+        toolbar: { padding: '10px' },
+      };
+
+      render(<AreaChart data={sampleData} styles={styles} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该合并 classNames 和 className', () => {
+      const classNames = {
+        root: 'custom-root-class',
+      };
+
+      render(
+        <AreaChart
+          data={sampleData}
+          classNames={classNames}
+          className="additional-class"
+        />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该合并 styles 和 style', () => {
+      const styles = {
+        root: { width: '500px', height: '300px' },
+      };
+
+      render(
+        <AreaChart
+          data={sampleData}
+          styles={styles}
+          style={{ padding: '10px' }}
+        />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该正确处理 styles?.root 的合并顺序', () => {
+      const styles = {
+        root: { backgroundColor: 'red' },
+      };
+
+      render(
+        <AreaChart
+          data={sampleData}
+          styles={styles}
+          style={{ width: '500px', height: '300px' }}
+        />,
+      );
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该处理 classNames 为 undefined 的情况', () => {
+      render(<AreaChart data={sampleData} classNames={undefined} />);
+
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该处理 styles 为 undefined 的情况', () => {
+      render(<AreaChart data={sampleData} styles={undefined} />);
 
       expect(screen.getByTestId('chart-container')).toBeInTheDocument();
     });

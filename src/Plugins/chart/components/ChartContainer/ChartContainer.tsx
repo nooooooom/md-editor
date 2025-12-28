@@ -1,7 +1,8 @@
-import classNames from 'classnames';
 import React from 'react';
+import classNames from 'classnames';
 import ChartErrorBoundary from './ChartErrorBoundary';
 import { useStyle } from './style';
+import type { ChartClassNames, ChartStyles } from '../../types/classNames';
 
 export interface ChartContainerProps {
   /** 自定义CSS类名 */
@@ -26,6 +27,10 @@ export interface ChartContainerProps {
     onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
   };
   loading?: boolean;
+  /** 自定义CSS类名（支持对象格式，为每层DOM设置类名） */
+  classNames?: ChartClassNames;
+  /** 自定义样式对象（支持对象格式，为每层DOM设置样式） */
+  styles?: ChartStyles;
 }
 
 export interface ChartContainerRef {
@@ -113,6 +118,8 @@ const ChartContainer: React.FC<
   className,
   children,
   style,
+  classNames: classNamesProp,
+  styles: stylesProp,
   theme = 'light',
   variant = 'default',
   isMobile = false,
@@ -125,19 +132,23 @@ const ChartContainer: React.FC<
   const combinedClassName = classNames(
     baseClassName,
     hashId,
-    {
-      [`${baseClassName}-light-theme`]: theme === 'light',
-      [`${baseClassName}-dark-theme`]: theme === 'dark',
-      [`${baseClassName}-mobile`]: isMobile,
-      [`${baseClassName}-desktop`]: !isMobile,
-      [`${baseClassName}-outline`]: variant === 'outline',
-      [`${baseClassName}-borderless`]: variant === 'borderless',
-    },
+    theme === 'light' && `${baseClassName}-light-theme`,
+    theme === 'dark' && `${baseClassName}-dark-theme`,
+    isMobile && `${baseClassName}-mobile`,
+    !isMobile && `${baseClassName}-desktop`,
+    variant === 'outline' && `${baseClassName}-outline`,
+    variant === 'borderless' && `${baseClassName}-borderless`,
     className,
+    classNamesProp?.root,
   );
 
+  const combinedStyle = {
+    ...style,
+    ...stylesProp?.root,
+  };
+
   const containerContent = (
-    <div className={combinedClassName} style={style} {...restProps}>
+    <div className={combinedClassName} style={combinedStyle} {...restProps}>
       {children}
     </div>
   );

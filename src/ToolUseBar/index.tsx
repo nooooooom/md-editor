@@ -169,11 +169,7 @@ const ToolUseBarComponent: React.FC<ToolUseBarProps> = ({
 
   if (!tools?.length)
     return (
-      <div
-        className={containerClassName}
-        style={style}
-        data-testid="ToolUse"
-      />
+      <div className={containerClassName} style={style} data-testid="ToolUse" />
     );
 
   return wrapSSR(

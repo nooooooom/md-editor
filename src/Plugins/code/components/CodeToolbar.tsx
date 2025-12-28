@@ -123,7 +123,7 @@ export const CodeToolbar = (props: CodeToolbarProps) => {
   const { editorProps } = useEditorStore();
   const disableHtmlPreview = editorProps.codeProps?.disableHtmlPreview ?? false;
   const viewModeLabels = editorProps.codeProps?.viewModeLabels;
-  
+
   const {
     element,
     readonly,
@@ -136,7 +136,7 @@ export const CodeToolbar = (props: CodeToolbarProps) => {
     setTheme,
     viewMode = 'code',
   } = props;
-  
+
   // 检测 HTML 代码中是否包含 JavaScript
   const hasJavaScript = useMemo(() => {
     const language = element?.language?.toLowerCase();
@@ -145,7 +145,7 @@ export const CodeToolbar = (props: CodeToolbarProps) => {
     }
     return false;
   }, [element?.language, element?.value]);
-  
+
   // 如果禁用了 HTML 预览或包含 JavaScript，则禁用预览
   const shouldDisablePreview = disableHtmlPreview || hasJavaScript;
   return (

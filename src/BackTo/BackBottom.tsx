@@ -76,54 +76,53 @@ export interface BackBottomProps extends ScrollVisibleButtonProps {
  * - 使用 forwardRef 支持 ref 传递
  * - 提供完整的无障碍支持
  */
-const BackBottomComponent = forwardRef<
-  ScrollVisibleButtonRef,
-  BackBottomProps
->((props, ref) => {
-  const {
-    duration = DEFAULT_DURATION,
-    onClick,
-    shouldVisible: propsShouldVisible,
-    ...rest
-  } = props;
+const BackBottomComponent = forwardRef<ScrollVisibleButtonRef, BackBottomProps>(
+  (props, ref) => {
+    const {
+      duration = DEFAULT_DURATION,
+      onClick,
+      shouldVisible: propsShouldVisible,
+      ...rest
+    } = props;
 
-  const shouldVisible = useCallback<
-    (scrollTop: number, container: HTMLElement | Window) => boolean
-  >(
-    (scrollTop, container) => {
-      if (typeof propsShouldVisible === 'function') {
-        return propsShouldVisible(scrollTop, container);
-      }
-      const scrollRailHeight = getScrollRailHeight(container);
-      return (
-        scrollRailHeight - scrollTop >=
-        (propsShouldVisible ?? DEFAULT_VISIBLE_THRESHOLD)
-      );
-    },
-    [propsShouldVisible],
-  );
+    const shouldVisible = useCallback<
+      (scrollTop: number, container: HTMLElement | Window) => boolean
+    >(
+      (scrollTop, container) => {
+        if (typeof propsShouldVisible === 'function') {
+          return propsShouldVisible(scrollTop, container);
+        }
+        const scrollRailHeight = getScrollRailHeight(container);
+        return (
+          scrollRailHeight - scrollTop >=
+          (propsShouldVisible ?? DEFAULT_VISIBLE_THRESHOLD)
+        );
+      },
+      [propsShouldVisible],
+    );
 
-  // 使用 useCallback 优化滚动到底部处理函数
-  const scrollToBottom = useCallback<ScrollVisibleButtonProps['onClick']>(
-    (e, container) => {
-      const scrollRailHeight = getScrollRailHeight(container);
-      scrollTo(scrollRailHeight, { container, duration });
-      onClick?.(e, container);
-    },
-    [duration, onClick],
-  );
+    // 使用 useCallback 优化滚动到底部处理函数
+    const scrollToBottom = useCallback<ScrollVisibleButtonProps['onClick']>(
+      (e, container) => {
+        const scrollRailHeight = getScrollRailHeight(container);
+        scrollTo(scrollRailHeight, { container, duration });
+        onClick?.(e, container);
+      },
+      [duration, onClick],
+    );
 
-  return (
-    <ScrollVisibleButton
-      {...rest}
-      ref={ref}
-      shouldVisible={shouldVisible}
-      onClick={scrollToBottom}
-    >
-      <BottomIcon />
-    </ScrollVisibleButton>
-  );
-});
+    return (
+      <ScrollVisibleButton
+        {...rest}
+        ref={ref}
+        shouldVisible={shouldVisible}
+        onClick={scrollToBottom}
+      >
+        <BottomIcon />
+      </ScrollVisibleButton>
+    );
+  },
+);
 
 BackBottomComponent.displayName = 'BackBottom';
 

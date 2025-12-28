@@ -78,7 +78,9 @@ function SendIcon(
         r="0.5em"
         initial={false}
         animate={{
-          fill: hover ? currentColors.backgroundHover : currentColors.background,
+          fill: hover
+            ? currentColors.backgroundHover
+            : currentColors.background,
           fillOpacity: hover ? 1 : 0.03530000150203705,
         }}
         transition={{

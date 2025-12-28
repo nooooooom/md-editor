@@ -3,8 +3,8 @@ import classNames from 'classnames';
 import React, {
   isValidElement,
   memo,
-  useContext,
   useCallback,
+  useContext,
   useState,
 } from 'react';
 import { CloseIcon } from './components/CloseIcon';
@@ -67,11 +67,7 @@ const IconNode: React.FC<IconNodeProps> = memo((props) => {
       );
     }
     return React.cloneElement(icon as React.ReactElement<any>, {
-      className: classNames(
-        `${prefixCls}-icon`,
-        hashId,
-        icon.props.className,
-      ),
+      className: classNames(`${prefixCls}-icon`, hashId, icon.props.className),
     });
   }
 

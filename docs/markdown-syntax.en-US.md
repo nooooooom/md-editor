@@ -13,22 +13,27 @@ Use `#` to denote headers level 1-6.
 
 ```markdown
 # Header 1
+
 ## Header 2
+
 ### Header 3
+
 #### Header 4
+
 ##### Header 5
+
 ###### Header 6
 ```
 
 ## Emphasis
 
-*   **Bold**: Use `**` or `__` to wrap text.
-*   *Italic*: Use `*` or `_` to wrap text.
-*   ~~Strikethrough~~: Use `~~` to wrap text.
+- **Bold**: Use `**` or `__` to wrap text.
+- _Italic_: Use `*` or `_` to wrap text.
+- ~~Strikethrough~~: Use `~~` to wrap text.
 
 ```markdown
 **Bold Text**
-*Italic Text*
+_Italic Text_
 ~~Strikethrough Text~~
 ```
 
@@ -106,10 +111,10 @@ function hello() {
 Use `|` to separate cells, and `-` to separate headers and content.
 
 ```markdown
-| Header 1 | Header 2 | Header 3 |
-| :--- | :---: | ---: |
-| Left Align | Center | Right Align |
-| Content | Content | Content |
+| Header 1   | Header 2 |    Header 3 |
+| :--------- | :------: | ----------: |
+| Left Align |  Center  | Right Align |
+| Content    | Content  |     Content |
 ```
 
 ## Horizontal Rules
@@ -184,10 +189,10 @@ You can configure a normal Markdown table as an advanced table using the HTML co
 ```markdown
 <!-- {"chartType": "table"} -->
 
-| Name | Age | Occupation |
-| :--- | :--- | :--- |
-| John Doe | 28 | Engineer |
-| Jane Doe | 32 | Designer |
+| Name     | Age | Occupation |
+| :------- | :-- | :--------- |
+| John Doe | 28  | Engineer   |
+| Jane Doe | 32  | Designer   |
 ```
 
 ### Other Chart Types
@@ -198,10 +203,10 @@ Similarly, supports rendering various chart types, such as bar charts (`bar`), p
 <!-- {"chartType": "bar", "x": "Product", "y": "Sales"} -->
 
 | Product | Sales |
-| :--- | :--- |
-| A | 100 |
-| B | 150 |
-| C | 80 |
+| :------ | :---- |
+| A       | 100   |
+| B       | 150   |
+| C       | 80    |
 ```
 
 ## Advanced Custom Components (aPaaSify)

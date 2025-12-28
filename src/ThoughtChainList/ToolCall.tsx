@@ -295,7 +295,7 @@ export const ToolCall = (
                 >
                   <Copy />
                 </ActionIconBox>
-                {(props.onItemChange || props.onChangeItem) ? (
+                {props.onItemChange || props.onChangeItem ? (
                   <ActionIconBox
                     title={locale?.edit}
                     onClick={() => {
