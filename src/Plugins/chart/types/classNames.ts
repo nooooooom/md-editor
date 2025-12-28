@@ -46,4 +46,3 @@ export interface ChartStyles {
   /** 图表本身样式 */
   chart?: React.CSSProperties;
 }
-

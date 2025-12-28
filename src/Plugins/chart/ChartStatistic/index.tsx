@@ -15,10 +15,7 @@ export interface ChartStatisticProps {
   formatter?: (value: number | string | null | undefined) => React.ReactNode;
   className?: string;
   /** 自定义CSS类名（支持多个类名） */
-  classNames?:
-    | string
-    | string[]
-    | Record<string, boolean | undefined>;
+  classNames?: string | string[] | Record<string, boolean | undefined>;
   style?: React.CSSProperties;
   theme?: 'light' | 'dark';
   size?: 'small' | 'default' | 'large';
@@ -71,13 +68,19 @@ const ChartStatistic: React.FC<ChartStatisticProps> = ({
     if (!title && !extra) return null;
 
     const titleElement = title ? (
-      <span className={[`${prefixCls}-title`, hashId].filter(Boolean).join(' ')}>{title}</span>
+      <span
+        className={[`${prefixCls}-title`, hashId].filter(Boolean).join(' ')}
+      >
+        {title}
+      </span>
     ) : null;
 
     const questionIcon = tooltip ? (
       <Tooltip mouseEnterDelay={0.3} title={tooltip} placement="top">
         <QuestionCircleOutlined
-          className={[`${prefixCls}-question-icon`, hashId].filter(Boolean).join(' ')}
+          className={[`${prefixCls}-question-icon`, hashId]
+            .filter(Boolean)
+            .join(' ')}
         />
       </Tooltip>
     ) : null;
@@ -85,8 +88,14 @@ const ChartStatistic: React.FC<ChartStatisticProps> = ({
     const extraElement = extra ? <div>{extra}</div> : null;
 
     return (
-      <div className={[`${prefixCls}-header`, hashId].filter(Boolean).join(' ')}>
-        <div className={[`${prefixCls}-header-left`, hashId].filter(Boolean).join(' ')}>
+      <div
+        className={[`${prefixCls}-header`, hashId].filter(Boolean).join(' ')}
+      >
+        <div
+          className={[`${prefixCls}-header-left`, hashId]
+            .filter(Boolean)
+            .join(' ')}
+        >
           {titleElement}
           {questionIcon}
         </div>
@@ -103,7 +112,9 @@ const ChartStatistic: React.FC<ChartStatisticProps> = ({
     hashId,
     className,
     classNames,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
   const mergedStyle = {
     ...style,
     ...(Array.isArray(styles) ? Object.assign({}, ...styles) : styles || {}),
@@ -114,13 +125,21 @@ const ChartStatistic: React.FC<ChartStatisticProps> = ({
       {renderHeader()}
       <div className={[`${prefixCls}-value`, hashId].filter(Boolean).join(' ')}>
         {prefix && (
-          <span className={[`${prefixCls}-value-prefix`, hashId].filter(Boolean).join(' ')}>
+          <span
+            className={[`${prefixCls}-value-prefix`, hashId]
+              .filter(Boolean)
+              .join(' ')}
+          >
             {prefix}
           </span>
         )}
         {renderValue()}
         {suffix && (
-          <span className={[`${prefixCls}-value-suffix`, hashId].filter(Boolean).join(' ')}>
+          <span
+            className={[`${prefixCls}-value-suffix`, hashId]
+              .filter(Boolean)
+              .join(' ')}
+          >
             {suffix}
           </span>
         )}

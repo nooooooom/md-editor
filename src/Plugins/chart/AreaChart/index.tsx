@@ -5,6 +5,7 @@ import {
   ChartOptions,
   ScriptableContext,
 } from 'chart.js';
+import classNames from 'classnames';
 import React, { useContext, useMemo, useRef } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -30,7 +31,6 @@ import {
   hexToRgba,
   registerLineChartComponents,
 } from '../utils';
-import classNames from 'classnames';
 import { useStyle } from './style';
 
 /**
@@ -450,10 +450,7 @@ const AreaChart: React.FC<AreaChartProps> = ({
     downloadChart(chartRef.current, 'area-chart');
   };
 
-  const rootClassName = classNames(
-    classNamesProp?.root,
-    className,
-  );
+  const rootClassName = classNames(classNamesProp?.root, className);
   const rootStyle = {
     width: responsiveWidth,
     height: responsiveHeight,

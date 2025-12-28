@@ -10,6 +10,7 @@ import {
   LinearScale,
   Tooltip,
 } from 'chart.js';
+import classNames from 'classnames';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import ChartStatistic from '../ChartStatistic';
@@ -22,9 +23,8 @@ import {
 } from '../components';
 import { defaultColorList } from '../const';
 import { StatisticConfigType } from '../hooks/useChartStatistic';
-import { findDataPointByXValue, isXValueEqual, toNumber } from '../utils';
 import type { ChartClassNames, ChartStyles } from '../types/classNames';
-import classNames from 'classnames';
+import { findDataPointByXValue, isXValueEqual, toNumber } from '../utils';
 import { useStyle } from './style';
 
 let funnelChartComponentsRegistered = false;
@@ -733,11 +733,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({
   return wrapSSR(
     <ChartContainer
       baseClassName={baseClassName}
-      className={classNames(
-        classNamesObj?.root,
-        className,
-        containerClassName,
-      )}
+      className={classNames(classNamesObj?.root, className, containerClassName)}
       theme={theme}
       isMobile={isMobile}
       variant={props.variant}
@@ -791,10 +787,10 @@ const FunnelChart: React.FC<FunnelChartProps> = ({
       {/* 统计数据组件 */}
       {statistics && (
         <div
-            className={classNames(
-              classNamesObj?.statisticContainer,
-              `${baseClassName}-statistic-container`,
-            )}
+          className={classNames(
+            classNamesObj?.statisticContainer,
+            `${baseClassName}-statistic-container`,
+          )}
           style={props.styles?.statisticContainer}
         >
           {statistics.map((config, index) => (

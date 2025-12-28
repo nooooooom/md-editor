@@ -6,6 +6,7 @@ import {
   Legend,
   Tooltip,
 } from 'chart.js';
+import classNames from 'classnames';
 import React, { useContext, useMemo, useRef, useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import {
@@ -16,7 +17,6 @@ import {
   downloadChart,
 } from '../components';
 import { defaultColorList } from '../const';
-import classNames from 'classnames';
 import {
   SINGLE_MODE_DESKTOP_CUTOUT,
   SINGLE_MODE_MOBILE_CUTOUT,
@@ -297,10 +297,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
   return (
     <ChartContainer
       baseClassName={baseClassName}
-      className={classNames(
-        classNamesProp?.root,
-        className,
-      )}
+      className={classNames(classNamesProp?.root, className)}
       variant={props.variant}
       style={{
         ['--donut-item-min-width' as any]: `${dimensions.width}px`,

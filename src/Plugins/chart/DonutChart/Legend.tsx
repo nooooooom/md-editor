@@ -44,7 +44,9 @@ const Legend: React.FC<LegendProps> = ({
         return (
           <div
             key={i}
-            className={[`${baseClassName}-legend-item`, hashId].filter(Boolean).join(' ')}
+            className={[`${baseClassName}-legend-item`, hashId]
+              .filter(Boolean)
+              .join(' ')}
             style={{
               cursor: 'pointer',
               padding: isMobile ? '4px 0' : '6px 0',
@@ -64,7 +66,9 @@ const Legend: React.FC<LegendProps> = ({
             aria-label={`${isHidden ? '显示' : '隐藏'} ${d.label}`}
           >
             <span
-              className={[`${baseClassName}-legend-color`, hashId].filter(Boolean).join(' ')}
+              className={[`${baseClassName}-legend-color`, hashId]
+                .filter(Boolean)
+                .join(' ')}
               style={{
                 ['--donut-legend-color' as any]: backgroundColors[i] || '#ccc',
                 width: isMobile ? 10 : 12,
@@ -74,7 +78,9 @@ const Legend: React.FC<LegendProps> = ({
               }}
             />
             <span
-              className={[`${baseClassName}-legend-label`, hashId].filter(Boolean).join(' ')}
+              className={[`${baseClassName}-legend-label`, hashId]
+                .filter(Boolean)
+                .join(' ')}
               style={{
                 fontSize: isMobile ? 11 : 13,
                 flex: isMobile ? '0 1 auto' : 1,
@@ -84,7 +90,9 @@ const Legend: React.FC<LegendProps> = ({
               {d.label}
             </span>
             <span
-              className={[`${baseClassName}-legend-value`, hashId].filter(Boolean).join(' ')}
+              className={[`${baseClassName}-legend-value`, hashId]
+                .filter(Boolean)
+                .join(' ')}
               style={{
                 fontSize: isMobile ? 11 : 13,
                 fontWeight: isMobile ? 400 : 500,
@@ -96,10 +104,9 @@ const Legend: React.FC<LegendProps> = ({
             >
               <span>{d.value}</span>
               <span
-                className={[
-                  `${baseClassName}-legend-percent`,
-                  hashId,
-                ].filter(Boolean).join(' ')}
+                className={[`${baseClassName}-legend-percent`, hashId]
+                  .filter(Boolean)
+                  .join(' ')}
                 style={{
                   fontSize: isMobile ? 10 : 12,
                   marginLeft: isMobile ? 6 : 8,

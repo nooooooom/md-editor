@@ -43,10 +43,7 @@ export interface ChartToolBarProps {
   /** 自定义CSS类名 */
   className?: string;
   /** 自定义CSS类名（支持多个类名） */
-  classNames?:
-    | string
-    | string[]
-    | Record<string, boolean | undefined>;
+  classNames?: string | string[] | Record<string, boolean | undefined>;
   /** 样式对象 */
   style?: React.CSSProperties;
   /** 图表主题 */
@@ -120,7 +117,9 @@ const ChartToolBar: React.FC<ChartToolBarProps> = ({
     hashId,
     className,
     classNames,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
   const mergedStyle = {
     ...style,
     ...(Array.isArray(styles) ? Object.assign({}, ...styles) : styles || {}),
@@ -129,7 +128,11 @@ const ChartToolBar: React.FC<ChartToolBarProps> = ({
   return wrapSSR(
     <div className={mergedClassName} style={mergedStyle}>
       {/* 左侧标题 */}
-      <div className={[`${prefixCls}-header-title`, hashId].filter(Boolean).join(' ')}>
+      <div
+        className={[`${prefixCls}-header-title`, hashId]
+          .filter(Boolean)
+          .join(' ')}
+      >
         {title}
         {loading && (
           <Loading
@@ -143,13 +146,23 @@ const ChartToolBar: React.FC<ChartToolBarProps> = ({
       </div>
 
       {/* 右侧时间+下载按钮 */}
-      <div className={[`${prefixCls}-header-actions`, hashId].filter(Boolean).join(' ')}>
+      <div
+        className={[`${prefixCls}-header-actions`, hashId]
+          .filter(Boolean)
+          .join(' ')}
+      >
         {dataTime ? (
           <>
             <TimeIcon
-              className={[`${prefixCls}-time-icon`, hashId].filter(Boolean).join(' ')}
+              className={[`${prefixCls}-time-icon`, hashId]
+                .filter(Boolean)
+                .join(' ')}
             />
-            <span className={[`${prefixCls}-data-time`, hashId].filter(Boolean).join(' ')}>
+            <span
+              className={[`${prefixCls}-data-time`, hashId]
+                .filter(Boolean)
+                .join(' ')}
+            >
               {i18n?.locale?.dataTime || '数据时间'}: {dataTime}
             </span>
           </>
@@ -162,7 +175,9 @@ const ChartToolBar: React.FC<ChartToolBarProps> = ({
             title={i18n?.locale?.download || '下载'}
           >
             <DownloadOutlined
-              className={[`${prefixCls}-download-btn`, hashId].filter(Boolean).join(' ')}
+              className={[`${prefixCls}-download-btn`, hashId]
+                .filter(Boolean)
+                .join(' ')}
               onClick={handleDownload}
             />
           </Tooltip>

@@ -1,8 +1,8 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
+import type { ChartClassNames, ChartStyles } from '../../types/classNames';
 import ChartErrorBoundary from './ChartErrorBoundary';
 import { useStyle } from './style';
-import type { ChartClassNames, ChartStyles } from '../../types/classNames';
 
 export interface ChartContainerProps {
   /** 自定义CSS类名 */

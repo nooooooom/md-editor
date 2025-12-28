@@ -10,6 +10,7 @@ import {
   RadialLinearScale,
   Tooltip,
 } from 'chart.js';
+import classNames from 'classnames';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Radar } from 'react-chartjs-2';
 import ChartStatistic from '../ChartStatistic';
@@ -23,7 +24,6 @@ import {
 import { defaultColorList } from '../const';
 import { StatisticConfigType } from '../hooks/useChartStatistic';
 import type { ChartClassNames, ChartStyles } from '../types/classNames';
-import classNames from 'classnames';
 import { useStyle } from './style';
 
 let radarChartComponentsRegistered = false;
@@ -243,11 +243,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
       <ChartContainer
         baseClassName={classNames(`${prefixCls}-container`)}
         theme={'light'}
-        className={classNames(
-          classNamesObj?.root,
-          hashId,
-          className,
-        )}
+        className={classNames(classNamesObj?.root, hashId, className)}
         isMobile={isMobile}
         variant={props.variant}
         style={{
@@ -664,11 +660,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
       <ChartContainer
         baseClassName={classNames(`${prefixCls}-container`)}
         theme={currentConfig.theme}
-        className={classNames(
-          classNamesObj?.root,
-          hashId,
-          className,
-        )}
+        className={classNames(classNamesObj?.root, hashId, className)}
         isMobile={isMobile}
         variant={props.variant}
         style={{
@@ -742,11 +734,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
       <ChartContainer
         baseClassName={classNames(`${prefixCls}-container`)}
         theme={'light'}
-        className={classNames(
-          classNamesObj?.root,
-          hashId,
-          className,
-        )}
+        className={classNames(classNamesObj?.root, hashId, className)}
         isMobile={isMobile}
         variant={props.variant}
         style={{
