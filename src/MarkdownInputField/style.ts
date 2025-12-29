@@ -173,7 +173,11 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       '&&-disabled': {
         backgroundColor: 'rgba(0,0,0,0.04)',
         cursor: 'not-allowed',
+        opacity: 0.5,
         padding: 0,
+      },
+      '&-loading': {
+        cursor: 'not-allowed',
       },
       '&-send-tools': {
         boxSizing: 'border-box',

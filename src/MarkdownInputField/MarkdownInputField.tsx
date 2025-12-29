@@ -319,8 +319,6 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
               : `min(${collapsedHeightPx}px,100%)`,
             borderRadius: borderRadius || 12,
             minHeight: computedMinHeight,
-            cursor: isLoading || props.disabled ? 'not-allowed' : 'auto',
-            opacity: props.disabled ? 0.5 : 1,
             maxHeight: isEnlarged
               ? 'none'
               : props.maxHeight !== undefined
