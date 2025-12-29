@@ -309,6 +309,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
             [`${baseCls}-is-multi-row`]: isMultiRowLayout,
             [`${baseCls}-enlarged`]: isEnlarged,
             [`${baseCls}-focused`]: isFocused,
+            [`${baseCls}-has-tools-wrapper`]: !!props.toolsRender,
           })}
           style={{
             ...props.style,
@@ -344,7 +345,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
             style={{
               display: 'flex',
               flexDirection: 'column',
-              borderRadius: 0,
+              borderRadius: !!props.toolsRender ? 0 : 'inherit',
               borderTopLeftRadius: 'inherit',
               borderTopRightRadius: 'inherit',
               maxHeight: editorMaxHeight,
