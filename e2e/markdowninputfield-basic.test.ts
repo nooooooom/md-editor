@@ -488,3 +488,128 @@ test('MarkdownInputField paste functionality should work correctly', async () =>
     await page.close();
   }
 });
+
+test('MarkdownInputField should show placeholder when only whitespace is entered', async () => {
+  const page = await browser.newPage();
+
+  try {
+    const response = await page.goto(
+      'http://localhost:8000/~demos/markdowninputfield-demo-1',
+      {
+        timeout: 10000,
+        waitUntil: 'networkidle',
+      },
+    );
+
+    if (response?.ok()) {
+      // 重新加载页面以确保测试从干净状态开始
+      await page.reload({ waitUntil: 'networkidle' });
+      await page.waitForTimeout(500);
+
+      // 等待 MarkdownInputField 容器出现
+      const inputField = page.locator('.ant-agentic-md-input-field').first();
+      await inputField.waitFor({ state: 'visible', timeout: 5000 });
+
+      // 找到可编辑的输入框
+      const input = page.locator('[contenteditable="true"]').first();
+      await input.waitFor({ state: 'visible', timeout: 5000 });
+
+      // 点击输入框以聚焦
+      await input.click();
+      await page.waitForTimeout(200);
+
+      // 清空输入框
+      await input.fill('');
+      await page.waitForTimeout(200);
+
+      // 验证初始状态下 placeholder 显示
+      const initialPlaceholder = await page.evaluate(() => {
+        const paragraph = document.querySelector('[data-slate-placeholder]');
+        return paragraph?.getAttribute('data-slate-placeholder') || null;
+      });
+      expect(initialPlaceholder).toBeTruthy();
+      console.log('Initial placeholder:', initialPlaceholder);
+
+      // 只输入空格
+      await input.type('   ');
+      await page.waitForTimeout(300);
+
+      // 验证输入后 placeholder 仍然显示（因为 trim 后为空）
+      const placeholderAfterSpace = await page.evaluate(() => {
+        const paragraph = document.querySelector('[data-slate-placeholder]');
+        return paragraph?.getAttribute('data-slate-placeholder') || null;
+      });
+      expect(placeholderAfterSpace).toBeTruthy();
+      expect(placeholderAfterSpace).toBe(initialPlaceholder);
+      console.log('Placeholder after space input:', placeholderAfterSpace);
+
+      // 验证输入框有 empty 类名
+      const hasEmptyClass = await page.evaluate(() => {
+        const paragraph = document.querySelector('.empty');
+        return paragraph !== null;
+      });
+      expect(hasEmptyClass).toBe(true);
+
+      // 输入多个空格和制表符
+      await input.fill('');
+      await page.waitForTimeout(200);
+      await input.type('     \t\t  ');
+      await page.waitForTimeout(300);
+
+      // 验证 placeholder 仍然显示
+      const placeholderAfterMultipleSpaces = await page.evaluate(() => {
+        const paragraph = document.querySelector('[data-slate-placeholder]');
+        return paragraph?.getAttribute('data-slate-placeholder') || null;
+      });
+      expect(placeholderAfterMultipleSpaces).toBeTruthy();
+      console.log(
+        'Placeholder after multiple spaces:',
+        placeholderAfterMultipleSpaces,
+      );
+
+      // 输入实际文本后，placeholder 应该消失
+      await input.fill('Actual text');
+      await page.waitForTimeout(300);
+
+      const placeholderAfterText = await page.evaluate(() => {
+        const paragraph = document.querySelector('[data-slate-placeholder]');
+        return paragraph?.getAttribute('data-slate-placeholder') || null;
+      });
+      // placeholder 应该不存在或为空（因为输入了实际文本）
+      expect(placeholderAfterText).toBeFalsy();
+      console.log('Placeholder after text input:', placeholderAfterText);
+
+      // 删除所有文本，只留下空格
+      const isMac = process.platform === 'darwin';
+      const modifierKey = isMac ? 'Meta' : 'Control';
+      await page.keyboard.press(`${modifierKey}+a`);
+      await page.waitForTimeout(200);
+      await page.keyboard.press('Delete');
+      await page.waitForTimeout(200);
+      await input.type('   ');
+      await page.waitForTimeout(300);
+
+      // 验证 placeholder 再次显示
+      const placeholderAfterDeleteAndSpace = await page.evaluate(() => {
+        const paragraph = document.querySelector('[data-slate-placeholder]');
+        return paragraph?.getAttribute('data-slate-placeholder') || null;
+      });
+      expect(placeholderAfterDeleteAndSpace).toBeTruthy();
+      console.log(
+        'Placeholder after delete and space:',
+        placeholderAfterDeleteAndSpace,
+      );
+
+      console.log('Whitespace placeholder test passed');
+    } else {
+      console.warn(
+        'Could not connect to demo page. Make sure the dev server is running at http://localhost:8000',
+      );
+    }
+  } catch (error) {
+    console.warn('Failed to run whitespace placeholder e2e test.', error);
+    throw error;
+  } finally {
+    await page.close();
+  }
+});

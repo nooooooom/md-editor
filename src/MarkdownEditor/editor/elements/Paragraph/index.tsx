@@ -31,12 +31,18 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
       readonly,
       align: props.element.align,
     });
+    // 检查是否为空：trim 后的字符串为空（包括只包含空格的情况），且所有子节点都是纯文本节点（没有 type、code、tag）
+    // 当只输入空格时，trim() 后为空字符串，应该显示 placeholder
+    const hasOnlyTextNodes = props.element?.children?.every?.(
+      (child: any) => !child.type && !child.code && !child.tag,
+    );
+    // 当 trim 后的字符串为空时，应该显示 placeholder
+    // 需要满足：只有一个段落节点，且所有子节点都是纯文本节点
+    // 注意：当只输入空格时，trim() 后为空，!str 为 true，应该正确显示 placeholder
     const isEmpty =
       !str &&
       markdownEditorRef.current?.children.length === 1 &&
-      props.element?.children?.every?.(
-        (child: any) => !child.type && !child.code && !child.tag,
-      )
+      hasOnlyTextNodes
         ? true
         : undefined;
 
