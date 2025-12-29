@@ -80,18 +80,27 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       alignItems: 'center',
       justifyContent: 'center',
       padding: INPUT_FIELD_PADDING.NONE,
-      borderRadius: '16px',
+      borderRadius: '12px',
       minHeight: '48px',
       maxWidth: 980,
-      backdropFilter: 'blur(5.44px)',
-      boxShadow: 'var(--shadow-control-lg)',
       position: 'relative',
+      transition: 'box-shadow 0.3s',
       '> * ': {
         boxSizing: 'border-box',
       },
       '&:active,&.active': {
         outline: '1px solid transparent',
         outlineColor: 'var(--mif-active-outline-color, transparent)',
+      },
+      boxShadow:
+        '0px 0px 1px 0px rgba(10, 48, 104, 0.15), 0px 1.5px 4px -1px rgba(10, 48, 104, 0.04)',
+      '&:hover': {
+        boxShadow:
+          '0px 0px 1px 0px rgba(10, 48, 104, 0.25), 0px 2px 7px 0px rgba(10, 48, 104, 0.05), 0px 2px 5px -2px rgba(10, 48, 104, 0.06)',
+      },
+      '&-focused': {
+        boxShadow:
+          '0px 0px 1px 0px rgba(10, 48, 104, 0.25), 0px 2px 7px 0px rgba(10, 48, 104, 0.05), 0px 2px 5px -2px rgba(10, 48, 104, 0.06)',
       },
 
       '&-enlarged': {

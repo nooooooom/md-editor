@@ -317,7 +317,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
             height: isEnlarged
               ? `${props.enlargeable?.height ?? 980}px`
               : `min(${collapsedHeightPx}px,100%)`,
-            borderRadius: borderRadius || 16,
+            borderRadius: borderRadius || 12,
             minHeight: computedMinHeight,
             cursor: isLoading || props.disabled ? 'not-allowed' : 'auto',
             opacity: props.disabled ? 0.5 : 1,
@@ -328,8 +328,6 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
                   ? `${props.maxHeight}px`
                   : props.maxHeight
                 : `min(${collapsedHeightPx}px,100%)`,
-            transition:
-              'height, max-height 0.3s,border-radius 0.3s,box-shadow 0.3s,transform 0.3s,opacity 0.3s,background 0.3s',
           }}
           tabIndex={1}
           onMouseEnter={() => setHover(true)}
