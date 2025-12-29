@@ -147,7 +147,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       position: 'relative',
       whiteSpace: 'pre-wrap',
       wordWrap: 'break-word',
-      fontSize: '14px',
+      fontSize: '15px',
       '::-webkit-scrollbar': { width: '8px', height: '8px' },
       '::-webkit-scrollbar-thumb': {
         backgroundColor: 'var(--color-gray-text-tertiary)',
@@ -231,6 +231,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         font: 'var(--font-text-paragraph-lg)',
         paddingTop: '0em',
         display: 'block',
+        fontSize: '1em',
         lineHeight: '1.5em',
         margin: 'var(--margin-2x) 0',
       },
