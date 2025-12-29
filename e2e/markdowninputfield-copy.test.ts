@@ -33,13 +33,17 @@ test('MarkdownInputField copy functionality should work correctly', async () => 
     );
 
     if (response?.ok()) {
-      // 等待编辑器容器出现
-      const editor = page.locator('.ant-md-editor');
-      await expect(editor).toBeVisible({ timeout: 5000 });
+      // 等待页面加载完成
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(500);
+
+      // 等待 MarkdownInputField 容器出现
+      const inputField = page.locator('.ant-agentic-md-input-field').first();
+      await inputField.waitFor({ state: 'visible', timeout: 5000 });
 
       // 找到可编辑的输入框
       const input = page.locator('[contenteditable="true"]').first();
-      await expect(input).toBeVisible();
+      await input.waitFor({ state: 'visible', timeout: 5000 });
 
       // 点击输入框以聚焦
       await input.click();
@@ -110,7 +114,9 @@ test('MarkdownInputField copy functionality should work correctly', async () => 
       });
 
       expect(partialClipboardText).toBeTruthy();
-      expect(partialClipboardText.length).toBeLessThan(testText.length);
+      if (partialClipboardText) {
+        expect(partialClipboardText.length).toBeLessThan(testText.length);
+      }
 
       console.log('Copy functionality test passed');
       console.log('Full text copy:', clipboardText?.substring(0, 50));
