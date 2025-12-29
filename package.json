@@ -85,6 +85,7 @@
     "nanoid": "^5.1.6",
     "partial-json": "^0.1.7",
     "querystring": "^0.2.1",
+    "quicklink": "^3.0.1",
     "rc-resize-observer": "^1.4.3",
     "rc-util": "^5.44.4",
     "react-chartjs-2": "^5.3.1",
