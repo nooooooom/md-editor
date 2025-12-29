@@ -231,7 +231,6 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         font: 'var(--font-text-paragraph-lg)',
         paddingTop: '0em',
         display: 'block',
-        fontSize: '1em',
         lineHeight: '1.5em',
         margin: 'var(--margin-2x) 0',
       },
