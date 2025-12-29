@@ -124,6 +124,11 @@ const genStyle = (
           borderRadius: '12px',
           overflow: 'auto',
         },
+        [`div[data-be="paragraph"]`]: {
+          color: 'var(--color-gray-text-default)',
+          font: 'var(--font-text-paragraph-lg)',
+          letterSpacing: 'var(--letter-spacing-paragraph-lg, normal)',
+        },
         img: {
           borderRadius: '12px',
           overflow: 'auto',
