@@ -28,7 +28,7 @@
     "start": "pnpm run dev",
     "test": "vitest  --run",
     "test:coverage": "vitest --run --coverage",
-    "test:e2e": "vitest run tests/e2e",
+    "test:e2e": "vitest run e2e",
     "tsc": "tsc --noEmit"
   },
   "lint-staged": {
