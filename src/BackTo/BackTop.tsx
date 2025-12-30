@@ -89,8 +89,11 @@ const BackTopComponent = forwardRef<ScrollVisibleButtonRef, BackTopProps>(
     const shouldVisible = getShouldVisible(propsShouldVisible);
 
     // 使用 useCallback 优化点击处理函数
-    const handleClick = useCallback<ScrollVisibleButtonProps['onClick']>(
-      (e, container) => {
+    const handleClick = useCallback(
+      (
+        e: React.MouseEvent<HTMLButtonElement> | undefined,
+        container: HTMLElement | Window,
+      ) => {
         scrollTo(0, { container, duration });
         onClick?.(e, container);
       },

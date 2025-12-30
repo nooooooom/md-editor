@@ -339,6 +339,7 @@ describe('CodeToolbar', () => {
     });
 
     it('当 disableHtmlPreview 未设置时，HTML 代码块应该显示预览/代码切换按钮', () => {
+      // @ts-ignore
       mockEditorStore.editorProps.codeProps.disableHtmlPreview = undefined;
       const htmlElement = { ...defaultElement, language: 'html' };
       render(
@@ -476,7 +477,8 @@ describe('CodeToolbar', () => {
       const htmlElement = {
         ...defaultElement,
         language: 'html',
-        value: '<style>.test { color: red; }</style><div class="test">Content</div>',
+        value:
+          '<style>.test { color: red; }</style><div class="test">Content</div>',
       };
       render(
         <CodeToolbar
@@ -499,11 +501,7 @@ describe('CodeToolbar', () => {
         value: 'function test() { alert("xss"); }',
       };
       render(
-        <CodeToolbar
-          {...defaultProps}
-          element={jsElement}
-          isSelected={true}
-        />,
+        <CodeToolbar {...defaultProps} element={jsElement} isSelected={true} />,
       );
 
       // JavaScript 代码块不应该显示切换按钮（这是正常行为，因为只有 HTML/Markdown 才显示）
@@ -514,7 +512,8 @@ describe('CodeToolbar', () => {
       const htmlElement = {
         ...defaultElement,
         language: 'html',
-        value: '<script>alert("xss")</script><div onclick="test()">Click</div><a href="javascript:void(0)">Link</a>',
+        value:
+          '<script>alert("xss")</script><div onclick="test()">Click</div><a href="javascript:void(0)">Link</a>',
       };
       render(
         <CodeToolbar

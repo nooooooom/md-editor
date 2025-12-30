@@ -17,7 +17,8 @@ describe('ChatBoot index 导出', () => {
     expect(Title).toBeDefined();
     // React.memo 包装的组件 typeof 返回 'object'，检查是否是有效的 React 组件
     expect(Title).toBeInstanceOf(Object);
-    expect(Title.$$typeof || Title.type || Title.render).toBeDefined();
+    // React.memo 组件内部属性，用于运行时检查
+    expect((Title as any).$$typeof).toBeDefined();
   });
 
   it('应该导出 TitleProps 类型', () => {
@@ -30,7 +31,8 @@ describe('ChatBoot index 导出', () => {
     expect(CaseReply).toBeDefined();
     // React.memo 包装的组件 typeof 返回 'object'，检查是否是有效的 React 组件
     expect(CaseReply).toBeInstanceOf(Object);
-    expect(CaseReply.$$typeof || CaseReply.type || CaseReply.render).toBeDefined();
+    // React.memo 组件内部属性，用于运行时检查
+    expect((CaseReply as any).$$typeof).toBeDefined();
   });
 
   it('应该导出 CaseReplyProps 类型', () => {
@@ -42,7 +44,8 @@ describe('ChatBoot index 导出', () => {
     expect(ButtonTab).toBeDefined();
     // React.memo 包装的组件 typeof 返回 'object'，检查是否是有效的 React 组件
     expect(ButtonTab).toBeInstanceOf(Object);
-    expect(ButtonTab.$$typeof || ButtonTab.type || ButtonTab.render).toBeDefined();
+    // React.memo 组件内部属性，用于运行时检查
+    expect((ButtonTab as any).$$typeof).toBeDefined();
   });
 
   it('应该导出 ButtonTabProps 类型', () => {
@@ -54,7 +57,8 @@ describe('ChatBoot index 导出', () => {
     expect(ButtonTabGroup).toBeDefined();
     // React.memo 包装的组件 typeof 返回 'object'，检查是否是有效的 React 组件
     expect(ButtonTabGroup).toBeInstanceOf(Object);
-    expect(ButtonTabGroup.$$typeof || ButtonTabGroup.type || ButtonTabGroup.render).toBeDefined();
+    // React.memo 组件内部属性，用于运行时检查
+    expect((ButtonTabGroup as any).$$typeof).toBeDefined();
   });
 
   it('应该导出 ButtonTabGroupProps 类型', () => {

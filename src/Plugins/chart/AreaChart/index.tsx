@@ -24,6 +24,7 @@ import {
   useResponsiveSize,
 } from '../hooks';
 import { StatisticConfigType } from '../hooks/useChartStatistic';
+import type { ChartClassNames, ChartStyles } from '../types/classNames';
 import {
   ChartDataItem,
   extractAndSortXValues,

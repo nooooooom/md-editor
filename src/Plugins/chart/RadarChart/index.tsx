@@ -231,7 +231,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
     ),
   );
 
-  const classNamesObj = classNamesProp || props.classNames;
+  const classNamesObj = classNamesProp;
 
   // 如果没有有效数据，返回空状态
   if (

@@ -728,7 +728,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({
     return undefined;
   }, [isMobile, width]);
 
-  const classNamesObj = classNamesProp || props.classNames;
+  const classNamesObj = classNamesProp;
 
   return wrapSSR(
     <ChartContainer

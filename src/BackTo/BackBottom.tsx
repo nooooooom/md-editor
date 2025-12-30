@@ -1,12 +1,12 @@
 import React, { forwardRef, memo, useCallback } from 'react';
 import { getScrollRailHeight } from '../Utils/getScroll';
 import scrollTo from '../Utils/scrollTo';
+import { BottomIcon } from './icons/BottomIcon';
 import {
   ScrollVisibleButton,
   ScrollVisibleButtonProps,
   ScrollVisibleButtonRef,
 } from './ScrollVisibleButton';
-import { BottomIcon } from './icons/BottomIcon';
 
 // 常量定义
 const DEFAULT_DURATION = 450;
@@ -102,7 +102,12 @@ const BackBottomComponent = forwardRef<ScrollVisibleButtonRef, BackBottomProps>(
     );
 
     // 使用 useCallback 优化滚动到底部处理函数
-    const scrollToBottom = useCallback<ScrollVisibleButtonProps['onClick']>(
+    const scrollToBottom = useCallback<
+      (
+        e: React.MouseEvent<HTMLButtonElement> | undefined,
+        container: HTMLElement | Window,
+      ) => void
+    >(
       (e, container) => {
         const scrollRailHeight = getScrollRailHeight(container);
         scrollTo(scrollRailHeight, { container, duration });

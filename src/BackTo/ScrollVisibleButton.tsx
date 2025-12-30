@@ -57,7 +57,7 @@ export interface ScrollVisibleButtonProps
   shouldVisible?: number | UseScrollVisibleProps['shouldVisible'];
   /** 点击回调 */
   onClick?: (
-    e: React.MouseEvent<HTMLButtonElement>,
+    e: React.MouseEvent<HTMLButtonElement> | undefined,
     container: HTMLElement | Window,
   ) => void;
 }
