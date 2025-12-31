@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -33,6 +33,7 @@ vi.mock('../../../../src/Plugins/chart/components', async () => {
   );
   return {
     ...actual,
+    downloadChart: vi.fn(),
     ChartContainer: ({ children, ...props }: any) => (
       <div data-testid="chart-container" {...props}>
         {children}
@@ -52,13 +53,14 @@ vi.mock('../../../../src/Plugins/chart/components', async () => {
         ))}
       </div>
     ),
-    ChartToolBar: ({ title, onDownload, dataTime, extra }: any) => (
+    ChartToolBar: ({ title, onDownload, dataTime, extra, filter }: any) => (
       <div data-testid="chart-toolbar">
         {(title || '面积图') && (
           <span data-testid="chart-title">{title || '面积图'}</span>
         )}
         {dataTime && <span data-testid="chart-datatime">{dataTime}</span>}
         {extra}
+        {filter}
         <button
           type="button"
           onClick={onDownload}
@@ -73,11 +75,11 @@ vi.mock('../../../../src/Plugins/chart/components', async () => {
         {title}: {value}
       </div>
     ),
-    downloadChart: vi.fn(),
   };
 });
 
 // Import hooks for mocking
+import * as components from '../../../../src/Plugins/chart/components';
 import * as hooks from '../../../../src/Plugins/chart/hooks';
 import * as utils from '../../../../src/Plugins/chart/utils';
 
@@ -114,6 +116,9 @@ vi.mock('../../../../src/Plugins/chart/utils', () => ({
   extractAndSortXValues: vi.fn(() => []),
   findDataPointByXValue: vi.fn(() => null),
   hexToRgba: vi.fn((hex, alpha) => `rgba(0,0,0,${alpha})`),
+  resolveCssVariable: vi.fn((color) =>
+    color.startsWith('var(') ? '#1d7afc' : color,
+  ),
   registerLineChartComponents: vi.fn(),
   getDataHash: vi.fn(() => 'mock-hash'),
   ChartDataItem: function () {},
@@ -405,6 +410,33 @@ describe('AreaChart', () => {
     it('应该支持自定义颜色', () => {
       render(
         <AreaChart data={sampleData} color="#ff0000" title="自定义颜色" />,
+      );
+
+      expect(screen.getByTestId('area-chart')).toBeInTheDocument();
+    });
+
+    it('应该支持 CSS 变量颜色', () => {
+      render(
+        <AreaChart
+          data={sampleData}
+          color="var(--color-blue-control-fill-primary)"
+          title="CSS变量颜色"
+        />,
+      );
+
+      expect(screen.getByTestId('area-chart')).toBeInTheDocument();
+    });
+
+    it('应该支持多个 CSS 变量颜色', () => {
+      render(
+        <AreaChart
+          data={sampleData}
+          color={[
+            'var(--color-blue-control-fill-primary)',
+            'var(--color-green-control-fill-primary)',
+          ]}
+          title="多个CSS变量颜色"
+        />,
       );
 
       expect(screen.getByTestId('area-chart')).toBeInTheDocument();
@@ -726,6 +758,66 @@ describe('AreaChart', () => {
       render(<AreaChart data={sampleData} styles={undefined} />);
 
       expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+  });
+
+  describe('交互测试', () => {
+    it('点击下载按钮应触发下载函数', () => {
+      render(<AreaChart data={sampleData} title="下载测试" />);
+
+      const downloadButton = screen.getByTestId('download-button');
+      fireEvent.click(downloadButton);
+
+      expect(components.downloadChart).toHaveBeenCalled();
+    });
+
+    it('当 renderFilterInToolbar 为 true 时应在工具栏显示筛选器', () => {
+      const multiCategoryData = [
+        ...sampleData,
+        { category: '市场数据', type: '团队A', x: 'Q1', y: 100 },
+      ];
+
+      // 需要 mock filterOptions 使其长度 > 1
+      vi.mocked(hooks.useChartDataFilter).mockImplementation(() => ({
+        filteredData: multiCategoryData,
+        categories: ['销售数据', '市场数据'],
+        filterOptions: [
+          { label: '销售数据', value: '销售数据' },
+          { label: '市场数据', value: '市场数据' },
+        ],
+        filterLabels: undefined,
+        selectedFilter: '销售数据',
+        setSelectedFilter: vi.fn(),
+        selectedFilterLabel: undefined,
+        setSelectedFilterLabel: vi.fn(),
+        filteredDataByFilterLabel: undefined,
+        safeData: multiCategoryData,
+      }));
+
+      render(
+        <AreaChart
+          data={multiCategoryData}
+          renderFilterInToolbar={true}
+          title="工具栏筛选器测试"
+        />,
+      );
+
+      // 在 ChartToolBar 内部渲染了 ChartFilter
+      const toolbar = screen.getByTestId('chart-toolbar');
+      const filter = screen.getByTestId('chart-filter');
+      expect(toolbar).toContainElement(filter);
+    });
+
+    it('renderFilterInToolbar=true 但仅一个分类时不应渲染筛选器', () => {
+      render(
+        <AreaChart
+          data={sampleData}
+          renderFilterInToolbar={true}
+          title="单分类"
+        />,
+      );
+
+      expect(screen.queryByTestId('chart-filter')).not.toBeInTheDocument();
     });
   });
 });

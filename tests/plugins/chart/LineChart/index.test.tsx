@@ -79,6 +79,8 @@ vi.mock('antd', async () => {
 });
 
 // Mock chart components
+import * as hooks from '../../../../src/Plugins/chart/hooks';
+
 vi.mock('../../../../src/Plugins/chart/components', () => ({
   ChartContainer: ({ children }: any) => (
     <div data-testid="chart-container">{children}</div>
@@ -96,16 +98,20 @@ vi.mock('../../../../src/Plugins/chart/components', () => ({
   ChartFilter: ({ filterOptions, onFilterChange }: any) => (
     <div data-testid="chart-filter">
       {filterOptions &&
-        filterOptions.map((option: any, index: number) => (
-          <button
-            type="button"
-            key={index}
-            onClick={() => onFilterChange(option)}
-            data-testid={`filter-option-${option}`}
-          >
-            {option}
-          </button>
-        ))}
+        filterOptions.map((option: any, index: number) => {
+          const value = typeof option === 'object' ? option.value : option;
+          const label = typeof option === 'object' ? option.label : option;
+          return (
+            <button
+              type="button"
+              key={index}
+              onClick={() => onFilterChange(value)}
+              data-testid={`filter-option-${value}`}
+            >
+              {label}
+            </button>
+          );
+        })}
     </div>
   ),
   ChartStatistic: ({ title, value }: any) => (
@@ -146,6 +152,10 @@ vi.mock('../../../../src/Plugins/chart/hooks', () => ({
 vi.mock('../../../../src/Plugins/chart/utils', () => ({
   extractAndSortXValues: vi.fn(() => []),
   findDataPointByXValue: vi.fn(() => null),
+  hexToRgba: vi.fn((hex, alpha) => `rgba(0,0,0,${alpha})`),
+  resolveCssVariable: vi.fn((color) =>
+    color.startsWith('var(') ? '#1d7afc' : color,
+  ),
   registerLineChartComponents: vi.fn(),
 }));
 
@@ -156,6 +166,9 @@ vi.mock('../../../../src/Plugins/chart/LineChart/style', () => ({
     hashId: 'test-hash',
   }),
 }));
+
+// Import chart components for testing
+import * as components from '../../../../src/Plugins/chart/components';
 
 describe('LineChart', () => {
   const mockData: LineChartDataItem[] = [
@@ -330,7 +343,11 @@ describe('LineChart', () => {
       };
 
       render(
-        <LineChart data={mockData} styles={styles} style={{ padding: '10px' }} />,
+        <LineChart
+          data={mockData}
+          styles={styles}
+          style={{ padding: '10px' }}
+        />,
       );
 
       expect(screen.getByTestId('chart-container')).toBeInTheDocument();
@@ -434,36 +451,11 @@ describe('LineChart', () => {
         value: 100,
       };
 
-      // 重新mock hooks 以返回特定配置
-      vi.doMock('../../../../src/Plugins/chart/hooks', async () => {
-        const actual: any = await vi.importActual(
-          '../../../../src/Plugins/chart/hooks',
-        );
-        return {
-          ...actual,
-          useChartStatistics: () => [statisticConfig],
-        };
-      });
+      vi.spyOn(hooks, 'useChartStatistics').mockReturnValue([statisticConfig] as any);
 
-      // 重新导入组件以应用新的mock
-      let ReRenderedLineChart: React.FC<any>;
-      try {
-        const LineChartModule = await import(
-          '../../../../src/Plugins/chart/LineChart/index'
-        );
-        ReRenderedLineChart = LineChartModule.default;
-      } catch (error) {
-        const LineChartModule = await import(
-          '../../../../src/Plugins/chart/LineChart/'
-        );
-        ReRenderedLineChart = LineChartModule.default;
-      }
       render(
-        <ReRenderedLineChart data={mockData} statistic={statisticConfig} />,
+        <LineChart data={mockData} statistic={statisticConfig} />,
       );
-
-      // 等待组件渲染完成
-      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // 检查是否有统计信息容器
       const chartContainer = screen.getByTestId('chart-container');
@@ -476,36 +468,11 @@ describe('LineChart', () => {
         { title: '平均值', value: 50 },
       ];
 
-      // 重新mock hooks 以返回多个配置
-      vi.doMock('../../../../src/Plugins/chart/hooks', async () => {
-        const actual: any = await vi.importActual(
-          '../../../../src/Plugins/chart/hooks',
-        );
-        return {
-          ...actual,
-          useChartStatistics: () => statisticConfigs,
-        };
-      });
+      vi.spyOn(hooks, 'useChartStatistics').mockReturnValue(statisticConfigs as any);
 
-      // 重新导入组件以应用新的mock
-      let ReRenderedLineChart: React.FC<any>;
-      try {
-        const LineChartModule = await import(
-          '../../../../src/Plugins/chart/LineChart/index'
-        );
-        ReRenderedLineChart = LineChartModule.default;
-      } catch (error) {
-        const LineChartModule = await import(
-          '../../../../src/Plugins/chart/LineChart/'
-        );
-        ReRenderedLineChart = LineChartModule.default;
-      }
       render(
-        <ReRenderedLineChart data={mockData} statistic={statisticConfigs} />,
+        <LineChart data={mockData} statistic={statisticConfigs} />,
       );
-
-      // 等待组件渲染完成
-      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // 检查是否有统计信息容器
       const chartContainer = screen.getByTestId('chart-container');
@@ -538,43 +505,18 @@ describe('LineChart', () => {
     it('应该正确渲染过滤器', async () => {
       const mockFilterOptions = ['All', 'Series 1', 'Series 2'];
 
-      // 重新mock hooks 以返回过滤选项
-      vi.doMock('../../../../src/Plugins/chart/hooks', async () => {
-        const actual: any = await vi.importActual(
-          '../../../../src/Plugins/chart/hooks',
-        );
-        return {
-          ...actual,
-          useChartDataFilter: () => ({
-            filteredData: mockData,
-            filterOptions: mockFilterOptions,
-            filterLabels: [],
-            selectedFilter: 'All',
-            setSelectedFilter: vi.fn(),
-            selectedFilterLabel: '',
-            setSelectedFilterLabel: vi.fn(),
-            filteredDataByFilterLabel: [],
-          }),
-        };
-      });
+      vi.spyOn(hooks, 'useChartDataFilter').mockReturnValue({
+        filteredData: mockData,
+        filterOptions: mockFilterOptions,
+        filterLabels: [],
+        selectedFilter: 'All',
+        setSelectedFilter: vi.fn(),
+        selectedFilterLabel: '',
+        setSelectedFilterLabel: vi.fn(),
+        filteredDataByFilterLabel: [],
+      } as any);
 
-      // 重新导入组件以应用新的mock
-      let ReRenderedLineChart: React.FC<any>;
-      try {
-        const LineChartModule = await import(
-          '../../../../src/Plugins/chart/LineChart/index'
-        );
-        ReRenderedLineChart = LineChartModule.default;
-      } catch (error) {
-        const LineChartModule = await import(
-          '../../../../src/Plugins/chart/LineChart/'
-        );
-        ReRenderedLineChart = LineChartModule.default;
-      }
-      render(<ReRenderedLineChart data={mockData} />);
-
-      // 等待组件渲染完成
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      render(<LineChart data={mockData} />);
 
       expect(screen.getByTestId('chart-filter')).toBeInTheDocument();
       // 检查是否有过滤选项按钮
@@ -880,36 +822,11 @@ describe('LineChart', () => {
         value: 1000,
       };
 
-      // 重新mock hooks 以返回统计信息配置
-      vi.doMock('../../../../src/Plugins/chart/hooks', async () => {
-        const actual: any = await vi.importActual(
-          '../../../../src/Plugins/chart/hooks',
-        );
-        return {
-          ...actual,
-          useChartStatistics: () => [statisticConfig],
-        };
-      });
+      vi.spyOn(hooks, 'useChartStatistics').mockReturnValue([statisticConfig] as any);
 
-      // 重新导入组件以应用新的mock
-      let ReRenderedLineChart: React.FC<any>;
-      try {
-        const LineChartModule = await import(
-          '../../../../src/Plugins/chart/LineChart/index'
-        );
-        ReRenderedLineChart = LineChartModule.default;
-      } catch (error) {
-        const LineChartModule = await import(
-          '../../../../src/Plugins/chart/LineChart/'
-        );
-        ReRenderedLineChart = LineChartModule.default;
-      }
       render(
-        <ReRenderedLineChart data={mockData} statistic={statisticConfig} />,
+        <LineChart data={mockData} statistic={statisticConfig} />,
       );
-
-      // 等待组件渲染完成
-      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // 检查是否有统计信息容器
       const chartContainer = screen.getByTestId('chart-container');
@@ -961,6 +878,106 @@ describe('LineChart', () => {
 
       render(<LineChart data={largeDataSet} />);
       expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+  });
+
+  describe('CSS 变量颜色支持测试', () => {
+    it('应该支持单个 CSS 变量颜色', () => {
+      render(
+        <LineChart
+          data={mockData}
+          color="var(--color-blue-control-fill-primary)"
+        />,
+      );
+
+      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    });
+
+    it('应该支持多个 CSS 变量颜色', () => {
+      render(
+        <LineChart
+          data={mockData}
+          color={[
+            'var(--color-blue-control-fill-primary)',
+            'var(--color-green-control-fill-primary)',
+          ]}
+        />,
+      );
+
+      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    });
+
+    it('应该支持混合使用 CSS 变量和十六进制颜色', () => {
+      render(
+        <LineChart
+          data={mockData}
+          color={['var(--color-blue-control-fill-primary)', '#ff0000']}
+        />,
+      );
+
+      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    });
+  });
+
+  describe('数据边界和交互测试', () => {
+    it('应该处理空数据数组', () => {
+      render(<LineChart data={[]} />);
+      expect(screen.getByTestId('chart-container')).toBeInTheDocument();
+    });
+
+    it('应该处理包含无效数据项的数组', () => {
+      const invalidData = [
+        ...mockData,
+        null,
+        undefined,
+        { x: null, y: 10 },
+        { x: 'D', y: 'invalid' },
+      ] as any;
+      render(<LineChart data={invalidData} />);
+      expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    });
+
+    it('点击下载按钮应触发下载函数', () => {
+      render(<LineChart data={mockData} title="下载测试" />);
+
+      const downloadButton = screen.getByTestId('download-button');
+      fireEvent.click(downloadButton);
+
+      expect(components.downloadChart).toHaveBeenCalled();
+    });
+
+    it('当 renderFilterInToolbar 为 true 时应在工具栏显示筛选器', () => {
+      const multiCategoryData = [
+        ...mockData,
+        { category: '市场数据', type: '团队A', x: 'Q1', y: 100 },
+      ];
+
+      // 需要 mock filterOptions 使其长度 > 1
+      vi.spyOn(hooks, 'useChartDataFilter').mockReturnValue({
+        filteredData: multiCategoryData,
+        filterOptions: [
+          { label: 'Series 1', value: 'Series 1' },
+          { label: '市场数据', value: '市场数据' },
+        ],
+        filterLabels: [],
+        selectedFilter: 'Series 1',
+        setSelectedFilter: vi.fn(),
+        selectedFilterLabel: '',
+        setSelectedFilterLabel: vi.fn(),
+        filteredDataByFilterLabel: [],
+      } as any);
+
+      render(
+        <LineChart
+          data={multiCategoryData}
+          renderFilterInToolbar={true}
+          title="工具栏筛选器测试"
+        />,
+      );
+
+      const toolbar = screen.getByTestId('chart-toolbar');
+      const filter = screen.getByTestId('chart-filter');
+      expect(toolbar).toContainElement(filter);
     });
   });
 });
