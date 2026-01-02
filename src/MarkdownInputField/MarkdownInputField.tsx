@@ -78,7 +78,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
 }) => {
   const { getPrefixCls } = useContext(ConfigProvider.ConfigContext);
   const baseCls = getPrefixCls('agentic-md-input-field');
-  const { wrapSSR, hashId } = useStyle(baseCls);
+  const { wrapSSR, hashId } = useStyle(baseCls, props.disableHoverAnimation);
 
   // 状态管理
   const {

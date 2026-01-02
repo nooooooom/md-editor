@@ -6,10 +6,10 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  fullyParallel: false, // 禁用并行执行，改为串行执行
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1, // 使用单个 worker，确保测试一个个执行
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:4172', // preview 服务器端口

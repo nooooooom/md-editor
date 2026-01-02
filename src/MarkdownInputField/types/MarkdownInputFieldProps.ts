@@ -487,4 +487,15 @@ export type MarkdownInputFieldProps = {
    * @description 自定义发送按钮的样式和行为
    */
   sendButtonProps?: SendButtonCustomizationProps;
+
+  /**
+   * 是否禁用 hover 动画
+   * @description 控制是否在鼠标悬停时显示阴影动画效果
+   * @default false
+   * @example
+   * ```tsx
+   * <MarkdownInputField disableHoverAnimation={true} />
+   * ```
+   */
+  disableHoverAnimation?: boolean;
 };

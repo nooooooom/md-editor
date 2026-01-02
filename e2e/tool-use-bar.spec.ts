@@ -1,4 +1,4 @@
-import { test, expect } from '../tests/fixtures/page-fixture';
+import { expect, test } from '../tests/fixtures/page-fixture';
 
 test.describe('ToolUseBar 组件', () => {
   test('应该正确渲染工具项', async ({ toolUseBarPage }) => {

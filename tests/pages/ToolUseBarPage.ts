@@ -18,6 +18,7 @@ export class ToolUseBarPage {
    */
   async goto(demoPath: string = 'toolusebar-demo-tool-use-bar-basic') {
     await this.page.goto(`/~demos/${demoPath}`);
+    console.log('goto', demoPath);
     await this.waitForReady();
   }
 
@@ -28,11 +29,11 @@ export class ToolUseBarPage {
   async waitForReady() {
     // 先等待页面加载完成
     await this.page.waitForLoadState('domcontentloaded');
-    
+
     // 优先等待工具项出现（使用 test-id）
     const toolItems = this.page.getByTestId('ToolUserItem');
     const toolItemsCount = await toolItems.count();
-    
+
     if (toolItemsCount > 0) {
       // 如果有工具项，等待第一个工具项可见
       await expect(toolItems.first()).toBeVisible({ timeout: 10000 });
@@ -70,7 +71,8 @@ export class ToolUseBarPage {
    * 点击工具项
    */
   async clickToolItem(index: number = 0) {
-    const toolItem = index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
+    const toolItem =
+      index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
     await toolItem.click();
   }
 
@@ -94,7 +96,8 @@ export class ToolUseBarPage {
    * 验证工具项处于成功状态
    */
   async expectToolSuccess(index: number = 0) {
-    const toolItem = index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
+    const toolItem =
+      index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
     await expect(toolItem).toHaveClass(/success/);
   }
 
@@ -102,7 +105,8 @@ export class ToolUseBarPage {
    * 验证工具项处于加载状态
    */
   async expectToolLoading(index: number = 0) {
-    const toolItem = index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
+    const toolItem =
+      index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
     await expect(toolItem).toHaveClass(/loading/);
   }
 
@@ -110,7 +114,8 @@ export class ToolUseBarPage {
    * 验证工具项处于错误状态
    */
   async expectToolError(index: number = 0) {
-    const toolItem = index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
+    const toolItem =
+      index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
     await expect(toolItem).toHaveClass(/error/);
   }
 
@@ -118,7 +123,8 @@ export class ToolUseBarPage {
    * 验证工具项处于空闲状态
    */
   async expectToolIdle(index: number = 0) {
-    const toolItem = index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
+    const toolItem =
+      index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
     await expect(toolItem).toHaveClass(/idle/);
   }
 
@@ -126,7 +132,8 @@ export class ToolUseBarPage {
    * 验证工具项处于激活状态
    */
   async expectToolActive(index: number = 0) {
-    const toolItem = index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
+    const toolItem =
+      index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
     await expect(toolItem).toHaveClass(/active/);
   }
 
@@ -134,10 +141,11 @@ export class ToolUseBarPage {
    * 展开工具项
    */
   async expandToolItem(index: number = 0) {
-    const toolItem = index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
-    const expandButton = toolItem.locator('button').or(
-      toolItem.locator('[role="button"]'),
-    );
+    const toolItem =
+      index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
+    const expandButton = toolItem
+      .locator('button')
+      .or(toolItem.locator('[role="button"]'));
     if ((await expandButton.count()) > 0) {
       await expandButton.first().click();
     }
@@ -147,7 +155,8 @@ export class ToolUseBarPage {
    * 获取工具项文本内容
    */
   async getToolItemText(index: number = 0): Promise<string> {
-    const toolItem = index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
-    return await toolItem.textContent() || '';
+    const toolItem =
+      index === 0 ? this.getFirstToolItem() : this.getToolItem(index);
+    return (await toolItem.textContent()) || '';
   }
 }

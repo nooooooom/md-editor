@@ -70,7 +70,18 @@ const stopIconRotate = new Keyframes('stopIconRotate', {
     transform: 'rotate(360deg)',
   },
 });
-const genStyle: GenerateStyle<ChatTokenType> = (token) => {
+const genStyle: GenerateStyle<
+  ChatTokenType & { disableHoverAnimation?: boolean }
+> = (token) => {
+  const hoverStyle = token.disableHoverAnimation
+    ? {}
+    : {
+        '&:hover': {
+          boxShadow:
+            '0px 0px 1px 0px rgba(10, 48, 104, 0.25), 0px 2px 7px 0px rgba(10, 48, 104, 0.05), 0px 2px 5px -2px rgba(10, 48, 104, 0.06)',
+        },
+      };
+
   return {
     [token.componentCls]: {
       width: '100%',
@@ -94,10 +105,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       },
       boxShadow:
         '0px 0px 1px 0px rgba(10, 48, 104, 0.15), 0px 1.5px 4px -1px rgba(10, 48, 104, 0.04)',
-      '&:hover': {
-        boxShadow:
-          '0px 0px 1px 0px rgba(10, 48, 104, 0.25), 0px 2px 7px 0px rgba(10, 48, 104, 0.05), 0px 2px 5px -2px rgba(10, 48, 104, 0.06)',
-      },
+      ...hoverStyle,
       '&-focused': {
         boxShadow:
           '0px 0px 1px 0px rgba(10, 48, 104, 0.25), 0px 2px 7px 0px rgba(10, 48, 104, 0.05), 0px 2px 5px -2px rgba(10, 48, 104, 0.06)',
@@ -287,13 +295,15 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
 /**
  * Probubble
  * @param prefixCls
+ * @param disableHoverAnimation 是否禁用 hover 动画
  * @returns
  */
-export function useStyle(prefixCls?: string) {
+export function useStyle(prefixCls?: string, disableHoverAnimation?: boolean) {
   return useEditorStyleRegister('MarkdownInputField', (token) => {
     const proChatToken = {
       ...token,
       componentCls: `.${prefixCls}`,
+      disableHoverAnimation,
     };
 
     return [resetComponent(proChatToken), genStyle(proChatToken)];

@@ -23,14 +23,18 @@ export class MarkdownInputFieldPage {
    */
   async goto(demoPath: string = 'markdowninputfield-demo-1') {
     await this.page.goto(`/~demos/${demoPath}`);
+    // 等待页面加载完成（DOMContentLoaded 和 networkidle）
+    await this.page.waitForLoadState('networkidle');
     await this.waitForReady();
   }
 
   /**
    * 等待组件准备就绪
+   * 增加超时时间，因为 Slate 编辑器需要时间初始化 contenteditable 元素
    */
   async waitForReady() {
-    await expect(this.editableInput).toBeVisible();
+    // 增加超时时间到 10 秒，给组件和 Slate 编辑器足够的初始化时间
+    await expect(this.editableInput).toBeVisible({ timeout: 10000 });
   }
 
   /**
