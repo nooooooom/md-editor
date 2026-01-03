@@ -1,4 +1,4 @@
-import { test, expect } from '../tests/fixtures/page-fixture';
+import { expect, test } from '../tests/fixtures/page-fixture';
 
 test.describe('MarkdownInputField 基础功能', () => {
   test('应该能够正确输入文本', async ({ markdownInputFieldPage }) => {
@@ -15,7 +15,9 @@ test.describe('MarkdownInputField 基础功能', () => {
     expect(text).toContain('Test');
   });
 
-  test('应该能够使用 Backspace 删除字符', async ({ markdownInputFieldPage }) => {
+  test('应该能够使用 Backspace 删除字符', async ({
+    markdownInputFieldPage,
+  }) => {
     await markdownInputFieldPage.goto();
     await markdownInputFieldPage.typeText('Backspace Test');
     const beforeText = await markdownInputFieldPage.getText();
@@ -33,25 +35,27 @@ test.describe('MarkdownInputField 基础功能', () => {
     const beforeText = await markdownInputFieldPage.getText();
     const beforeLength = beforeText.trim().length;
     await markdownInputFieldPage.focus();
-    
+
     // 移动到开头
     await markdownInputFieldPage.pressKey('Home');
-    
+
     // 按 Delete 键删除字符
     await markdownInputFieldPage.pressKey('Delete');
-    
+
     // 使用 expect.poll 等待文本长度减少（符合 Playwright 最佳实践，避免 waitForTimeout）
-    await expect.poll(
-      async () => {
-        const text = await markdownInputFieldPage.getText();
-        return text.trim().length;
-      },
-      {
-        message: '等待文本长度减少',
-        timeout: 5000,
-      }
-    ).toBeLessThan(beforeLength);
-    
+    await expect
+      .poll(
+        async () => {
+          const text = await markdownInputFieldPage.getText();
+          return text.trim().length;
+        },
+        {
+          message: '等待文本长度减少',
+          timeout: 5000,
+        },
+      )
+      .toBeLessThan(beforeLength);
+
     // 验证删除结果（Playwright 的 expect 会自动重试）
     const afterText = await markdownInputFieldPage.getText();
     expect(afterText.length).toBeLessThan(beforeText.length);
@@ -76,43 +80,78 @@ test.describe('MarkdownInputField 基础功能', () => {
     await markdownInputFieldPage.typeText('Copy Test Text');
     await markdownInputFieldPage.selectAll();
     await markdownInputFieldPage.copy();
-    
+
     // 验证复制是否成功：通过粘贴操作来验证
     await markdownInputFieldPage.clear();
     await markdownInputFieldPage.paste();
-    
+
     const pastedText = await markdownInputFieldPage.getText();
     expect(pastedText).toContain('Copy Test');
   });
 
   test('应该能够部分选中并复制', async ({ markdownInputFieldPage, page }) => {
-    await markdownInputFieldPage.goto();
+    await markdownInputFieldPage.goto('markdowninputfield-demo-8');
     await markdownInputFieldPage.typeText('Copy Test Text');
     await markdownInputFieldPage.focus();
-    
-    // 移动到开头
-    await markdownInputFieldPage.pressKey('Home');
-    
-    // 使用 Shift+End 或 Shift+ArrowRight 选中文本（更高效）
-    // 先选中前 4 个字符
-    await page.keyboard.down('Shift');
-    for (let i = 0; i < 4; i++) {
-      await markdownInputFieldPage.pressKey('ArrowRight');
+
+    // 使用鼠标选择前 4 个字符 "Copy"
+    // 获取输入框的位置
+    const editableInput = markdownInputFieldPage.editableInput;
+    const boundingBox = await editableInput.boundingBox();
+    if (!boundingBox) {
+      throw new Error('无法获取输入框的位置');
     }
-    await page.keyboard.up('Shift');
-    
+
+    // 计算文本的起始位置（在输入框左侧，稍微偏移以选择文本）
+    const startX = boundingBox.x + 5;
+    const startY = boundingBox.y + boundingBox.height / 2;
+
+    // 使用 evaluate 获取前 4 个字符的实际宽度
+    const textWidth = await editableInput.evaluate((el) => {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) {
+        return 0;
+      }
+
+      // 创建临时 range 来测量文本宽度
+      const range = document.createRange();
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+
+      let textNode = walker.nextNode();
+      if (!textNode || !textNode.textContent) {
+        return 0;
+      }
+
+      range.setStart(textNode, 0);
+      range.setEnd(textNode, Math.min(4, textNode.textContent.length));
+      const rect = range.getBoundingClientRect();
+      return rect.width;
+    });
+
+    const endX = startX + textWidth;
+    const endY = startY;
+
+    // 使用鼠标拖拽选择文本
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await page.mouse.move(endX, endY, { steps: 10 });
+    await page.mouse.up();
+
+    // 等待一小段时间，确保选择完成
+    await page.waitForTimeout(100);
+
     // 复制操作（copy() 方法内部已处理权限）
     await markdownInputFieldPage.copy();
-    
+
     // 验证复制是否成功：通过粘贴操作来验证
     // 先清空输入框，然后粘贴，验证内容是否正确
     await markdownInputFieldPage.clear();
-    
+
     // 等待一小段时间，确保清空操作完成，避免影响粘贴
     await markdownInputFieldPage.page.waitForTimeout(100);
-    
+
     await markdownInputFieldPage.paste();
-    
+
     // 验证粘贴的内容长度小于原始文本（因为我们只复制了部分）
     const pastedText = await markdownInputFieldPage.getText();
     expect(pastedText.length).toBeLessThan('Copy Test Text'.length);
@@ -125,11 +164,11 @@ test.describe('MarkdownInputField 基础功能', () => {
     const beforeCut = await markdownInputFieldPage.getText();
     await markdownInputFieldPage.selectAll();
     await markdownInputFieldPage.cut();
-    
+
     // 验证剪切后文本长度减少
     const afterCut = await markdownInputFieldPage.getText();
     expect(afterCut.length).toBeLessThan(beforeCut.length);
-    
+
     // 验证剪切是否成功：通过粘贴操作来验证
     await markdownInputFieldPage.paste();
     const pastedText = await markdownInputFieldPage.getText();
@@ -141,10 +180,10 @@ test.describe('MarkdownInputField 基础功能', () => {
     await markdownInputFieldPage.clear();
     const pasteText = 'Pasted Text';
     await markdownInputFieldPage.setClipboardText(pasteText);
-    
+
     // paste() 方法内部已经等待文本变化
     await markdownInputFieldPage.paste();
-    
+
     // 验证文本包含粘贴内容（paste() 已等待，直接获取文本即可）
     const afterPaste = await markdownInputFieldPage.getText();
     expect(afterPaste).toContain('Pasted');
@@ -158,10 +197,10 @@ test.describe('MarkdownInputField 基础功能', () => {
     await markdownInputFieldPage.pressKey('Space');
     const pasteText = 'Pasted Text';
     await markdownInputFieldPage.setClipboardText(pasteText);
-    
+
     // paste() 方法内部已经等待文本变化
     await markdownInputFieldPage.paste();
-    
+
     // 验证文本包含粘贴内容（paste() 已等待，直接获取文本即可）
     const afterPaste = await markdownInputFieldPage.getText();
     expect(afterPaste).toContain('Pasted');
@@ -180,7 +219,7 @@ test.describe('MarkdownInputField 基础功能', () => {
     await markdownInputFieldPage.goto();
     await markdownInputFieldPage.clear();
     await markdownInputFieldPage.typeText('Actual text');
-    
+
     // expectPlaceholderHidden 内部已经使用 expect.poll 等待，这里直接调用
     await markdownInputFieldPage.expectPlaceholderHidden();
   });
