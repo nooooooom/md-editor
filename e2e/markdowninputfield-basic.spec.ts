@@ -251,3 +251,154 @@ test.describe('MarkdownInputField 基础功能', () => {
     expect(text.length).toBeGreaterThanOrEqual(rapidText.length);
   });
 });
+
+test.describe('MarkdownInputField 快捷键功能', () => {
+  test('应该支持 Home 键移动到文档开头', async ({ markdownInputFieldPage }) => {
+    await markdownInputFieldPage.goto();
+    await markdownInputFieldPage.typeText('Middle Text');
+    const beforeText = await markdownInputFieldPage.getText();
+
+    // 按 Home 键移动到开头
+    await markdownInputFieldPage.focus();
+    await markdownInputFieldPage.pressKey('Home');
+
+    // 在开头插入文本
+    await markdownInputFieldPage.typeText('Start: ');
+    const afterText = await markdownInputFieldPage.getText();
+
+    // 验证文本包含新插入的内容
+    expect(afterText).toContain('Start:');
+    expect(afterText.length).toBeGreaterThan(beforeText.length);
+    // 验证文本包含原始内容
+    expect(afterText).toContain('Middle Text');
+  });
+
+  test('应该支持 End 键移动到文档末尾', async ({ markdownInputFieldPage }) => {
+    await markdownInputFieldPage.goto();
+    await markdownInputFieldPage.typeText('Initial Text');
+    const beforeText = await markdownInputFieldPage.getText();
+
+    // 按 End 键移动到末尾
+    await markdownInputFieldPage.focus();
+    await markdownInputFieldPage.pressKey('End');
+
+    // 在末尾追加文本
+    await markdownInputFieldPage.typeText(' End Text');
+    const afterText = await markdownInputFieldPage.getText();
+
+    // 验证文本包含追加的内容
+    expect(afterText).toContain('End Text');
+    expect(afterText.length).toBeGreaterThan(beforeText.length);
+    // 验证新文本在末尾
+    expect(afterText.trim().endsWith('End Text')).toBe(true);
+  });
+
+  test('应该支持 Ctrl+A / Cmd+A 全选功能', async ({
+    markdownInputFieldPage,
+  }) => {
+    await markdownInputFieldPage.goto();
+    const originalText = 'Select All Test Text';
+    await markdownInputFieldPage.typeText(originalText);
+
+    // 使用 Ctrl+A / Cmd+A 全选
+    await markdownInputFieldPage.selectAll();
+
+    // 输入新文本替换选中的内容
+    await markdownInputFieldPage.typeText('Replaced Text');
+    const afterText = await markdownInputFieldPage.getText();
+
+    // 验证原始文本被替换
+    expect(afterText).toContain('Replaced Text');
+    expect(afterText).not.toContain(originalText);
+  });
+
+  test('应该支持 Home 键在空文档中工作', async ({ markdownInputFieldPage }) => {
+    await markdownInputFieldPage.goto();
+    await markdownInputFieldPage.clear();
+    await markdownInputFieldPage.focus();
+
+    // 在空文档中按 Home 键
+    await markdownInputFieldPage.pressKey('Home');
+
+    // 输入文本
+    await markdownInputFieldPage.typeText('New Text');
+    const text = await markdownInputFieldPage.getText();
+
+    // 验证文本已输入
+    expect(text).toContain('New Text');
+  });
+
+  test('应该支持 End 键在空文档中工作', async ({ markdownInputFieldPage }) => {
+    await markdownInputFieldPage.goto();
+    await markdownInputFieldPage.clear();
+    await markdownInputFieldPage.focus();
+
+    // 在空文档中按 End 键
+    await markdownInputFieldPage.pressKey('End');
+
+    // 输入文本
+    await markdownInputFieldPage.typeText('New Text');
+    const text = await markdownInputFieldPage.getText();
+
+    // 验证文本已输入
+    expect(text).toContain('New Text');
+  });
+
+  test('应该支持 Home 和 End 键组合使用', async ({
+    markdownInputFieldPage,
+  }) => {
+    await markdownInputFieldPage.goto();
+    await markdownInputFieldPage.typeText('Middle Content');
+
+    // 移动到末尾并追加
+    await markdownInputFieldPage.focus();
+    await markdownInputFieldPage.pressKey('End');
+    await markdownInputFieldPage.typeText(' End');
+    const afterEnd = await markdownInputFieldPage.getText();
+    expect(afterEnd.trim().endsWith('End')).toBe(true);
+
+    // 移动到开头并插入
+    await markdownInputFieldPage.pressKey('Home');
+    // 等待光标移动到开头
+    await markdownInputFieldPage.page.waitForTimeout(100);
+    await markdownInputFieldPage.typeText('Prefix ');
+    const afterHome = await markdownInputFieldPage.getText();
+    // 验证文本包含新插入的内容
+    expect(afterHome).toContain('Prefix');
+    // 验证文本包含之前的内容
+    expect(afterHome).toContain('Middle Content');
+    // 验证文本长度增加
+    expect(afterHome.length).toBeGreaterThan(afterEnd.length);
+  });
+
+  test('应该支持 Ctrl+A 后删除所有内容', async ({ markdownInputFieldPage }) => {
+    await markdownInputFieldPage.goto();
+    const originalText = 'Text to be deleted';
+    await markdownInputFieldPage.typeText(originalText);
+
+    // 全选并删除
+    await markdownInputFieldPage.selectAll();
+    await markdownInputFieldPage.pressKey('Delete');
+    const afterDelete = await markdownInputFieldPage.getText();
+
+    // 验证内容被删除
+    expect(afterDelete.trim().length).toBeLessThan(originalText.length);
+    expect(afterDelete.trim().length).toBeLessThan(3);
+  });
+
+  test('应该支持 Ctrl+A 后输入新内容替换', async ({
+    markdownInputFieldPage,
+  }) => {
+    await markdownInputFieldPage.goto();
+    await markdownInputFieldPage.typeText('Old Content');
+
+    // 全选并输入新内容
+    await markdownInputFieldPage.selectAll();
+    await markdownInputFieldPage.typeText('New Content');
+    const text = await markdownInputFieldPage.getText();
+
+    // 验证内容被替换
+    expect(text).toContain('New Content');
+    expect(text).not.toContain('Old Content');
+  });
+});
