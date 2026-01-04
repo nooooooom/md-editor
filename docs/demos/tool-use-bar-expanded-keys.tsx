@@ -43,6 +43,12 @@ const tools = [
     time: '5.1s',
     status: 'loading' as const,
   },
+  {
+    id: 'tool4',
+    toolName: 'Generate Report',
+    toolTarget: 'report.pdf',
+    status: 'loading' as const,
+  },
 ];
 
 const ToolUseBarExpandedKeysDemo: React.FC = () => {
