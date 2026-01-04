@@ -69,6 +69,10 @@ export default () => {
       label: '大尺寸 (64px)',
       value: 64,
     },
+    {
+      label: '超大尺寸 (128px)',
+      value: 128,
+    },
   ] as const;
 
   return (
