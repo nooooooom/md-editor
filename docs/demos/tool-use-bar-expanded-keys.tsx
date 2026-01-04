@@ -44,7 +44,7 @@ const tools = [
     status: 'loading' as const,
   },
   {
-    id: 'tool4',
+    id: 'tool5',
     toolName: 'Generate Report',
     toolTarget: 'report.pdf',
     status: 'loading' as const,
