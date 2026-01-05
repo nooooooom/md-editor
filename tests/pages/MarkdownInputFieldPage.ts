@@ -242,18 +242,51 @@ export class MarkdownInputFieldPage {
 
   /**
    * 使用键盘快捷键
+   * 在 Mac 上，Home/End 键需要使用 Meta+Left/Right 组合
    */
   async pressKey(key: string) {
-    await this.page.keyboard.press(key);
+    const isMac = process.platform === 'darwin';
+    if (isMac && key === 'Home') {
+      // Mac 上使用 Meta+Left 代替 Home
+      await this.page.keyboard.press('Meta+ArrowLeft');
+    } else if (isMac && key === 'End') {
+      // Mac 上使用 Meta+Right 代替 End
+      await this.page.keyboard.press('Meta+ArrowRight');
+    } else {
+      await this.page.keyboard.press(key);
+    }
   }
 
   /**
    * 选中所有文本
+   * 在 Mac 上使用 Meta+A，在其他平台使用 Ctrl+A
+   * 全选后等待选中状态生效
    */
   async selectAll() {
     const isMac = process.platform === 'darwin';
     const modifierKey = isMac ? 'Meta' : 'Control';
     await this.page.keyboard.press(`${modifierKey}+a`);
+    // 等待选中状态生效，确保后续输入能够替换选中内容
+    // Mac 上可能需要更长的等待时间
+    await this.page.waitForTimeout(isMac ? 200 : 100);
+    // 验证选中状态是否生效（通过检查是否有选中文本）
+    await expect
+      .poll(
+        async () => {
+          const hasSelection = await this.editableInput.evaluate(() => {
+            const selection = window.getSelection();
+            return (
+              selection && selection.rangeCount > 0 && !selection.isCollapsed
+            );
+          });
+          return hasSelection;
+        },
+        {
+          timeout: 1000,
+          message: '等待全选状态生效',
+        },
+      )
+      .toBe(true);
   }
 
   /**
