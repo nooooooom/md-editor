@@ -12,7 +12,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
     [token.componentCls]: {
       position: 'relative',
       cursor: 'pointer',
-      borderRadius: '24px',
+      borderRadius: 'var(--radius-card-base)',
       boxSizing: 'border-box',
       border: 'var(--color-gray-border-light)',
       boxShadow: 'var(--shadow-border-base)',
@@ -88,7 +88,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         width: '100%',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
+        gap: '4px',
         zIndex: 1,
       },
 
@@ -96,9 +96,10 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         height: 24,
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 4,
         flex: 1,
         justifyContent: 'space-between',
+        paddingRight: 4,
         '&-light': {
           gap: 4,
         },
