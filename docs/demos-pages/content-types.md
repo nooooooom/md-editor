@@ -1,7 +1,7 @@
 ---
 nav:
   title: Demo
-  order: 2
+  order: 5
 group:
   title: 通用
   order: 10
