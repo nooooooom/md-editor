@@ -16,3 +16,7 @@ group:
 ## 对话流容器(不包含底部)
 
 <code src="../demos/ChatFlowContainer/withOut-footer.tsx" iframe=620></code>
+
+## 欢迎消息
+
+<code src="../demos/welcome/index.tsx" iframe=620></code>
