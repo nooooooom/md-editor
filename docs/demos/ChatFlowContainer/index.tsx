@@ -261,12 +261,7 @@ const ChatLayoutDemo: React.FC = () => {
             }}
             footer={
               <Flex vertical align="center" justify="center" gap={24}>
-                <Flex
-                  gap={8}
-                  align="center"
-                  justify="center"
-                  style={{ paddingTop: 8 }}
-                >
+                <Flex gap={8} align="center" justify="center">
                   <BackTo.Top
                     tooltip="去顶部"
                     shouldVisible={200}
