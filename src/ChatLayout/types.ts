@@ -16,6 +16,8 @@ export interface ChatLayoutProps extends BaseStyleProps {
   footerHeight?: number;
   /** 滚动行为 */
   scrollBehavior?: 'smooth' | 'auto';
+  /** 是否显示底部背景 */
+  showFooterBackground?: boolean;
   /** 自定义类名 */
   classNames?: {
     /** 根容器类名 */
@@ -26,6 +28,8 @@ export interface ChatLayoutProps extends BaseStyleProps {
     scrollable?: string;
     /** 底部区域类名 */
     footer?: string;
+    /** 底部背景区域类名 */
+    footerBackground?: string;
   };
   /** 自定义样式 */
   styles?: {
@@ -37,6 +41,8 @@ export interface ChatLayoutProps extends BaseStyleProps {
     scrollable?: React.CSSProperties;
     /** 底部区域样式 */
     footer?: React.CSSProperties;
+    /** 底部背景区域样式 */
+    footerBackground?: React.CSSProperties;
   };
 }
 

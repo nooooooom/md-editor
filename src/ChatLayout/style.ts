@@ -181,6 +181,14 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         borderBottomLeftRadius: 'var(--radius-xl)',
         borderBottomRightRadius: 'var(--radius-xl)',
       },
+      '&-footer-background': {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        pointerEvents: 'none',
+      },
       [`@media (max-width: ${MOBILE_BREAKPOINT})`]: {
         '&-header': {
           padding: `0 ${MOBILE_PADDING}`,

@@ -10,6 +10,7 @@ import React, {
 import { LayoutHeader } from '../Components/LayoutHeader';
 import useAutoScroll from '../Hooks/useAutoScroll';
 import { useElementSize } from '../Hooks/useElementSize';
+import FooterBackgroundLottie from './components/FooterBackgroundLottie';
 import { useStyle } from './style';
 import type { ChatLayoutProps, ChatLayoutRef } from './types';
 
@@ -90,6 +91,7 @@ const ChatLayoutComponent = forwardRef<ChatLayoutRef, ChatLayoutProps>(
       style,
       classNames,
       styles,
+      showFooterBackground = true,
     },
     ref,
   ) => {
@@ -127,6 +129,11 @@ const ChatLayoutComponent = forwardRef<ChatLayoutRef, ChatLayoutProps>(
       classNames?.footer,
       hashId,
     );
+    const footerBackgroundClassName = clsx(
+      `${prefixCls}-footer-background`,
+      classNames?.footerBackground,
+      hashId,
+    );
 
     return wrapSSR(
       <div className={rootClassName} style={{ ...styles?.root, ...style }}>
@@ -152,6 +159,9 @@ const ChatLayoutComponent = forwardRef<ChatLayoutRef, ChatLayoutProps>(
             className={footerClassName}
             style={{ minHeight: footerHeight, ...styles?.footer }}
           >
+            {showFooterBackground && (
+              <FooterBackgroundLottie className={footerBackgroundClassName} />
+            )}
             {footer}
           </div>
         )}

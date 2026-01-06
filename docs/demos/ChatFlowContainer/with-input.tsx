@@ -5,6 +5,7 @@ import {
   ChatLayoutRef,
   History,
   HistoryDataType,
+  MarkdownInputField,
   MessageBubbleData,
 } from '@ant-design/agentic-ui';
 import { Flex } from 'antd';
@@ -232,33 +233,41 @@ const ChatLayoutDemo: React.FC = () => {
               onShare: handleShare,
             }}
             scrollBehavior="auto"
-            showFooterBackground={false}
             footer={
-              <Flex gap={8} align="center" justify="center">
-                <BackTo.Top
-                  tooltip="去顶部"
-                  shouldVisible={200}
-                  target={() =>
-                    containerRef.current?.scrollContainer ?? document.body
-                  }
-                  style={{
-                    position: 'relative',
-                    bottom: 0,
-                    insetInlineEnd: 0,
-                  }}
-                />
-                <BackTo.Bottom
-                  tooltip="去底部"
-                  shouldVisible={200}
-                  target={() =>
-                    containerRef.current?.scrollContainer ?? document.body
-                  }
-                  style={{
-                    position: 'relative',
-                    bottom: 0,
-                    insetInlineEnd: 0,
-                  }}
-                />
+              <Flex
+                vertical
+                align="center"
+                justify="center"
+                gap={24}
+                style={{ width: '100%', paddingInline: 24 }}
+              >
+                <Flex gap={8} align="center" justify="center">
+                  <BackTo.Top
+                    tooltip="去顶部"
+                    shouldVisible={200}
+                    target={() =>
+                      containerRef.current?.scrollContainer ?? document.body
+                    }
+                    style={{
+                      position: 'relative',
+                      bottom: 0,
+                      insetInlineEnd: 0,
+                    }}
+                  />
+                  <BackTo.Bottom
+                    tooltip="去底部"
+                    shouldVisible={200}
+                    target={() =>
+                      containerRef.current?.scrollContainer ?? document.body
+                    }
+                    style={{
+                      position: 'relative',
+                      bottom: 0,
+                      insetInlineEnd: 0,
+                    }}
+                  />
+                </Flex>
+                <MarkdownInputField />
               </Flex>
             }
           >
