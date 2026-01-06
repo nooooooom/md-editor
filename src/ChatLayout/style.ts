@@ -172,6 +172,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         background:
           'linear-gradient(to bottom, #fff0 20%, var(--color-gray-bg-card-white) 70%)',
         width: '100%',
+        paddingBottom: 24,
         position: 'absolute',
         bottom: 0,
         zIndex: 100,

@@ -1,13 +1,15 @@
 import { ConfigProvider } from 'antd';
-import classNames from 'classnames';
+import clsx from 'classnames';
 import React, {
   forwardRef,
   memo,
   useContext,
   useImperativeHandle,
+  useRef,
 } from 'react';
 import { LayoutHeader } from '../Components/LayoutHeader';
 import useAutoScroll from '../Hooks/useAutoScroll';
+import { useElementSize } from '../Hooks/useElementSize';
 import { useStyle } from './style';
 import type { ChatLayoutProps, ChatLayoutRef } from './types';
 
@@ -82,10 +84,12 @@ const ChatLayoutComponent = forwardRef<ChatLayoutRef, ChatLayoutProps>(
       header,
       children,
       footer,
-      footerHeight = 90,
+      footerHeight = 48,
       scrollBehavior = 'smooth',
       className,
       style,
+      classNames,
+      styles,
     },
     ref,
   ) => {
@@ -99,35 +103,55 @@ const ChatLayoutComponent = forwardRef<ChatLayoutRef, ChatLayoutProps>(
       scrollBehavior,
     });
 
+    const footerRef = useRef<HTMLDivElement>(null);
+    const { height: actualFooterHeight } = useElementSize(footerRef);
+
     useImperativeHandle(ref, () => ({
       scrollContainer: containerRef.current,
       scrollToBottom,
     }));
 
-    const rootClassName = classNames(prefixCls, className, hashId);
-    const contentClassName = classNames(`${prefixCls}-content`, hashId);
-    const scrollableClassName = classNames(
-      `${prefixCls}-content-scrollable`,
+    const rootClassName = clsx(prefixCls, className, classNames?.root, hashId);
+    const contentClassName = clsx(
+      `${prefixCls}-content`,
+      classNames?.content,
       hashId,
     );
-    const footerClassName = classNames(`${prefixCls}-footer`, hashId);
+    const scrollableClassName = clsx(
+      `${prefixCls}-content-scrollable`,
+      classNames?.scrollable,
+      hashId,
+    );
+    const footerClassName = clsx(
+      `${prefixCls}-footer`,
+      classNames?.footer,
+      hashId,
+    );
 
     return wrapSSR(
-      <div className={rootClassName} style={style}>
+      <div className={rootClassName} style={{ ...styles?.root, ...style }}>
         {header && <LayoutHeader {...header} />}
-        <div className={contentClassName}>
-          <div className={scrollableClassName} ref={containerRef}>
+        <div className={contentClassName} style={styles?.content}>
+          <div
+            className={scrollableClassName}
+            ref={containerRef}
+            style={styles?.scrollable}
+          >
             {children}
             {footer && (
               <div
-                style={{ height: footerHeight, width: '100%' }}
+                style={{ height: actualFooterHeight, width: '100%' }}
                 aria-hidden="true"
               />
             )}
           </div>
         </div>
         {footer && (
-          <div className={footerClassName} style={{ minHeight: footerHeight }}>
+          <div
+            ref={footerRef}
+            className={footerClassName}
+            style={{ minHeight: footerHeight, ...styles?.footer }}
+          >
             {footer}
           </div>
         )}
