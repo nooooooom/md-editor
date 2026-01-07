@@ -368,6 +368,8 @@ export const cnLabels = {
   'browser.totalResults': '共${count}个结果',
   'browser.searching': '搜索中...',
   'layout.header.title': 'AI 助手',
+  theme: '主题',
+  expandCollapse: '展开/收起',
 };
 
 /**
@@ -745,4 +747,6 @@ export const enLabels: typeof cnLabels = {
   'browser.totalResults': 'Total ${count} results',
   'browser.searching': 'Searching...',
   'layout.header.title': 'AI Assistant',
+  theme: 'Theme',
+  expandCollapse: 'Expand/Collapse',
 };
