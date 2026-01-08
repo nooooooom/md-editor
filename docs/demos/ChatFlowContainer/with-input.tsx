@@ -5,10 +5,8 @@ import {
   ChatLayoutRef,
   History,
   HistoryDataType,
+  MarkdownInputField,
   MessageBubbleData,
-  TASK_RUNNING_STATUS,
-  TASK_STATUS,
-  TaskRunning,
 } from '@ant-design/agentic-ui';
 import { Flex } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
@@ -22,15 +20,9 @@ import {
 } from './data';
 import './style.css';
 
-interface StandaloneHistoryDemoProps {
-  currentSessionId: string;
-  onSelect: (sessionId: string) => void;
-}
+const StandaloneHistoryDemo = () => {
+  const [currentSessionId, setCurrentSessionId] = useState('session-2');
 
-const StandaloneHistoryDemo: React.FC<StandaloneHistoryDemoProps> = ({
-  currentSessionId,
-  onSelect,
-}) => {
   // 模拟请求函数
   const mockRequest = async ({ agentId }: { agentId: string }) => {
     // 模拟 API 请求
@@ -81,6 +73,11 @@ const StandaloneHistoryDemo: React.FC<StandaloneHistoryDemoProps> = ({
     ] as HistoryDataType[];
   };
 
+  const handleSelected = (sessionId: string) => {
+    setCurrentSessionId(sessionId);
+    console.log('选择会话:', sessionId);
+  };
+
   // 处理加载更多
   const handleLoadMore = async () => {
     // 模拟加载更多
@@ -94,7 +91,7 @@ const StandaloneHistoryDemo: React.FC<StandaloneHistoryDemoProps> = ({
       agentId="test-agent"
       sessionId={currentSessionId}
       request={mockRequest}
-      onClick={onSelect}
+      onClick={handleSelected}
       standalone
       type="chat"
       agent={{
@@ -123,7 +120,6 @@ const StandaloneHistoryDemo: React.FC<StandaloneHistoryDemoProps> = ({
  */
 const ChatLayoutDemo: React.FC = () => {
   const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState('session-2');
   const [bubbleList, setBubbleList] = useState<MessageBubbleData[]>(() => {
     const messages: MessageBubbleData[] = [];
 
@@ -138,16 +134,6 @@ const ChatLayoutDemo: React.FC = () => {
   });
 
   const containerRef = useRef<ChatLayoutRef>(null);
-
-  // 处理会话切换
-  const handleSessionSelect = (sessionId: string) => {
-    setCurrentSessionId(sessionId);
-    // 切换会话后，使用 scrollToBottom 滚动到底部
-    // 使用 setTimeout 确保在数据更新后再滚动
-    setTimeout(() => {
-      containerRef.current?.scrollToBottom();
-    }, 100);
-  };
 
   // 使用 useRef 管理重试状态，避免全局污染
   const isRetryingRef = useRef(false);
@@ -177,13 +163,6 @@ const ChatLayoutDemo: React.FC = () => {
   // ***************** Header End ***************** //
 
   // ***************** Footer Task Running ***************** //
-  // 空函数，用于满足类型要求
-  const noop = () => {};
-
-  const handleCreateNewTask = () => {
-    console.log('创建新任务');
-  };
-
   const handleRetry = () => {
     console.log('重试任务');
 
@@ -220,12 +199,9 @@ const ChatLayoutDemo: React.FC = () => {
         }
         isRetryingRef.current = false;
       }
-    }, RETRY_CONFIG.INTERVAL);
+    }, 100);
   };
 
-  const handleViewResult = () => {
-    console.log('查看任务结果');
-  };
   useEffect(() => {
     handleRetry();
   }, []);
@@ -237,10 +213,7 @@ const ChatLayoutDemo: React.FC = () => {
         {/* 左侧边栏 */}
         <div className={`sidebar-left ${leftCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-left-content">
-            <StandaloneHistoryDemo
-              currentSessionId={currentSessionId}
-              onSelect={handleSessionSelect}
-            />
+            <StandaloneHistoryDemo />
           </div>
         </div>
 
@@ -259,14 +232,21 @@ const ChatLayoutDemo: React.FC = () => {
               onLeftCollapse: handleLeftCollapse,
               onShare: handleShare,
             }}
+            scrollBehavior="auto"
             footer={
-              <Flex vertical align="center" justify="center" gap={24}>
+              <Flex
+                vertical
+                align="center"
+                justify="center"
+                gap={24}
+                style={{ width: '100%', paddingInline: 24 }}
+              >
                 <Flex gap={8} align="center" justify="center">
                   <BackTo.Top
                     tooltip="去顶部"
                     shouldVisible={200}
                     target={() =>
-                      containerRef.current?.scrollContainer as HTMLElement
+                      containerRef.current?.scrollContainer ?? document.body
                     }
                     style={{
                       position: 'relative',
@@ -278,7 +258,7 @@ const ChatLayoutDemo: React.FC = () => {
                     tooltip="去底部"
                     shouldVisible={200}
                     target={() =>
-                      containerRef.current?.scrollContainer as HTMLElement
+                      containerRef.current?.scrollContainer ?? document.body
                     }
                     style={{
                       position: 'relative',
@@ -287,17 +267,7 @@ const ChatLayoutDemo: React.FC = () => {
                     }}
                   />
                 </Flex>
-                <TaskRunning
-                  title={`任务已完成, 耗时03分00秒`}
-                  taskStatus={TASK_STATUS.SUCCESS}
-                  taskRunningStatus={TASK_RUNNING_STATUS.COMPLETE}
-                  onPause={noop}
-                  onResume={noop}
-                  onStop={noop}
-                  onCreateNewTask={handleCreateNewTask}
-                  onReplay={handleRetry}
-                  onViewResult={handleViewResult}
-                />
+                <MarkdownInputField />
               </Flex>
             }
           >
