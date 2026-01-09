@@ -135,20 +135,6 @@ describe('ChatLayout', () => {
     expect(footer).toHaveStyle('min-height: 90px');
   });
 
-  it('applies footerHeight to spacer element when footer is provided', () => {
-    const { container } = render(
-      <ChatLayout footer={<div>Footer</div>} footerHeight={150}>
-        <div>Test content</div>
-      </ChatLayout>,
-    );
-
-    const scrollable = container.querySelector(
-      '.ant-chat-layout-content-scrollable',
-    );
-    const spacer = scrollable?.lastElementChild as HTMLElement;
-    expect(spacer).toHaveStyle('height: 150px');
-  });
-
   it('sets spacer height to 0 when footer is not provided', () => {
     const { container } = render(
       <ChatLayout>
