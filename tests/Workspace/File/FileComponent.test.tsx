@@ -1788,12 +1788,15 @@ describe('FileComponent', () => {
       // 点击不应触发回调
       fireEvent.click(screen.getByText('disabled-file.txt'));
       expect(handleClick).not.toHaveBeenCalled();
+
+      // 不应显示操作按钮
+      expect(screen.queryByLabelText('下载')).not.toBeInTheDocument();
     });
 
     it('应该支持 renderName 自定义渲染', () => {
-      const customRenderName = vi.fn().mockReturnValue(
-        <span data-testid="custom-name">自定义文件名</span>,
-      );
+      const customRenderName = vi
+        .fn()
+        .mockReturnValue(<span data-testid="custom-name">自定义文件名</span>);
 
       const nodes: FileNode[] = [
         {
@@ -1819,9 +1822,11 @@ describe('FileComponent', () => {
     });
 
     it('应该支持 renderDetails 自定义渲染', () => {
-      const customRenderDetails = vi.fn().mockReturnValue(
-        <span data-testid="custom-details">2025-10-01 · 已编辑</span>,
-      );
+      const customRenderDetails = vi
+        .fn()
+        .mockReturnValue(
+          <span data-testid="custom-details">2025-10-01 · 已编辑</span>,
+        );
 
       const nodes: FileNode[] = [
         {
