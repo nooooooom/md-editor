@@ -40,6 +40,7 @@ Workspace 是一个功能强大的工作空间组件，提供了标签页式的�
 <code src="../demos/workspace-file-custom-preview-flow.tsx">文件-自定义预览</code>
 <code src="../demos/workspace-file-actionref-demo.tsx">actionRef外部打开</code>
 <code src="../demos/workspace-file-search-demo.tsx">文件-搜索</code>
+<code src="../demos/workspace-file-custom-render-demo.tsx">文件-自定义渲染</code>
 
 <!-- <code src="../demos/workspace-file-previewComponent.tsx">导出文件预览组件</code> -->
 
@@ -206,6 +207,33 @@ Workspace 是一个功能强大的工作空间组件，提供了标签页式的�
 | canShare     | 是否在文件列表/预览页展示分享按钮（默认隐藏）              | `boolean`                  |
 | canLocate    | 是否在文件列表/预览页展示“定位”按钮（默认隐藏）            | `boolean`                  |
 | loading      | 文件是否处于加载中状态                                     | `boolean`                  |
+| disabled      | 是否禁用文件卡片（禁用后不可点击）                       | `boolean`                                   |
+| renderName    | 自定义渲染文件名区域                                     | `(ctx: FileRenderContext) => ReactNode`     |
+| renderDetails | 自定义渲染详情行区域（类型、大小、时间等）               | `(ctx: FileRenderContext) => ReactNode`     |
+| renderActions | 自定义渲染操作按钮区域（预览、下载、分享等）             | `(ctx: FileRenderContext) => ReactNode`     |
+
+#### FileRenderContext
+
+自定义渲染函数的参数类型：
+
+| 参数      | 说明                                    | 类型                 |
+| --------- | --------------------------------------- | -------------------- |
+| file      | 当前文件节点                            | `FileNode`           |
+| prefixCls | 样式前缀                                | `string`             |
+| hashId    | 样式 hash                               | `string`             |
+| disabled  | 是否禁用                                | `boolean`            |
+| actions   | 内置操作按钮，可在 renderActions 中复用 | `FileBuiltinActions` |
+
+#### FileBuiltinActions
+
+内置操作按钮类型，用于在 `renderActions` 中复用：
+
+| 参数     | 说明     | 类型        |
+| -------- | -------- | ----------- |
+| preview  | 预览按钮 | `ReactNode` |
+| locate   | 定位按钮 | `ReactNode` |
+| share    | 分享按钮 | `ReactNode` |
+| download | 下载按钮 | `ReactNode` |
 
 #### GroupNode
 
