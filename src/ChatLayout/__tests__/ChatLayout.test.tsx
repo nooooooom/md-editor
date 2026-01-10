@@ -132,7 +132,7 @@ describe('ChatLayout', () => {
     );
 
     const footer = container.querySelector('.ant-chat-layout-footer');
-    expect(footer).toHaveStyle('min-height: 90px');
+    expect(footer).toHaveStyle('min-height: 48px');
   });
 
   it('sets spacer height to 0 when footer is not provided', () => {
