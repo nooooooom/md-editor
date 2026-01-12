@@ -35,6 +35,8 @@ export interface WorkspaceProps {
   children?: React.ReactNode;
   /** 纯净模式，关闭阴影和边框 */
   pure?: boolean;
+  /** 自定义 header 右侧区域内容 */
+  headerExtra?: ReactNode;
 }
 
 // 子组件基础属性
