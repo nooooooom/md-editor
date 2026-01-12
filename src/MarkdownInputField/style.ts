@@ -96,6 +96,7 @@ const genStyle: GenerateStyle<
       maxWidth: 980,
       position: 'relative',
       transition: 'box-shadow 0.3s',
+      overflow: 'hidden',
       '> * ': {
         boxSizing: 'border-box',
       },
@@ -115,7 +116,6 @@ const genStyle: GenerateStyle<
         [`${token.componentCls}-editor`]: {
           flex: 1,
           height: '100%',
-          minHeight: '100%',
           maxHeight: 'none',
           overflow: 'hidden',
           width: '100%',
@@ -167,7 +167,6 @@ const genStyle: GenerateStyle<
       '&-editor-content': {
         overflowY: 'auto',
         maxHeight: 'inherit',
-        borderRadius: 'inherit',
         scrollbarColor: 'var(--color-gray-text-tertiary) transparent',
         scrollbarWidth: 'thin',
         [`@media (max-width: ${MOBILE_BREAKPOINT})`]: {
