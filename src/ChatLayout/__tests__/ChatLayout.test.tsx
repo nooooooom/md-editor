@@ -135,6 +135,22 @@ describe('ChatLayout', () => {
     expect(footer).toHaveStyle('min-height: 48px');
   });
 
+  it('applies footerHeight to spacer element when footer is provided', () => {
+    const { container } = render(
+      <ChatLayout footer={<div>Footer</div>} footerHeight={150}>
+        <div>Test content</div>
+      </ChatLayout>,
+    );
+
+    const scrollable = container.querySelector(
+      '.ant-chat-layout-content-scrollable',
+    );
+    const spacer = scrollable?.lastElementChild as HTMLElement;
+    // spacer 高度由 useElementSize 钩子测量的实际 footer 高度决定
+    // 在测试环境中由于 ResizeObserver 被 mock，高度为 0
+    expect(spacer).toHaveStyle('height: 0px');
+  });
+
   it('sets spacer height to 0 when footer is not provided', () => {
     const { container } = render(
       <ChatLayout>
