@@ -68,18 +68,24 @@ Workspace 是一个功能强大的工作空间组件，提供了标签页式的�
 
 <code src="../demos/workspace-advanced-demo.tsx" description="展示复杂场景下的工作空间配置和使用"></code>
 
+### Header 右侧自定义
+
+<code src="../demos/workspace-header-extra-demo.tsx" description="展示如何自定义 header 右侧区域，添加自定义按钮或操作"></code>
+
 ## API
 
 ### Workspace
 
-| 参数         | 说明                   | 类型                       | 默认值        |
-| ------------ | ---------------------- | -------------------------- | ------------- |
-| activeTabKey | 当前激活的标签页 key   | `string`                   | -             |
-| onTabChange  | 切换标签页的回调函数   | `(tabKey: string) => void` | -             |
-| style        | 自定义样式             | `React.CSSProperties`      | -             |
-| className    | 自定义 CSS 类名        | `string`                   | -             |
-| title        | 工作空间标题           | `ReactNode`                | `'Workspace'` |
-| onClose      | 关闭工作空间的回调函数 | `() => void`               | -             |
+| 参数         | 说明                       | 类型                       | 默认值        |
+| ------------ | -------------------------- | -------------------------- | ------------- |
+| activeTabKey | 当前激活的标签页 key       | `string`                   | -             |
+| onTabChange  | 切换标签页的回调函数       | `(tabKey: string) => void` | -             |
+| style        | 自定义样式                 | `React.CSSProperties`      | -             |
+| className    | 自定义 CSS 类名            | `string`                   | -             |
+| title        | 工作空间标题               | `ReactNode`                | `'Workspace'` |
+| onClose      | 关闭工作空间的回调函数     | `() => void`               | -             |
+| headerExtra  | 自定义 header 右侧区域内容 | `ReactNode`                | -             |
+| pure         | 纯净模式，关闭阴影和边框   | `boolean`                  | `false`       |
 
 ### Workspace.Realtime
 
