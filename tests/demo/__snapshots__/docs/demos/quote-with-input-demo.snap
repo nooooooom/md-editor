@@ -15,8 +15,8 @@
         style="border: 1px solid rgb(240, 240, 240); border-radius: 8px; padding: 16px; background-color: rgb(250, 250, 250);"
       >
         <div
-          class="ant-dropdown-trigger ant-agentic-md-input-field"
-          style="height: min(114px,100%); border-radius: 16px; min-height: 0; max-height: min(114px,100%);"
+          class="ant-dropdown-trigger ant-agentic-md-input-field ant-agentic-md-input-field-skill-mode ant-agentic-md-input-field-is-multi-row"
+          style="height: min(204px,100%); border-radius: 16px; min-height: 90px; max-height: min(204px,100%);"
           tabindex="1"
         >
           <div
@@ -174,7 +174,7 @@ useEffect(() =&gt; {
       setLoading(false);
     }
   };
-  
+
   loadUserProfile();
 }, [userId]);
                         </div>
@@ -332,11 +332,11 @@ useEffect(() =&gt; {
       'Authorization': `Bearer ${getAuthToken()}`,
     },
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to fetch user profile: ${response.statusText}`);
   }
-  
+
   return response.json();
 };
                         </div>
@@ -576,6 +576,94 @@ useEffect(() =&gt; {
               class="ant-agentic-md-input-field-editor-content"
             >
               <div
+                class="ant-agentic-md-editor-attachment-list-container ant-agentic-md-editor-attachment-list-container-empty"
+              >
+                <div
+                  animate="visible"
+                  class="ant-agentic-md-editor-attachment-list"
+                  initial="hidden"
+                  style="height: 0px; overflow: hidden; padding: 0px;"
+                  variants="[object Object]"
+                  whileinview="visible"
+                >
+                  <div
+                    class="ant-image ant-image-error"
+                  >
+                    <img
+                      alt="Preview"
+                      class="ant-image-img"
+                      style="display: none;"
+                    />
+                    <div
+                      class="ant-image-mask"
+                      style="display: none;"
+                    >
+                      <div
+                        class="ant-image-mask-info"
+                      >
+                        <span
+                          aria-label="eye"
+                          class="anticon anticon-eye"
+                          role="img"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            data-icon="eye"
+                            fill="currentColor"
+                            focusable="false"
+                            height="1em"
+                            viewBox="64 64 896 896"
+                            width="1em"
+                          >
+                            <path
+                              d="M942.2 486.2C847.4 286.5 704.1 186 512 186c-192.2 0-335.4 100.5-430.2 300.3a60.3 60.3 0 000 51.5C176.6 737.5 319.9 838 512 838c192.2 0 335.4-100.5 430.2-300.3 7.7-16.2 7.7-35 0-51.5zM512 766c-161.3 0-279.4-81.8-362.7-254C232.6 339.8 350.7 258 512 258c161.3 0 279.4 81.8 362.7 254C791.5 684.2 673.4 766 512 766zm-4-430c-97.2 0-176 78.8-176 176s78.8 176 176 176 176-78.8 176-176-78.8-176-176-176zm0 288c-61.9 0-112-50.1-112-112s50.1-112 112-112 112 50.1 112 112-50.1 112-112 112z"
+                            />
+                          </svg>
+                        </span>
+                        Preview
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <span
+                  class="ant-agentic-md-editor-action-icon-box ant-agentic-md-editor-attachment-list-close-icon ant-agentic-md-editor-action-icon-box-light"
+                  data-testid="action-icon-box"
+                  role="button"
+                  style="transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0;"
+                  tabindex="0"
+                >
+                  <svg
+                    class="sofa-icons-icon"
+                    fill="currentColor"
+                    fill-rule="evenodd"
+                    height="1em"
+                    style="vertical-align: -0.125em;"
+                    viewBox="0 0 16 16"
+                    width="1em"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <defs>
+                      <clippath
+                        id="X-master_svg0_339_8586"
+                      >
+                        <rect
+                          height="16"
+                          rx="0"
+                          width="16"
+                        />
+                      </clippath>
+                    </defs>
+                    <g
+                      clip-path="url(#X-master_svg0_339_8586)"
+                    >
+                      <path
+                        d="M12.471 4.471a.667.667 0 1 0-.943-.942L8 7.057 4.47 3.53a.667.667 0 1 0-.942.942L7.057 8 3.53 11.529a.667.667 0 0 0 .942.942L8 8.943l3.529 3.528a.667.667 0 0 0 .942-.942L8.943 8z"
+                      />
+                    </g>
+                  </svg>
+                </span>
+              </div>
+              <div
                 class="ant-agentic-md-editor markdown-editor ant-agentic-md-editor-edit"
                 style="width: 100%; height: auto; min-height: 0; flex: 1 1 0%; padding: 0px;"
               >
@@ -626,6 +714,55 @@ useEffect(() =&gt; {
                     </div>
                   </div>
                 </div>
+                <div
+                  data-testid="resize-observer"
+                >
+                  <div
+                    class="ant-agentic-md-input-field-quick-actions ant-agentic-md-input-field-quick-actions-vertical"
+                    contenteditable="false"
+                  >
+                    <span
+                      aria-describedby="test-id"
+                      aria-label="放大"
+                      class="ant-agentic-md-editor-action-icon-box ant-agentic-md-editor-action-icon-box-light"
+                      data-testid="action-icon-box"
+                      data-title="放大"
+                      role="button"
+                      tabindex="0"
+                    >
+                      <svg
+                        class="sofa-icons-icon"
+                        fill="currentColor"
+                        fill-rule="evenodd"
+                        height="1em"
+                        style="vertical-align: -0.125em;"
+                        viewBox="0 0 24 24"
+                        width="1em"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <defs>
+                          <clippath
+                            id="ExpandAlt-master_svg0_2197_13716"
+                          >
+                            <rect
+                              height="24"
+                              rx="0"
+                              width="24"
+                            />
+                          </clippath>
+                        </defs>
+                        <g
+                          clip-path="url(#ExpandAlt-master_svg0_2197_13716)"
+                        >
+                          <path
+                            d="M13 4h6a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0V6h-5a1 1 0 1 1 0-2m-9 9a1 1 0 1 1 2 0v5h5a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1z"
+                            style="mix-blend-mode: passthrough;"
+                          />
+                        </g>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -636,6 +773,49 @@ useEffect(() =&gt; {
               class="ant-agentic-md-input-field-send-actions"
               contenteditable="false"
             >
+              <div
+                class="ant-agentic-md-editor-attachment-button"
+                data-testid="attachment-button"
+              >
+                <span
+                  aria-describedby="test-id"
+                >
+                  <div
+                    style="display: flex; align-items: center; gap: 4px;"
+                  >
+                    <svg
+                      class="sofa-icons-icon"
+                      fill="currentColor"
+                      fill-rule="evenodd"
+                      height="1em"
+                      style="vertical-align: -0.125em;"
+                      viewBox="0 0 24 24"
+                      width="1em"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <defs>
+                        <clippath
+                          id="Paperclip-master_svg0_2009_41093"
+                        >
+                          <rect
+                            height="24"
+                            rx="0"
+                            width="24"
+                          />
+                        </clippath>
+                      </defs>
+                      <g
+                        clip-path="url(#Paperclip-master_svg0_2009_41093)"
+                      >
+                        <path
+                          d="m13.95 20.95-.019.019Q11.886 23.001 9 23.001q-2.9 0-4.95-2.05Q2 18.9 2 16t2.05-4.95l8.408-8.578Q13.929 1.001 16 1.001t3.535 1.464T20.999 6q0 2.07-1.464 3.535l-8.407 8.579Q10.242 19 9 19t-2.121-.879Q6 17.242 6 16t.879-2.121l8.406-8.578a1 1 0 1 1 1.43 1.399l-8.422 8.593q-.707.707 0 1.414t1.407.007l8.42-8.593Q19 7.242 19 6t-.879-2.12Q17.242 3 16 3t-2.114.872l-8.422 8.592Q4 13.93 4 16t1.465 3.536T9 21q2.06 0 3.521-1.45l7.763-7.95A1 1 0 1 1 21.715 13l-7.748 7.933z"
+                          style="mix-blend-mode: passthrough;"
+                        />
+                      </g>
+                    </svg>
+                  </div>
+                </span>
+              </div>
               <div
                 aria-describedby="test-id"
                 class="ant-agentic-md-input-field-send-button"
