@@ -96,7 +96,6 @@ const genStyle: GenerateStyle<
       maxWidth: 980,
       position: 'relative',
       transition: 'box-shadow 0.3s',
-      overflow: 'hidden',
       '> * ': {
         boxSizing: 'border-box',
       },
@@ -170,6 +169,8 @@ const genStyle: GenerateStyle<
         flex: 1,
         maxHeight: 'inherit',
         minHeight: 0,
+        borderRadius: 'inherit',
+        overflow: 'hidden',
         [`@media (max-width: ${MOBILE_BREAKPOINT})`]: {
           padding: `${MOBILE_PADDING} !important`,
         },
