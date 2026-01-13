@@ -165,10 +165,11 @@ const genStyle: GenerateStyle<
         },
       },
       '&-editor-content': {
-        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
         maxHeight: 'inherit',
-        scrollbarColor: 'var(--color-gray-text-tertiary) transparent',
-        scrollbarWidth: 'thin',
+        minHeight: 0,
         [`@media (max-width: ${MOBILE_BREAKPOINT})`]: {
           padding: `${MOBILE_PADDING} !important`,
         },

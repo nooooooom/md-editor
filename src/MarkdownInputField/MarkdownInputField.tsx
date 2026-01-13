@@ -1,6 +1,6 @@
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
-import React, { memo, useContext, useMemo, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import { BaseMarkdownEditor } from '../MarkdownEditor';
 import { BorderBeamAnimation } from './BorderBeamAnimation';
 import { useFileUploadManager } from './FileUploadManager';
@@ -258,25 +258,6 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
     hashId,
   });
 
-  // 计算编辑器容器的 maxHeight（用于内部样式）
-  const editorMaxHeight = useMemo(() => {
-    if (isEnlarged) return 'none';
-    const maxHeightValue = props.maxHeight ?? props.style?.maxHeight;
-    const base =
-      typeof maxHeightValue === 'number'
-        ? maxHeightValue
-        : maxHeightValue
-          ? parseFloat(String(maxHeightValue)) || 400
-          : 400;
-    const extra = props.attachment?.enable ? 90 : 0;
-    return `min(${base + extra}px)`;
-  }, [
-    isEnlarged,
-    props.maxHeight,
-    props.style?.maxHeight,
-    props.attachment?.enable,
-  ]);
-
   return wrapSSR(
     <>
       {isShowTopOperatingArea && (
@@ -344,9 +325,9 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
               borderRadius: !!props.toolsRender ? 0 : 'inherit',
               borderTopLeftRadius: 'inherit',
               borderTopRightRadius: 'inherit',
-              maxHeight: editorMaxHeight,
               height: isEnlarged ? '100%' : 'auto',
               flex: 1,
+              minHeight: 0,
             }}
             className={classNames(`${baseCls}-editor`, hashId, {
               [`${baseCls}-editor-hover`]: isHover,
@@ -367,9 +348,9 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
                 leafRender={props.leafRender}
                 style={{
                   width: '100%',
+                  minHeight: 0,
                   flex: 1,
                   padding: 0,
-                  paddingRight: computedRightPadding,
                 }}
                 toolBar={{
                   enable: false,
@@ -379,7 +360,9 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
                 }}
                 readonly={isLoading}
                 contentStyle={{
+                  alignItems: 'flex-start',
                   padding: 'var(--padding-3x)',
+                  paddingRight: computedRightPadding || 'var(--padding-3x)',
                 }}
                 textAreaProps={{
                   enable: true,
