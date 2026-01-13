@@ -428,7 +428,38 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
                 toc={false}
                 pasteConfig={props.pasteConfig}
                 {...markdownProps}
-              />
+              >
+                {props?.quickActionRender ||
+                props.refinePrompt?.enable ||
+                props.enlargeable?.enable ? (
+                  <QuickActions
+                    ref={quickActionsRef}
+                    value={value}
+                    fileMap={fileMap}
+                    onFileMapChange={setFileMap}
+                    isHover={isHover}
+                    isLoading={isLoading}
+                    disabled={props.disabled}
+                    fileUploadStatus={fileUploadDone ? 'done' : 'uploading'}
+                    refinePrompt={props.refinePrompt}
+                    editorRef={markdownEditorRef}
+                    onValueChange={(text) => {
+                      setValue(text);
+                      props.onChange?.(text);
+                    }}
+                    quickActionRender={props.quickActionRender as any}
+                    prefixCls={baseCls}
+                    hashId={hashId}
+                    enlargeable={!!props.enlargeable?.enable}
+                    isEnlarged={isEnlarged}
+                    onEnlargeClick={handleEnlargeClick}
+                    onResize={(width, rightOffset) => {
+                      setTopRightPadding(width);
+                      setQuickRightOffset(rightOffset);
+                    }}
+                  />
+                ) : null}
+              </BaseMarkdownEditor>
             </div>
           </div>
           {props.toolsRender ? (
@@ -453,36 +484,6 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
           ) : (
             sendActionsNode
           )}
-          {props?.quickActionRender ||
-          props.refinePrompt?.enable ||
-          props.enlargeable?.enable ? (
-            <QuickActions
-              ref={quickActionsRef}
-              value={value}
-              fileMap={fileMap}
-              onFileMapChange={setFileMap}
-              isHover={isHover}
-              isLoading={isLoading}
-              disabled={props.disabled}
-              fileUploadStatus={fileUploadDone ? 'done' : 'uploading'}
-              refinePrompt={props.refinePrompt}
-              editorRef={markdownEditorRef}
-              onValueChange={(text) => {
-                setValue(text);
-                props.onChange?.(text);
-              }}
-              quickActionRender={props.quickActionRender as any}
-              prefixCls={baseCls}
-              hashId={hashId}
-              enlargeable={!!props.enlargeable?.enable}
-              isEnlarged={isEnlarged}
-              onEnlargeClick={handleEnlargeClick}
-              onResize={(width, rightOffset) => {
-                setTopRightPadding(width);
-                setQuickRightOffset(rightOffset);
-              }}
-            />
-          ) : null}
         </div>
       </Suggestion>
     </>,
