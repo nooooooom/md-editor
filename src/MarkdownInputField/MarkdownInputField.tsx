@@ -285,6 +285,7 @@ const MarkdownInputFieldComponent: React.FC<MarkdownInputFieldProps> = ({
           ref={inputRef}
           className={classNames(baseCls, hashId, props.className, {
             [`${baseCls}-disabled`]: props.disabled,
+            [`${baseCls}-skill-mode`]: props.skillMode?.open,
             [`${baseCls}-typing`]: false,
             [`${baseCls}-loading`]: isLoading,
             [`${baseCls}-is-multi-row`]: isMultiRowLayout,

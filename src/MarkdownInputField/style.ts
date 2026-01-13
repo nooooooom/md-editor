@@ -196,6 +196,9 @@ const genStyle: GenerateStyle<
         font: 'var(--font-text-body-base)',
         color: 'var(--color-gray-text-default)',
       },
+      '&-skill-mode &-editor-content': {
+        borderRadius: 0,
+      },
       '&-tools-wrapper': {
         backgroundColor: '#fff',
         display: 'flex',
