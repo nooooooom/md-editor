@@ -96,7 +96,6 @@ const genStyle: GenerateStyle<
       maxWidth: 980,
       position: 'relative',
       transition: 'box-shadow 0.3s',
-      overflow: 'hidden',
       '> * ': {
         boxSizing: 'border-box',
       },
@@ -165,10 +164,13 @@ const genStyle: GenerateStyle<
         },
       },
       '&-editor-content': {
-        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
         maxHeight: 'inherit',
-        scrollbarColor: 'var(--color-gray-text-tertiary) transparent',
-        scrollbarWidth: 'thin',
+        minHeight: 0,
+        borderRadius: 'inherit',
+        overflow: 'hidden',
         [`@media (max-width: ${MOBILE_BREAKPOINT})`]: {
           padding: `${MOBILE_PADDING} !important`,
         },
@@ -193,6 +195,9 @@ const genStyle: GenerateStyle<
         alignItems: 'center',
         font: 'var(--font-text-body-base)',
         color: 'var(--color-gray-text-default)',
+      },
+      '&-skill-mode &-editor-content': {
+        borderRadius: 0,
       },
       '&-tools-wrapper': {
         backgroundColor: '#fff',

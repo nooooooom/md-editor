@@ -59,7 +59,7 @@ export default () => (
 | scrollContainer | 滚动容器的 DOM 元素  | `HTMLDivElement`   |
 | scrollToBottom  | 滚动到底部的方法     | `() => void`       |
 
-```tsx
+```tsx | pure
 const chatRef = useRef<ChatLayoutRef>(null);
 
 // 滚动到底部
