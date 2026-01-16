@@ -279,7 +279,7 @@ export function EditorImage({
   });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, path] = useSelStatus(element);
-  const { markdownEditorRef, readonly } = useEditorStore();
+  const { markdownEditorRef } = useEditorStore();
 
   const htmlRef = React.useRef<HTMLDivElement>(null);
   const [showAsText, setShowAsText] = useState(false);
@@ -363,7 +363,6 @@ export function EditorImage({
       finished: element.finished,
       showAsText,
       loadSuccess: state().loadSuccess,
-      readonly,
     });
     // 检查是否为不完整的图片（finished 状态）
     if (element.finished === false) {
@@ -407,50 +406,36 @@ export function EditorImage({
       );
     }
 
-    return !readonly
-      ? (() => {
-          debugInfo('EditorImage - 使用可调整大小的图片', {
-            width: element.width,
-            height: element.height,
+    // 编辑模式：使用可调整大小的图片
+    debugInfo('EditorImage - 使用可调整大小的图片', {
+      width: element.width,
+      height: element.height,
+    });
+    return (
+      <ResizeImage
+        defaultSize={{
+          width: Number(element.width) || element.width || 400,
+          height: Number(element.height) || 400,
+        }}
+        selected={state().selected}
+        src={state()?.url}
+        onResizeStart={() => {
+          debugInfo('EditorImage - 开始调整大小');
+          setState({ selected: true });
+        }}
+        onResizeStop={(size) => {
+          debugInfo('EditorImage - 调整大小完成', { size });
+          if (!markdownEditorRef?.current) return;
+          Transforms.setNodes(markdownEditorRef.current, size, {
+            at: path,
           });
-          return (
-            <ResizeImage
-              defaultSize={{
-                width: Number(element.width) || element.width || 400,
-                height: Number(element.height) || 400,
-              }}
-              selected={state().selected}
-              src={state()?.url}
-              onResizeStart={() => {
-                debugInfo('EditorImage - 开始调整大小');
-                setState({ selected: true });
-              }}
-              onResizeStop={(size) => {
-                debugInfo('EditorImage - 调整大小完成', { size });
-                if (!markdownEditorRef?.current) return;
-                Transforms.setNodes(markdownEditorRef.current, size, {
-                  at: path,
-                });
-                setState({ selected: false });
-              }}
-            />
-          );
-        })()
-      : (() => {
-          debugInfo('EditorImage - 使用只读图片');
-          return (
-            <ReadonlyImage
-              src={state()?.url || element?.url}
-              alt={element?.alt || 'image'}
-              width={element.width}
-              height={element.height}
-            />
-          );
-        })();
+          setState({ selected: false });
+        }}
+      />
+    );
   }, [
     state().type,
     state()?.url,
-    readonly,
     state().selected,
     state().loadSuccess,
     element.finished,
@@ -495,7 +480,7 @@ export function EditorImage({
           },
         }}
         trigger="hover"
-        open={state().selected && !readonly ? undefined : false}
+        open={state().selected ? undefined : false}
         content={
           <Space>
             <ActionIconBox

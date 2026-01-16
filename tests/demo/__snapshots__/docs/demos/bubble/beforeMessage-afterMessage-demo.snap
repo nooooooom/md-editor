@@ -112,7 +112,6 @@
                           <h1
                             class=""
                             data-be="head"
-                            data-drag-el="true"
                             data-head="这是一个演示消息"
                             data-slate-node="element"
                             data-title="true"
@@ -137,7 +136,6 @@
                           <div
                             class=""
                             data-be="paragraph"
-                            data-drag-el="true"
                             data-slate-node="element"
                           >
                             <span
@@ -194,10 +192,9 @@
                           <h2
                             class=""
                             data-be="head"
-                            data-drag-el="true"
                             data-head="功能特性"
                             data-slate-node="element"
-                            data-title="false"
+                            data-title="true"
                             id="功能特性"
                           >
                             <span
@@ -232,7 +229,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -260,7 +256,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -288,7 +283,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -531,7 +525,6 @@
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span

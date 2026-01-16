@@ -3425,7 +3425,6 @@ console.log('嵌套的代码');
               <h1
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="html-标签解析演示"
                 data-slate-node="element"
                 data-title="true"
@@ -3450,7 +3449,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -3499,10 +3497,9 @@ console.log('嵌套的代码');
               <h2
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_1-特殊标签：-think"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_1-特殊标签：-think"
               >
                 <span
@@ -3524,7 +3521,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -3546,7 +3542,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -3822,10 +3817,9 @@ console.log('嵌套的代码');
               <h2
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_2-标准-html-元素"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_2-标准-html-元素"
               >
                 <span
@@ -3847,10 +3841,9 @@ console.log('嵌套的代码');
               <h3
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_2-1-块级元素"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_2-1-块级元素"
               >
                 <span
@@ -3887,7 +3880,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -3909,10 +3901,9 @@ console.log('嵌套的代码');
               <h3
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_2-2-列表"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_2-2-列表"
               >
                 <span
@@ -3986,10 +3977,9 @@ console.log('嵌套的代码');
               <h3
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_2-3-内联元素"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_2-3-内联元素"
               >
                 <span
@@ -4011,7 +4001,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4129,7 +4118,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4249,7 +4237,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4302,7 +4289,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4386,10 +4372,9 @@ console.log('嵌套的代码');
               <h3
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_2-4-媒体元素"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_2-4-媒体元素"
               >
                 <span
@@ -4441,13 +4426,11 @@ console.log('嵌套的代码');
                 >
                   <div
                     data-be="media"
-                    data-drag-el="true"
                     data-testid="media-container"
                     draggable="false"
-                    style="cursor: pointer; position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
+                    style="position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
                   >
                     <div
-                      aria-describedby="test-id"
                       contenteditable="false"
                       data-be="media-container"
                       draggable="false"
@@ -4584,10 +4567,9 @@ console.log('嵌套的代码');
               <h2
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_3-非标准-html-元素"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_3-非标准-html-元素"
               >
                 <span
@@ -4609,10 +4591,9 @@ console.log('嵌套的代码');
               <h3
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_3-1-标签（只显示内容）"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_3-1-标签（只显示内容）"
               >
                 <span
@@ -4634,7 +4615,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4675,7 +4655,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4697,7 +4676,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4719,7 +4697,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4743,10 +4720,9 @@ console.log('嵌套的代码');
               <h3
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_3-2-其他自定义标签（也只显示内容）"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_3-2-其他自定义标签（也只显示内容）"
               >
                 <span
@@ -4768,7 +4744,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4809,7 +4784,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4831,7 +4805,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4872,7 +4845,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4894,7 +4866,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4935,7 +4906,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -4957,10 +4927,9 @@ console.log('嵌套的代码');
               <h3
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_3-3-嵌套自定义标签"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_3-3-嵌套自定义标签"
               >
                 <span
@@ -4982,7 +4951,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -5023,7 +4991,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -5072,10 +5039,9 @@ console.log('嵌套的代码');
               <h2
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_4-html-注释（用于配置）"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_4-html-注释（用于配置）"
               >
                 <span
@@ -5097,7 +5063,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -5146,10 +5111,9 @@ console.log('嵌套的代码');
               <h2
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="_5-换行标签"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="_5-换行标签"
               >
                 <span
@@ -5171,7 +5135,6 @@ console.log('嵌套的代码');
               <div
                 class=""
                 data-be="paragraph"
-                data-drag-el="true"
                 data-slate-node="element"
               >
                 <span
@@ -5262,10 +5225,9 @@ console.log('嵌套的代码');
               <h2
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="对比总结"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="对比总结"
               >
                 <span
@@ -5348,7 +5310,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5376,7 +5337,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5404,7 +5364,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5436,7 +5395,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5464,7 +5422,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5492,7 +5449,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5524,7 +5480,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5552,7 +5507,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5584,7 +5538,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5636,7 +5589,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5664,7 +5616,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5745,7 +5696,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5797,7 +5747,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5825,7 +5774,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5940,7 +5888,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -5972,7 +5919,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -6000,7 +5946,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -6032,7 +5977,6 @@ console.log('嵌套的代码');
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -6183,10 +6127,9 @@ console.log('嵌套的代码');
               <h2
                 class=""
                 data-be="head"
-                data-drag-el="true"
                 data-head="提示"
                 data-slate-node="element"
-                data-title="false"
+                data-title="true"
                 id="提示"
               >
                 <span
@@ -6221,7 +6164,6 @@ console.log('嵌套的代码');
                     <div
                       class=""
                       data-be="paragraph"
-                      data-drag-el="true"
                       data-slate-node="element"
                     >
                       <span
@@ -6284,7 +6226,6 @@ console.log('嵌套的代码');
                     <div
                       class=""
                       data-be="paragraph"
-                      data-drag-el="true"
                       data-slate-node="element"
                     >
                       <span
@@ -6317,7 +6258,6 @@ console.log('嵌套的代码');
                     <div
                       class=""
                       data-be="paragraph"
-                      data-drag-el="true"
                       data-slate-node="element"
                     >
                       <span
@@ -6413,7 +6353,6 @@ console.log('嵌套的代码');
                     <div
                       class=""
                       data-be="paragraph"
-                      data-drag-el="true"
                       data-slate-node="element"
                     >
                       <span

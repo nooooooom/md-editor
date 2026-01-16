@@ -10,25 +10,44 @@ import { MarkdownEditorProps } from '../../types';
 import { useEditorStore } from '../store';
 import { EditorUtils } from '../utils/editorUtils';
 import { Blockquote } from './Blockquote';
+import { ReadonlyBlockquote } from './Blockquote/ReadonlyBlockquote';
 import { Break } from './Break';
+import { ReadonlyBreak } from './Break/ReadonlyBreak';
 import { WarpCard } from './Card';
+import { ReadonlyCard } from './Card/ReadonlyCard';
 import { Code } from './Code';
+import { ReadonlyCode } from './Code/ReadonlyCode';
 import { CommentLeaf } from './CommentLeaf';
 import { FncLeaf } from './FncLeaf';
 import { FootnoteDefinition } from './FootnoteDefinition';
+import { ReadonlyFootnoteDefinition } from './FootnoteDefinition/ReadonlyFootnoteDefinition';
 import { FootnoteReference } from './FootnoteReference';
+import { ReadonlyFootnoteReference } from './FootnoteReference/ReadonlyFootnoteReference';
 import { Head } from './Head';
+import { ReadonlyHead } from './Head/ReadonlyHead';
 import { Hr } from './Hr';
+import { ReadonlyHr } from './Hr/ReadonlyHr';
 import { EditorImage } from './Image';
+import { ReadonlyEditorImage } from './Image/ReadonlyEditorImage';
 import { InlineKatex } from './InlineKatex';
+import { ReadonlyInlineKatex } from './InlineKatex/ReadonlyInlineKatex';
 import { Katex } from './Katex';
+import { ReadonlyKatex } from './Katex/ReadonlyKatex';
 import { LinkCard } from './LinkCard';
+import { ReadonlyLinkCard } from './LinkCard/ReadonlyLinkCard';
 import { List, ListItem } from './List';
+import { ReadonlyList } from './List/ReadonlyList';
+import { ReadonlyListItem } from './List/ReadonlyListItem';
 import { Media } from './Media';
+import { ReadonlyMedia } from './Media/ReadonlyMedia';
 import { Mermaid } from './Mermaid';
+import { ReadonlyMermaid } from './Mermaid/ReadonlyMermaid';
 import { Paragraph } from './Paragraph';
+import { ReadonlyParagraph } from './Paragraph/ReadonlyParagraph';
 import { Schema } from './Schema';
+import { ReadonlySchema } from './Schema/ReadonlySchema';
 import { tableRenderElement } from './Table';
+import { ReadonlyTableComponent } from './Table/ReadonlyTableComponent';
 import { TagPopup } from './TagPopup';
 
 /**
@@ -99,58 +118,111 @@ const MElementComponent = (
     hasChildren: !!props.children,
   });
 
-  const dom = tableRenderElement(props, { readonly: props.readonly });
-
-  if (dom) {
+  // 表格元素特殊处理（tableRenderElement 内部已处理 readonly）
+  const tableDom = tableRenderElement(props, { readonly: props.readonly });
+  if (tableDom) {
     debugInfo('MElementComponent - 使用表格渲染', {
       elementType: props.element.type,
+      readonly: props.readonly,
     });
-    return dom;
+    return tableDom;
   }
 
   debugInfo('MElementComponent - 选择元素渲染器', {
     elementType: props.element.type,
+    readonly: props.readonly,
   });
 
+  // 统一处理预览/编辑模式切换
   switch (props.element.type) {
     case 'link-card':
-      return <LinkCard {...props} />;
+      return props.readonly ? (
+        <ReadonlyLinkCard {...props} />
+      ) : (
+        <LinkCard {...props} />
+      );
     case 'blockquote':
-      return <Blockquote {...props} />;
+      return props.readonly ? (
+        <ReadonlyBlockquote {...props} />
+      ) : (
+        <Blockquote {...props} />
+      );
     case 'head':
-      return <Head {...props} />;
+      return props.readonly ? <ReadonlyHead {...props} /> : <Head {...props} />;
     case 'hr':
-      return <Hr {...props} />;
+      return props.readonly ? <ReadonlyHr {...props} /> : <Hr {...props} />;
     case 'break':
-      return <Break {...props} />;
+      return props.readonly ? (
+        <ReadonlyBreak {...props} />
+      ) : (
+        <Break {...props} />
+      );
     case 'katex':
-      return <Katex {...props} />;
+      return props.readonly ? (
+        <ReadonlyKatex {...props} />
+      ) : (
+        <Katex {...props} />
+      );
     case 'inline-katex':
-      return <InlineKatex {...props} />;
+      return props.readonly ? (
+        <ReadonlyInlineKatex {...props} />
+      ) : (
+        <InlineKatex {...props} />
+      );
     case 'mermaid':
-      return <Mermaid {...props} />;
+      return props.readonly ? (
+        <ReadonlyMermaid {...props} />
+      ) : (
+        <Mermaid {...props} />
+      );
     case 'code':
-      return <Code {...props} />;
+      return props.readonly ? <ReadonlyCode {...props} /> : <Code {...props} />;
     case 'list-item':
-      return <ListItem {...props} />;
+      return props.readonly ? (
+        <ReadonlyListItem {...props} />
+      ) : (
+        <ListItem {...props} />
+      );
     case 'list':
-      return <List {...props} />;
+      return props.readonly ? <ReadonlyList {...props} /> : <List {...props} />;
     case 'schema':
-      return <Schema {...props} />;
     case 'apassify':
-      return <Schema {...props} />;
     case 'apaasify':
-      return <Schema {...props} />;
+      return props.readonly ? (
+        <ReadonlySchema {...props} />
+      ) : (
+        <Schema {...props} />
+      );
     case 'image':
-      return <EditorImage {...props} />;
+      return props.readonly ? (
+        <ReadonlyEditorImage {...props} />
+      ) : (
+        <EditorImage {...props} />
+      );
     case 'media':
-      return <Media {...props} />;
+      return props.readonly ? (
+        <ReadonlyMedia {...props} />
+      ) : (
+        <Media {...props} />
+      );
     case 'footnoteDefinition':
-      return <FootnoteDefinition {...props} />;
+      return props.readonly ? (
+        <ReadonlyFootnoteDefinition {...props} />
+      ) : (
+        <FootnoteDefinition {...props} />
+      );
     case 'footnoteReference':
-      return <FootnoteReference {...props} />;
+      return props.readonly ? (
+        <ReadonlyFootnoteReference {...props} />
+      ) : (
+        <FootnoteReference {...props} />
+      );
     case 'card':
-      return <WarpCard {...props} />;
+      return props.readonly ? (
+        <ReadonlyCard {...props} />
+      ) : (
+        <WarpCard {...props} />
+      );
     case 'card-before':
       return (
         <span
@@ -193,8 +265,13 @@ const MElementComponent = (
     default:
       debugInfo('MElementComponent - 使用默认段落渲染', {
         elementType: props.element.type,
+        readonly: props.readonly,
       });
-      return <Paragraph {...props} />;
+      return props.readonly ? (
+        <ReadonlyParagraph {...props} />
+      ) : (
+        <Paragraph {...props} />
+      );
   }
 };
 
@@ -282,7 +359,10 @@ const MLeafComponent = (
 
                 // 使用 Point 而不是 Path 来避免 Slate 的 Range 转换问题
                 // 先删除节点的全部文本，再在起始位置插入新文本
-                const startPoint = Editor.start(markdownEditorRef.current, path);
+                const startPoint = Editor.start(
+                  markdownEditorRef.current,
+                  path,
+                );
                 const endPoint = Editor.end(markdownEditorRef.current, path);
 
                 // 删除节点的全部文本
@@ -533,5 +613,25 @@ export {
   Media,
   Mermaid,
   Paragraph,
+  // 预览组件导出
+  ReadonlyBlockquote,
+  ReadonlyBreak,
+  ReadonlyCard,
+  ReadonlyCode,
+  ReadonlyEditorImage,
+  ReadonlyFootnoteDefinition,
+  ReadonlyFootnoteReference,
+  ReadonlyHead,
+  ReadonlyHr,
+  ReadonlyInlineKatex,
+  ReadonlyKatex,
+  ReadonlyLinkCard,
+  ReadonlyList,
+  ReadonlyListItem,
+  ReadonlyMedia,
+  ReadonlyMermaid,
+  ReadonlyParagraph,
+  ReadonlySchema,
+  ReadonlyTableComponent,
   Schema,
 };

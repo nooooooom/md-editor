@@ -170,7 +170,6 @@
                           <h1
                             class=""
                             data-be="head"
-                            data-drag-el="true"
                             data-head="avatarrender-自定义头像渲染演示"
                             data-slate-node="element"
                             data-title="true"
@@ -195,7 +194,6 @@
                           <div
                             class=""
                             data-be="paragraph"
-                            data-drag-el="true"
                             data-slate-node="element"
                           >
                             <span
@@ -217,10 +215,9 @@
                           <h2
                             class=""
                             data-be="head"
-                            data-drag-el="true"
                             data-head="功能特点"
                             data-slate-node="element"
-                            data-title="false"
+                            data-title="true"
                             id="功能特点"
                           >
                             <span
@@ -255,7 +252,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -318,7 +314,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -381,7 +376,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -444,7 +438,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -507,7 +500,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -567,7 +559,6 @@
                           <div
                             class=""
                             data-be="paragraph"
-                            data-drag-el="true"
                             data-slate-node="element"
                           >
                             <span
@@ -692,7 +683,6 @@
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -791,7 +781,6 @@
                           <h2
                             class=""
                             data-be="head"
-                            data-drag-el="true"
                             data-head="性能分析报告"
                             data-slate-node="element"
                             data-title="true"
@@ -816,10 +805,9 @@
                           <h3
                             class=""
                             data-be="head"
-                            data-drag-el="true"
                             data-head="问题识别"
                             data-slate-node="element"
-                            data-title="false"
+                            data-title="true"
                             id="问题识别"
                           >
                             <span
@@ -855,7 +843,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -903,7 +890,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -951,7 +937,6 @@
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -996,10 +981,9 @@
                           <h3
                             class=""
                             data-be="head"
-                            data-drag-el="true"
                             data-head="优化建议"
                             data-slate-node="element"
-                            data-title="false"
+                            data-title="true"
                             id="优化建议"
                           >
                             <span
@@ -1247,10 +1231,9 @@ const handleClick = useCallback(() =&gt; {
                           <h3
                             class=""
                             data-be="head"
-                            data-drag-el="true"
                             data-head="预期效果"
                             data-slate-node="element"
-                            data-title="false"
+                            data-title="true"
                             id="预期效果"
                           >
                             <span
@@ -1285,7 +1268,6 @@ const handleClick = useCallback(() =&gt; {
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -1313,7 +1295,6 @@ const handleClick = useCallback(() =&gt; {
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span
@@ -1341,7 +1322,6 @@ const handleClick = useCallback(() =&gt; {
                                 <div
                                   class=""
                                   data-be="paragraph"
-                                  data-drag-el="true"
                                   data-slate-node="element"
                                 >
                                   <span

@@ -103,7 +103,6 @@
                           <div
                             class=""
                             data-be="paragraph"
-                            data-drag-el="true"
                             data-slate-node="element"
                           >
                             <span
@@ -252,7 +251,6 @@
                           <div
                             class=""
                             data-be="paragraph"
-                            data-drag-el="true"
                             data-slate-node="element"
                           >
                             <span
@@ -422,7 +420,6 @@
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span

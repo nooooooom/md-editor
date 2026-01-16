@@ -35,7 +35,6 @@
             <h1
               class=""
               data-be="head"
-              data-drag-el="true"
               data-head="视频支持演示"
               data-slate-node="element"
               data-title="true"
@@ -60,10 +59,9 @@
             <h2
               class=""
               data-be="head"
-              data-drag-el="true"
               data-head="基本视频标签"
               data-slate-node="element"
-              data-title="false"
+              data-title="true"
               id="基本视频标签"
             >
               <span
@@ -115,13 +113,11 @@
               >
                 <div
                   data-be="media"
-                  data-drag-el="true"
                   data-testid="media-container"
                   draggable="false"
-                  style="cursor: pointer; position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
+                  style="position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
                 >
                   <div
-                    aria-describedby="test-id"
                     contenteditable="false"
                     data-be="media-container"
                     draggable="false"
@@ -186,10 +182,9 @@
             <h2
               class=""
               data-be="head"
-              data-drag-el="true"
               data-head="带source标签的视频"
               data-slate-node="element"
-              data-title="false"
+              data-title="true"
               id="带source标签的视频"
             >
               <span
@@ -241,13 +236,11 @@
               >
                 <div
                   data-be="media"
-                  data-drag-el="true"
                   data-testid="media-container"
                   draggable="false"
-                  style="cursor: pointer; position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
+                  style="position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
                 >
                   <div
-                    aria-describedby="test-id"
                     contenteditable="false"
                     data-be="media-container"
                     draggable="false"
@@ -356,10 +349,9 @@
             <h2
               class=""
               data-be="head"
-              data-drag-el="true"
               data-head="自闭合视频标签"
               data-slate-node="element"
-              data-title="false"
+              data-title="true"
               id="自闭合视频标签"
             >
               <span
@@ -411,13 +403,11 @@
               >
                 <div
                   data-be="media"
-                  data-drag-el="true"
                   data-testid="media-container"
                   draggable="false"
-                  style="cursor: pointer; position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
+                  style="position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
                 >
                   <div
-                    aria-describedby="test-id"
                     contenteditable="false"
                     data-be="media-container"
                     draggable="false"
@@ -482,10 +472,9 @@
             <h2
               class=""
               data-be="head"
-              data-drag-el="true"
               data-head="带完整属性的视频"
               data-slate-node="element"
-              data-title="false"
+              data-title="true"
               id="带完整属性的视频"
             >
               <span
@@ -537,13 +526,11 @@
               >
                 <div
                   data-be="media"
-                  data-drag-el="true"
                   data-testid="media-container"
                   draggable="false"
-                  style="cursor: pointer; position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
+                  style="position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
                 >
                   <div
-                    aria-describedby="test-id"
                     contenteditable="false"
                     data-be="media-container"
                     draggable="false"
@@ -611,10 +598,9 @@
             <h2
               class=""
               data-be="head"
-              data-drag-el="true"
               data-head="多个source的视频"
               data-slate-node="element"
-              data-title="false"
+              data-title="true"
               id="多个source的视频"
             >
               <span
@@ -666,13 +652,11 @@
               >
                 <div
                   data-be="media"
-                  data-drag-el="true"
                   data-testid="media-container"
                   draggable="false"
-                  style="cursor: pointer; position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
+                  style="position: relative; display: flex; align-items: flex-end; user-select: none; width: 100%; max-width: 100%; box-sizing: border-box;"
                 >
                   <div
-                    aria-describedby="test-id"
                     contenteditable="false"
                     data-be="media-container"
                     draggable="false"

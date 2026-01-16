@@ -81,7 +81,6 @@
                       <h1
                         class=""
                         data-be="head"
-                        data-drag-el="true"
                         data-head="脚注（footnote）示例"
                         data-slate-node="element"
                         data-title="true"
@@ -106,7 +105,6 @@
                       <div
                         class=""
                         data-be="paragraph"
-                        data-drag-el="true"
                         data-slate-node="element"
                       >
                         <span
@@ -209,7 +207,6 @@
                       <div
                         class=""
                         data-be="paragraph"
-                        data-drag-el="true"
                         data-slate-node="element"
                       >
                         <span
@@ -244,7 +241,6 @@
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -306,7 +302,6 @@
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -368,7 +363,6 @@
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -396,7 +390,6 @@
                             <div
                               class=""
                               data-be="paragraph"
-                              data-drag-el="true"
                               data-slate-node="element"
                             >
                               <span
@@ -421,7 +414,6 @@
                       <div
                         class=""
                         data-be="paragraph"
-                        data-drag-el="true"
                         data-slate-node="element"
                       >
                         <span
@@ -477,7 +469,6 @@
                       </div>
                       <div
                         data-be="footnoteDefinition"
-                        data-drag-el="true"
                         data-slate-node="element"
                         style="font-size: 12px; margin: 5px 0px; display: flex; gap: 4px;"
                       >
@@ -524,7 +515,6 @@
                       </div>
                       <div
                         data-be="footnoteDefinition"
-                        data-drag-el="true"
                         data-slate-node="element"
                         style="font-size: 12px; margin: 5px 0px; display: flex; gap: 4px;"
                       >
@@ -572,7 +562,6 @@
                       </div>
                       <div
                         data-be="footnoteDefinition"
-                        data-drag-el="true"
                         data-slate-node="element"
                         style="font-size: 12px; margin: 5px 0px; display: flex; gap: 4px;"
                       >

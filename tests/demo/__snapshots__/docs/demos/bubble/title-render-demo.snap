@@ -165,7 +165,6 @@
                         <h1
                           class=""
                           data-be="head"
-                          data-drag-el="true"
                           data-head="titlerender-自定义渲染演示"
                           data-slate-node="element"
                           data-title="true"
@@ -190,7 +189,6 @@
                         <div
                           class=""
                           data-be="paragraph"
-                          data-drag-el="true"
                           data-slate-node="element"
                         >
                           <span
@@ -212,10 +210,9 @@
                         <h2
                           class=""
                           data-be="head"
-                          data-drag-el="true"
                           data-head="功能特点"
                           data-slate-node="element"
-                          data-title="false"
+                          data-title="true"
                           id="功能特点"
                         >
                           <span
@@ -250,7 +247,6 @@
                               <div
                                 class=""
                                 data-be="paragraph"
-                                data-drag-el="true"
                                 data-slate-node="element"
                               >
                                 <span
@@ -313,7 +309,6 @@
                               <div
                                 class=""
                                 data-be="paragraph"
-                                data-drag-el="true"
                                 data-slate-node="element"
                               >
                                 <span
@@ -376,7 +371,6 @@
                               <div
                                 class=""
                                 data-be="paragraph"
-                                data-drag-el="true"
                                 data-slate-node="element"
                               >
                                 <span
@@ -439,7 +433,6 @@
                               <div
                                 class=""
                                 data-be="paragraph"
-                                data-drag-el="true"
                                 data-slate-node="element"
                               >
                                 <span
@@ -502,7 +495,6 @@
                               <div
                                 class=""
                                 data-be="paragraph"
-                                data-drag-el="true"
                                 data-slate-node="element"
                               >
                                 <span
@@ -562,7 +554,6 @@
                         <div
                           class=""
                           data-be="paragraph"
-                          data-drag-el="true"
                           data-slate-node="element"
                         >
                           <span
@@ -687,7 +678,6 @@
                           <div
                             class=""
                             data-be="paragraph"
-                            data-drag-el="true"
                             data-slate-node="element"
                           >
                             <span
@@ -788,7 +778,6 @@
                         <h2
                           class=""
                           data-be="head"
-                          data-drag-el="true"
                           data-head="代码优化建议"
                           data-slate-node="element"
                           data-title="true"
@@ -813,10 +802,9 @@
                         <h3
                           class=""
                           data-be="head"
-                          data-drag-el="true"
                           data-head="_1-使用-react-memo"
                           data-slate-node="element"
-                          data-title="false"
+                          data-title="true"
                           id="_1-使用-react-memo"
                         >
                           <span
@@ -1058,10 +1046,9 @@
                         <h3
                           class=""
                           data-be="head"
-                          data-drag-el="true"
                           data-head="_2-使用-usecallback"
                           data-slate-node="element"
-                          data-title="false"
+                          data-title="true"
                           id="_2-使用-usecallback"
                         >
                           <span
@@ -1303,7 +1290,6 @@
                         <div
                           class=""
                           data-be="paragraph"
-                          data-drag-el="true"
                           data-slate-node="element"
                         >
                           <span

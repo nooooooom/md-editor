@@ -179,12 +179,9 @@
             zindex="-1"
           >
             <div
-              class="empty"
+              class=""
               data-be="paragraph"
-              data-drag-el="true"
-              data-empty="true"
               data-slate-node="element"
-              data-slate-placeholder="请输入"
             >
               <span
                 data-slate-node="text"
