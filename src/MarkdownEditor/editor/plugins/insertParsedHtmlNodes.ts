@@ -144,7 +144,7 @@ export const ELEMENT_TAGS = {
       el.getAttribute('data-align'),
   }),
   PRE: () => ({ type: 'code' }),
-  UL: () => ({ type: 'list' }),
+  UL: () => ({ type: 'bulleted-list' }),
 };
 
 export const TEXT_TAGS = {
@@ -650,7 +650,12 @@ export const insertParsedHtmlNodes = async (
     }
 
     // 10. 处理列表项
-    if (node?.[0].type === 'list-item' && fragmentList[0].type === 'list') {
+    if (
+      node?.[0].type === 'list-item' &&
+      (fragmentList[0].type === 'list' ||
+        fragmentList[0].type === 'bulleted-list' ||
+        fragmentList[0].type === 'numbered-list')
+    ) {
       debugInfo('insertParsedHtmlNodes - 处理列表项', {
         currentNodeType: node[0].type,
         fragmentListType: fragmentList[0].type,

@@ -1,4 +1,4 @@
-﻿import { ConfigProvider } from 'antd';
+import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import React, { createElement, useContext } from 'react';
 import { debugInfo } from '../../../../Utils/debugUtils';
@@ -31,10 +31,21 @@ export const List = ({
   attributes,
   children,
 }: ElementProps<ListNode>) => {
+  // 支持新的列表类型和向后兼容
+  // 新格式：numbered-list 或 bulleted-list
+  // 旧格式：list 类型，通过 order 属性判断
+  const isOrdered =
+    element.type === 'numbered-list' ||
+    ((element as any).type === 'list' && (element as any).order === true);
+  
+  // 获取 task 属性（支持旧格式和新格式）
+  const task = (element as any).task;
+  
   debugInfo('List - 渲染列表', {
-    order: element.order,
-    task: element.task,
-    start: element.start,
+    type: element.type,
+    isOrdered,
+    task,
+    start: isOrdered ? (element as any).start : undefined,
     childrenCount: element.children?.length,
   });
   const { store, markdownContainerRef } = useEditorStore();
@@ -43,13 +54,21 @@ export const List = ({
   const { wrapSSR, hashId } = useStyle(baseCls);
 
   const listContent = React.useMemo(() => {
-    const tag = element.order ? 'ol' : 'ul';
+    // 支持新的列表类型和向后兼容
+    const isOrdered =
+      element.type === 'numbered-list' ||
+      ((element as any).type === 'list' && (element as any).order === true);
+    const task = (element as any).task;
+    const start = isOrdered ? (element as any).start : undefined;
+    const tag = isOrdered ? 'ol' : 'ul';
+    
     debugInfo('List - useMemo 渲染', {
       tag,
-      order: element.order,
-      start: element.start,
-      task: element.task,
+      type: element.type,
+      start,
+      task,
     });
+    
     return wrapSSR(
       <ListContext.Provider
         value={{
@@ -71,10 +90,10 @@ export const List = ({
               className: classNames(
                 baseCls,
                 hashId,
-                element.order ? 'ol' : 'ul',
+                isOrdered ? 'ol' : 'ul',
               ),
-              start: element.start,
-              ['data-task']: element.task ? 'true' : undefined,
+              ...(start !== undefined && { start }),
+              ...(task && { 'data-task': 'true' }),
             },
             children,
           )}
@@ -82,9 +101,10 @@ export const List = ({
       </ListContext.Provider>,
     );
   }, [
-    element.task,
-    element.order,
-    element.start,
+    element.type,
+    (element as any).order,
+    (element as any).task,
+    (element as any).start,
     element.children,
     baseCls,
     hashId,
