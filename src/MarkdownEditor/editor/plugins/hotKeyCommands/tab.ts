@@ -169,14 +169,14 @@ export class TabKey {
       return this.outdentListItem(listItemPath, listPath);
     } else {
       // Tab: 增加缩进
-      return this.indentListItem(listItemPath, listPath);
+      return this.indentListItem(listItemPath);
     }
   }
 
   /**
    * 增加缩进：将当前 list-item 移动到前一个 list-item 的子列表中
    */
-  private indentListItem(listItemPath: Path, _listPath: Path): boolean {
+  private indentListItem(listItemPath: Path): boolean {
     // 检查是否是第一个 list-item（第一行按 Tab 应该无效）
     if (!Path.hasPrevious(listItemPath)) {
       return false;
@@ -245,7 +245,6 @@ export class TabKey {
     // 如果父节点是 list-item，说明在嵌套列表中，可以提升
     if (Element.isElement(listParent[0]) && listParent[0].type === 'list-item') {
       const parentListItemPath = listParent[1];
-      const parentListPath = Path.parent(parentListItemPath);
       
       // 检查是否是父列表的第一个 list-item
       const isFirstInParentList = !Path.hasPrevious(listPath);
