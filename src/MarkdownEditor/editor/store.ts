@@ -613,70 +613,7 @@ export class EditorStore {
     });
   }
 
-  /**
-   * 使用 requestAnimationFrame 分批设置内容
-   * 每帧插入一批节点，避免长时间阻塞主线程
-   *
-   * @param allNodes - 所有要插入的节点
-   * @param batchSize - 每帧处理的节点数量
-   * @param onProgress - 进度回调函数
-   * @returns Promise，在所有节点插入完成后 resolve
-   * @private
-   */
-  private _setContentWithRAF(
-    allNodes: Node[],
-    batchSize: number,
-    onProgress?: (progress: number) => void,
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let currentIndex = 0;
-      const totalNodes = allNodes.length;
-      let rafId: number | null = null;
 
-      const insertBatch = () => {
-        try {
-          const endIndex = Math.min(currentIndex + batchSize, totalNodes);
-          const batch = allNodes.slice(currentIndex, endIndex);
-
-          if (currentIndex === 0) {
-            // 第一批：清空并插入
-            this._editor.current.children = batch;
-            this._editor.current.onChange();
-          } else {
-            // 后续批次：追加节点
-            this._editor.current.children.push(...batch);
-            this._editor.current.onChange();
-          }
-
-          currentIndex = endIndex;
-          const progress = currentIndex / totalNodes;
-
-          // 直接调用进度回调，避免嵌套 requestAnimationFrame
-          onProgress?.(progress);
-
-          if (currentIndex < totalNodes) {
-            // 还有节点未处理，继续下一帧
-            rafId = requestAnimationFrame(insertBatch);
-          } else {
-            // 所有节点处理完成
-            ReactEditor.deselect(this._editor.current);
-            rafId = null;
-            resolve();
-          }
-        } catch (error) {
-          // 清理资源并拒绝 Promise
-          if (rafId) {
-            cancelAnimationFrame(rafId);
-            rafId = null;
-          }
-          reject(error);
-        }
-      };
-
-      // 开始第一帧
-      rafId = requestAnimationFrame(insertBatch);
-    });
-  }
 
   /**
    * 按指定分隔符拆分 markdown 内容
@@ -941,67 +878,15 @@ export class EditorStore {
    */
   setContent(nodeList: Node[]) {
     const currentChildren = this._editor.current.children;
-    const resultChildren: Node[] = [];
-
-    // 逐个比较节点，如果 hash 和 finished 相同就保留旧节点，否则使用新节点
-    for (let i = 0; i < nodeList.length; i++) {
-      const newNode = nodeList[i] as any;
-      const oldNode = currentChildren[i] as any;
-
-      // 如果旧节点不存在，直接使用新节点
-      if (!oldNode) {
-        resultChildren.push(newNode);
-        continue;
-      }
-
-      // 如果 hash 和 finished 都相同，保留旧节点，继续处理下一个
-      if (this._isNodeEqual(newNode, oldNode)) {
-        resultChildren.push(oldNode);
-        continue;
-      }
-
-      // hash 或 finished 不相同，使用新节点替换
-      resultChildren.push(newNode);
-    }
-
-    // 使用批处理模式执行所有操作
-    Editor.withoutNormalizing(this._editor.current, () => {
-      // 先删除多余的节点（从后往前删除，避免索引变化）
-      if (currentChildren.length > resultChildren.length) {
-        for (
-          let i = currentChildren.length - 1;
-          i >= resultChildren.length;
-          i--
-        ) {
-          Transforms.removeNodes(this._editor.current, { at: [i] });
-        }
-      }
-
-      // 然后逐个替换或插入节点（从前往后处理）
-      for (let i = 0; i < resultChildren.length; i++) {
-        const newNode = resultChildren[i];
-        const oldNode = currentChildren[i];
-
-        if (!oldNode) {
-          // 旧节点不存在，插入新节点
-          Transforms.insertNodes(this._editor.current, newNode, { at: [i] });
-        } else if (oldNode !== newNode) {
-          // 节点不同，替换节点
-          this._replaceNodeAt([i], newNode);
-        }
-        // 如果 oldNode === newNode，说明是同一个对象引用，不需要更新
-      }
-    });
-
+    this._editor.current.children = nodeList;
     this._editor.current.onChange();
-
     // 检查最后一个节点是否以换行符结尾
-    const lastNode = resultChildren[resultChildren.length - 1];
+    const lastNode = currentChildren[currentChildren.length - 1];
     if (lastNode && Text.isText(lastNode)) {
       const text = Node.string(lastNode);
       if (!text.endsWith('\n')) {
         this._editor.current.insertText('\n', {
-          at: [resultChildren.length - 1],
+          at: [currentChildren.length - 1],
         });
       }
     }
