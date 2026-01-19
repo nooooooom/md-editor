@@ -22,51 +22,86 @@ const fragment = new Set(['body', 'figure', 'div']);
 
 export const ELEMENT_TAGS = {
   BLOCKQUOTE: () => ({ type: 'blockquote' }),
-  H1: (el: HTMLElement) => ({
-    type: 'head',
-    level: 1,
-    align:
-      el.getAttribute('align') ||
-      el.style.textAlign ||
-      el.getAttribute('data-align'),
-  }),
-  H2: (el: HTMLElement) => ({
-    type: 'head',
-    level: 2,
-    align:
-      el.getAttribute('align') ||
-      el.style.textAlign ||
-      el.getAttribute('data-align'),
-  }),
-  H3: (el: HTMLElement) => ({
-    type: 'head',
-    level: 3,
-    align:
-      el.getAttribute('align') ||
-      el.style.textAlign ||
-      el.getAttribute('data-align'),
-  }),
-  H4: (el: HTMLElement) => ({
-    type: 'head',
-    level: 4,
-    align:
-      el.getAttribute('align') ||
-      el.style.textAlign ||
-      el.getAttribute('data-align'),
-  }),
-  H5: (el: HTMLElement) => ({
-    type: 'head',
-    level: 5,
-    align:
-      el.getAttribute('align') ||
-      el.style.textAlign ||
-      el.getAttribute('data-align'),
-  }),
+  H1: (el: HTMLElement) => {
+    const align =
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('align')
+        : null) ||
+      el?.style?.textAlign ||
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('data-align')
+        : null);
+    return {
+      type: 'head',
+      level: 1,
+      ...(align ? { align } : {}),
+    };
+  },
+  H2: (el: HTMLElement) => {
+    const align =
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('align')
+        : null) ||
+      el?.style?.textAlign ||
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('data-align')
+        : null);
+    return {
+      type: 'head',
+      level: 2,
+      ...(align ? { align } : {}),
+    };
+  },
+  H3: (el: HTMLElement) => {
+    const align =
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('align')
+        : null) ||
+      el?.style?.textAlign ||
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('data-align')
+        : null);
+    return {
+      type: 'head',
+      level: 3,
+      ...(align ? { align } : {}),
+    };
+  },
+  H4: (el: HTMLElement) => {
+    const align =
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('align')
+        : null) ||
+      el?.style?.textAlign ||
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('data-align')
+        : null);
+    return {
+      type: 'head',
+      level: 4,
+      ...(align ? { align } : {}),
+    };
+  },
+  H5: (el: HTMLElement) => {
+    const align =
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('align')
+        : null) ||
+      el?.style?.textAlign ||
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('data-align')
+        : null);
+    return {
+      type: 'head',
+      level: 5,
+      ...(align ? { align } : {}),
+    };
+  },
   TABLE: () => ({ type: 'table' }),
   IMG: (el: HTMLImageElement) => {
     // 添加更严格的图片URL验证，避免将普通URL误识别为图片
-    const src = el.src;
-    const alt = el.alt;
+    const src = el?.src;
+    const alt = el?.alt;
 
     // 检查是否为有效的图片URL
     const isValidImageUrl = (url: string): boolean => {
@@ -136,22 +171,34 @@ export const ELEMENT_TAGS = {
   TD: () => ({ type: 'table-cell' }),
   LI: () => ({ type: 'list-item' }),
   OL: () => ({ type: 'list', order: true }),
-  P: (el: HTMLElement) => ({
-    type: 'paragraph',
-    align:
-      el.getAttribute('align') ||
-      el.style.textAlign ||
-      el.getAttribute('data-align'),
-  }),
+  P: (el: HTMLElement) => {
+    const align =
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('align')
+        : null) ||
+      el?.style?.textAlign ||
+      (el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('data-align')
+        : null);
+    return {
+      type: 'paragraph',
+      ...(align ? { align } : {}),
+    };
+  },
   PRE: () => ({ type: 'code' }),
   UL: () => ({ type: 'bulleted-list' }),
 };
 
 export const TEXT_TAGS = {
-  A: (el: HTMLElement) => ({ url: el.getAttribute('href') }),
+  A: (el: HTMLElement) => ({
+    url:
+      el && typeof el.getAttribute === 'function'
+        ? el.getAttribute('href')
+        : null,
+  }),
   CODE: () => ({ code: true }),
   KBD: () => ({ code: true }),
-  SPAN: (el: HTMLElement) => ({ text: el.textContent }),
+  SPAN: (el: HTMLElement) => ({ text: el?.textContent }),
   DEL: () => ({ strikethrough: true }),
   EM: () => ({ italic: true }),
   I: () => ({ italic: true }),
@@ -164,18 +211,18 @@ export const deserialize = (
   el: ChildNode,
   parentTag: string = '',
 ): string | any[] | null | Record<string, any> => {
-  if (el.nodeName.toLowerCase() === 'script') return [];
-  if (el.nodeName.toLowerCase() === 'style') return [];
-  if (el.nodeName.toLowerCase() === 'meta') return [];
-  if (el.nodeName.toLowerCase() === 'link') return [];
-  if (el.nodeName.toLowerCase() === 'head') return [];
-  if (el.nodeName.toLowerCase() === 'colgroup') return [];
-  if (el.nodeName.toLowerCase() === 'noscript') return [];
-  if (el.nodeType === 3) {
-    return el.textContent;
-  } else if (el.nodeType !== 1) {
+  if (el?.nodeName.toLowerCase() === 'script') return [];
+  if (el?.nodeName.toLowerCase() === 'style') return [];
+  if (el?.nodeName.toLowerCase() === 'meta') return [];
+  if (el?.nodeName.toLowerCase() === 'link') return [];
+  if (el?.nodeName.toLowerCase() === 'head') return [];
+  if (el?.nodeName.toLowerCase() === 'colgroup') return [];
+  if (el?.nodeName.toLowerCase() === 'noscript') return [];
+  if (el?.nodeType === 3) {
+    return el?.textContent;
+  } else if (el?.nodeType !== 1) {
     return null;
-  } else if (el.nodeName === 'BR') {
+  } else if (el?.nodeName === 'BR') {
     return '\n';
   }
 
@@ -183,10 +230,10 @@ export const deserialize = (
   let target = el;
   if (
     nodeName === 'PRE' &&
-    el.childNodes[0] &&
-    el.childNodes[0].nodeName === 'CODE'
+    el?.childNodes[0] &&
+    el?.childNodes[0].nodeName === 'CODE'
   ) {
-    target = el.childNodes[0];
+    target = el?.childNodes[0];
   }
   let children = Array.from(target.childNodes)
     .map((n) => {
@@ -195,15 +242,15 @@ export const deserialize = (
     .flat();
 
   if (children.length === 0) {
-    children = [{ text: el.textContent || '' }];
+    children = [{ text: el?.textContent || '' }];
   }
 
-  if (fragment.has(el.nodeName.toLowerCase())) {
+  if (fragment.has(el?.nodeName.toLowerCase())) {
     return jsx('fragment', {}, children);
   }
   if (
     TEXT_TAGS[nodeName as 'A'] &&
-    Array.from(el.childNodes).some(
+    Array.from(el?.childNodes).some(
       (e) => e.nodeType !== 3 && !TEXT_TAGS[e.nodeName as 'A'],
     )
   ) {
@@ -266,8 +313,9 @@ export const deserialize = (
 };
 
 const parserCodeText = (el: HTMLElement) => {
-  el.innerHTML = el.innerHTML.replace(/<br\/?>|<\/div>(?=\S)/g, '\n');
-  return el.innerText;
+  if (!el) return '';
+  el.innerHTML = el?.innerHTML.replace(/<br\/?>|<\/div>(?=\S)/g, '\n');
+  return el?.innerText;
 };
 
 const getTextsNode = (nodes: any[]) => {

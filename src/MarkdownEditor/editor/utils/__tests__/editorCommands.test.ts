@@ -309,7 +309,6 @@ describe('createList', () => {
 
       const paragraphNode = { type: 'paragraph', children: [{ text: 'Test' }] };
       const path = [1];
-      const listItemPath = [1];
       const parentPath = [0];
       const adjacentListPath = [0];
       const adjacentListNode = {

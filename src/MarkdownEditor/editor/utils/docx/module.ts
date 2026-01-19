@@ -125,13 +125,14 @@ export const makeDeserializer = (jsx: any) => {
         const attrs = ELEMENT_TAGS[nodeName as keyof typeof ELEMENT_TAGS]?.(
           el as any,
         );
+        const align = (attrs as any)?.align;
         return jsx(
           'element',
           {
             type: 'head',
             className: nodeName,
             level: (attrs as any)?.level || Number(nodeName?.replace('H', '')),
-            align: (attrs as any)?.align,
+            ...(align ? { align } : {}),
           },
           children,
         );

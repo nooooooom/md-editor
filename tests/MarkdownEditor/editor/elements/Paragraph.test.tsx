@@ -139,6 +139,40 @@ describe('Paragraph Component', () => {
     expect(paragraphElement).toHaveAttribute('data-align', 'center');
   });
 
+  it('应该正确渲染右对齐段落（来自 api.md 示例）', () => {
+    const rightAlignElement: ParagraphNode = {
+      type: 'paragraph',
+      children: [
+        {
+          text: 'For it will surely sprout wings and fly off to the sky like an eagle',
+        },
+      ],
+      align: 'right',
+    };
+
+    const rightAlignChildren = (
+      <span>
+        For it will surely sprout wings and fly off to the sky like an eagle
+      </span>
+    );
+
+    render(
+      <Paragraph element={rightAlignElement} attributes={mockAttributes}>
+        {rightAlignChildren}
+      </Paragraph>,
+    );
+
+    const paragraphElement = screen
+      .getByText(
+        'For it will surely sprout wings and fly off to the sky like an eagle',
+      )
+      .parentElement;
+    expect(paragraphElement).toBeInTheDocument();
+    expect(paragraphElement).toHaveAttribute('data-be', 'paragraph');
+    expect(paragraphElement).toHaveAttribute('data-align', 'right');
+    expect(paragraphElement).toHaveStyle({ textAlign: 'right' });
+  });
+
   it('应该正确传递attributes属性', () => {
     const customAttributes = {
       ...mockAttributes,

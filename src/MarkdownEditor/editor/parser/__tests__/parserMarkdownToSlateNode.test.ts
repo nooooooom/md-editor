@@ -801,6 +801,23 @@ function hello() {
         children: [{ text: 'Right Aligned Heading' }],
       });
     });
+
+    it('should parse HTML paragraph with align="right" attribute from api.md example', () => {
+      const markdown =
+        '<p align="right">\nFor it will surely sprout wings and fly off to the sky like an eagle</p>';
+      const result = parserMarkdownToSlateNode(markdown);
+
+      expect(result.schema).toHaveLength(1);
+      expect(result.schema[0]).toMatchObject({
+        type: 'paragraph',
+        align: 'right',
+        children: [
+          {
+            text: 'For it will surely sprout wings and fly off to the sky like an eagle',
+          },
+        ],
+      });
+    });
   });
 
   describe('handleMedia', () => {

@@ -176,7 +176,7 @@ export class TabKey {
   /**
    * 增加缩进：将当前 list-item 移动到前一个 list-item 的子列表中
    */
-  private indentListItem(listItemPath: Path, listPath: Path): boolean {
+  private indentListItem(listItemPath: Path, _listPath: Path): boolean {
     // 检查是否是第一个 list-item（第一行按 Tab 应该无效）
     if (!Path.hasPrevious(listItemPath)) {
       return false;
@@ -246,7 +246,6 @@ export class TabKey {
     if (Element.isElement(listParent[0]) && listParent[0].type === 'list-item') {
       const parentListItemPath = listParent[1];
       const parentListPath = Path.parent(parentListItemPath);
-      const parentList = Node.get(this.editor, parentListPath);
       
       // 检查是否是父列表的第一个 list-item
       const isFirstInParentList = !Path.hasPrevious(listPath);

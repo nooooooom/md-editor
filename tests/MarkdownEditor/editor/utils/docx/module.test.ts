@@ -174,7 +174,7 @@ describe('docx module', () => {
       expect(result).toEqual({
         type: 'head',
         className: 'H1',
-        level: '1',
+        level: 1,
         children: ['Heading 1']
       });
     });
