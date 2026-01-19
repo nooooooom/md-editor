@@ -150,7 +150,7 @@ export const makeDeserializer = (jsx: any) => {
           if (typeof child === 'string') {
             return jsx('text', attrs, child);
           }
-          return jsx('element', ELEMENT_TAGS.P(), child);
+          return jsx('element', ELEMENT_TAGS.P(el as HTMLElement), child);
         });
       } catch (error) {
         console.error(error);
