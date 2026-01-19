@@ -92,8 +92,10 @@ export const ReadonlySchema: React.FC<RenderElementProps> = React.memo(
         >
           <SchemaRenderer
             schema={props.element.value}
-            bubble={bubble}
-            readonly={true}
+            values={props.element.value?.initialValues || {}}
+            useDefaultValues={false}
+            debug={false}
+            fallbackContent={null}
           />
         </div>
       );

@@ -84,7 +84,7 @@ const RollingText = React.forwardRef<HTMLSpanElement, RollingTextProps>(
         : 0.1;
     const totalDuration =
       transitionDuration +
-      (characters.length - 1) * transitionDelay +
+      (characters.length - 1) * (transitionDelay ?? 0.1) +
       0.3 + // exit delay
       transitionDuration; // exit duration
 

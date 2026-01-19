@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { ONE_TOKEN_URL } from '../../../constants/links';
 import componentIconBg from '../../assets/component-icon.png';
 import componentMobileBg from '../../assets/component-mobile-bg.png';
 import componentsBg from '../../assets/components-bg.png';
@@ -120,11 +119,7 @@ const Header: React.FC = () => {
       dropdownNode: <PCComponentsMenu />,
     },
     { name: '样板间', path: '/showroom', disabled: true },
-    {
-      name: 'OneToken',
-      link: ONE_TOKEN_URL,
-      hasLinkIcon: true,
-    },
+  
   ];
 
   // 判断是否为当前激活的路由
