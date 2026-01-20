@@ -115,7 +115,14 @@ describe('useKeyboard Hook Tests', () => {
       expect(typeof keyboardHandler).toBe('function');
     });
 
-    it('should handle Enter key without modifiers (should not prevent default, handled by MarkdownInputField)', () => {
+    it('should handle Enter key without modifiers in normal paragraph (should not prevent default, handled by MarkdownInputField)', () => {
+      // 设置编辑器内容为普通段落
+      editor.children = [{ type: 'paragraph', children: [{ text: 'Test' }] }];
+      Transforms.select(editor, {
+        anchor: { path: [0, 0], offset: 4 },
+        focus: { path: [0, 0], offset: 4 },
+      });
+
       const { result } = renderHook(() =>
         useKeyboard(store, editorRef, mockProps),
       );
@@ -126,9 +133,88 @@ describe('useKeyboard Hook Tests', () => {
         keyboardHandler(enterEvent);
       });
 
-      // Enter 键（无 Shift）由 MarkdownInputField 处理发送，useKeyboard 中不处理
+      // 不在列表项中，Enter 键由 MarkdownInputField 处理发送
       expect(enterEvent.preventDefault).not.toHaveBeenCalled();
       expect(enterEvent.stopPropagation).not.toHaveBeenCalled();
+    });
+
+    it('should handle Enter key in list-item (should trigger EnterKey.run)', () => {
+      // 设置编辑器内容为列表项
+      editor.children = [
+        {
+          type: 'bulleted-list',
+          children: [
+            {
+              type: 'list-item',
+              children: [{ type: 'paragraph', children: [{ text: 'Item' }] }],
+            },
+          ],
+        },
+      ];
+      Transforms.select(editor, {
+        anchor: { path: [0, 0, 0, 0], offset: 4 },
+        focus: { path: [0, 0, 0, 0], offset: 4 },
+      });
+
+      const { result } = renderHook(() =>
+        useKeyboard(store, editorRef, mockProps),
+      );
+      const keyboardHandler = result.current;
+      const enterEvent = createKeyboardEvent('Enter');
+
+      act(() => {
+        keyboardHandler(enterEvent);
+      });
+
+      // 在列表项中，Enter 键应该被 EnterKey 处理
+      expect(enterEvent.preventDefault).toHaveBeenCalled();
+      expect(enterEvent.stopPropagation).toHaveBeenCalled();
+    });
+
+    it('should handle Enter key in nested list-item (should trigger EnterKey.run)', () => {
+      // 设置编辑器内容为嵌套列表项
+      editor.children = [
+        {
+          type: 'bulleted-list',
+          children: [
+            {
+              type: 'list-item',
+              children: [
+                { type: 'paragraph', children: [{ text: 'Item 1' }] },
+                {
+                  type: 'bulleted-list',
+                  children: [
+                    {
+                      type: 'list-item',
+                      children: [
+                        { type: 'paragraph', children: [{ text: 'Nested' }] },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ];
+      Transforms.select(editor, {
+        anchor: { path: [0, 0, 1, 0, 0, 0], offset: 6 },
+        focus: { path: [0, 0, 1, 0, 0, 0], offset: 6 },
+      });
+
+      const { result } = renderHook(() =>
+        useKeyboard(store, editorRef, mockProps),
+      );
+      const keyboardHandler = result.current;
+      const enterEvent = createKeyboardEvent('Enter');
+
+      act(() => {
+        keyboardHandler(enterEvent);
+      });
+
+      // 在嵌套列表项中，Enter 键应该被 EnterKey 处理
+      expect(enterEvent.preventDefault).toHaveBeenCalled();
+      expect(enterEvent.stopPropagation).toHaveBeenCalled();
     });
 
     it('should handle Backspace key with selection', () => {

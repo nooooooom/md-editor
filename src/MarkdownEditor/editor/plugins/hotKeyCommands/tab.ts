@@ -259,7 +259,7 @@ export class TabKey {
       
       // 如果提升后，原列表为空，需要删除空列表
       const updatedList = Node.get(this.editor, listPath);
-      if (isListType(updatedList) && updatedList.children.length === 0) {
+      if (isListType(updatedList) && Node.string(updatedList).trim() === '') {
         Transforms.removeNodes(this.editor, { at: listPath });
       }
       

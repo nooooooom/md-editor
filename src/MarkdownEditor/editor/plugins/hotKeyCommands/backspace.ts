@@ -67,43 +67,24 @@ export class BackspaceKey {
     }
 
     if (el.type === 'paragraph') {
+    
       const parent = Editor.parent(this.editor, path);
       if (parent?.[0]?.type === 'list-item') {
-        // 处理行首 Backspace 减少缩进
-        if (Range.isCollapsed(sel) && sel.anchor.offset === 0) {
-          const listItemPath = parent[1];
-          const listPath = Path.parent(listItemPath);
-          const list = Node.get(this.editor, listPath);
+        // 先检查 list-item 是否为空：检查第一个段落（子节点）是否为空
+        const listItem = parent[0];
+        const firstChild = Element.isElement(listItem) && listItem.children.length > 0
+          ? listItem.children[0]
+          : null;
+        const isEmptyListItem =
+          firstChild &&
+          Element.isElement(firstChild) &&
+          firstChild.type === 'paragraph' &&
+          Node.string(firstChild).trim() === '' &&
+          listItem.children.length === 1; // 只有第一个段落，没有嵌套列表
 
-          if (isListType(list)) {
-            const listParent = Editor.parent(this.editor, listPath);
-
-            // 如果父节点是 list-item，说明在嵌套列表中，可以提升
-            if (
-              Element.isElement(listParent[0]) &&
-              listParent[0].type === 'list-item'
-            ) {
-              // 使用 liftNodes 提升当前 list-item
-              Transforms.liftNodes(this.editor, { at: listItemPath });
-
-              // 如果提升后，原列表为空，需要删除空列表
-              const updatedList = Node.get(this.editor, listPath);
-              if (
-                isListType(updatedList) &&
-                updatedList.children.length === 0
-              ) {
-                Transforms.removeNodes(this.editor, { at: listPath });
-              }
-
-              return true;
-            }
-          }
-        }
-
-        if (Node.string(parent[0]) !== '') {
-          return false;
-        }
-        if (Node.string(parent[0]) === '') {
+        console.log('isEmptyListItem', isEmptyListItem);
+        // 如果 list-item 为空，优先执行删除逻辑
+        if (isEmptyListItem) {
           // 使用新的拆分逻辑处理空的list-item
           const listPath = Path.parent(parent[1]);
           const listNode = Editor.node(this.editor, listPath);
@@ -118,7 +99,7 @@ export class BackspaceKey {
 
             // 如果列表为空，删除列表容器
             const updatedList = Node.get(this.editor, listPath);
-            if (isListType(updatedList) && updatedList.children.length === 0) {
+            if (isListType(updatedList) &&Node.string(updatedList).trim() === '') {
               Transforms.removeNodes(this.editor, { at: listPath });
               // 在列表位置插入 paragraph
               Transforms.insertNodes(
@@ -150,7 +131,7 @@ export class BackspaceKey {
 
             // 检查列表是否为空，如果为空则删除列表容器
             const updatedList = Node.get(this.editor, listPath);
-            if (isListType(updatedList) && updatedList.children.length === 0) {
+            if (isListType(updatedList) &&Node.string(updatedList).trim() === '') {
               // 列表为空，删除列表容器
               Transforms.removeNodes(this.editor, { at: listPath });
               // 在列表位置插入 paragraph
@@ -172,6 +153,41 @@ export class BackspaceKey {
           }
           return true;
         }
+
+        // 如果 list-item 不为空，处理行首 Backspace 减少缩进
+        if (Range.isCollapsed(sel) && sel.anchor.offset === 0) {
+          const listItemPath = parent[1];
+          const listPath = Path.parent(listItemPath);
+          const list = Node.get(this.editor, listPath);
+
+          if (isListType(list)) {
+            const listParent = Editor.parent(this.editor, listPath);
+
+            // 如果父节点是 list-item，说明在嵌套列表中，可以提升
+            if (
+              listParent &&
+              listParent[0] &&
+              Element.isElement(listParent[0]) &&
+              listParent[0].type === 'list-item'
+            ) {
+              // 使用 liftNodes 提升当前 list-item
+              Transforms.liftNodes(this.editor, { at: listItemPath });
+
+              // 如果提升后，原列表为空，需要删除空列表
+              const updatedList = Node.get(this.editor, listPath);
+              if (
+                isListType(updatedList) &&
+                Node.string(updatedList).trim() === ''
+              ) {
+                Transforms.removeNodes(this.editor, { at: listPath });
+              }
+
+              return true;
+            }
+          }
+        }
+
+        return false;
       }
     }
     /**

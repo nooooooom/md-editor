@@ -186,8 +186,25 @@ export const useKeyboard = (
         enter.run(e);
         return;
       }
-      // Enter 键（无 Shift）由 MarkdownInputField 处理发送，这里不处理
+      // Enter 键（无 Shift）处理：如果在列表项中，让 EnterKey 处理；否则由 MarkdownInputField 处理发送
       if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        // 检查当前是否在列表项中
+        const selection = markdownEditorRef.current.selection;
+        if (selection && Range.isCollapsed(selection)) {
+          const [node] = Editor.nodes(markdownEditorRef.current, {
+            at: selection.focus.path,
+            match: (n) => Element.isElement(n) && n.type === 'list-item',
+            mode: 'lowest',
+          });
+          if (node) {
+            // 在列表项中，让 EnterKey 处理
+            e.stopPropagation();
+            e.preventDefault();
+            enter.run(e);
+            return;
+          }
+        }
+        // 不在列表项中，让 MarkdownInputField 处理发送
         return;
       }
 
