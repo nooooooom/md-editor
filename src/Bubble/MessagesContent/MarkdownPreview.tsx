@@ -108,7 +108,7 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
 
   useEffect(() => {
     if (isFinished) {
-      MarkdownEditorRef.current?.store.setMDContent(content);
+      MarkdownEditorRef.current?.store.setContent(parserMdToSchema(content).schema);
       return;
     }
   }, [isFinished]);
