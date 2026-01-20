@@ -108,6 +108,7 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
 
   useEffect(() => {
     if (isFinished) {
+      console.log('content', content);
       MarkdownEditorRef.current?.store.setContent(parserMdToSchema(content).schema);
       return;
     }
@@ -118,6 +119,7 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
   }, [extra, typing]);
 
   useEffect(() => {
+    console.log("updatecontent",content)
     const schema = parserMdToSchema(content).schema;
     MarkdownEditorRef.current?.store.updateNodeList(schema);
   }, [content]);
