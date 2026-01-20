@@ -1,4 +1,4 @@
-import { Editor, Element, Node, Path, Range, Transforms } from 'slate';
+import { Editor, Element, Node, Path, Point, Range, Text, Transforms } from 'slate';
 import { ListItemNode } from '../../el';
 import { NativeTableEditor } from '../../utils/native-table';
 import { getListType, isListType } from '../plugins/withListsPlugin';
@@ -195,32 +195,6 @@ function convertToParagraph(editor: Editor) {
 }
 
 /**
- * 设置标题级别
- *
- * 将当前段落或标题节点转换为指定级别的标题。
- * 如果级别为4，则转换为普通段落。
- *
- * @param editor Slate 编辑器实例
- * @param level 标题级别（1-3）或4（表示普通段落）
- */
-export function setHeading(editor: Editor, level: number) {
-  const [node] = getCurrentNodes(editor);
-  if (level === 4) {
-    convertToParagraph(editor);
-    return;
-  }
-  if (
-    node &&
-    ['paragraph', 'head'].includes(node?.[0]?.type) &&
-    EditorUtils.isTop(editor, node[1])
-  ) {
-    Transforms.setNodes(editor, { type: 'head', level }, { at: node[1] });
-  }
-}
-
-export { convertToParagraph };
-
-/**
  * 查找选区内的块级节点
  *
  * @param editor - 编辑器实例
@@ -247,6 +221,233 @@ function findBlockNodesInSelection(
 
   return blockNodes;
 }
+
+/**
+ * 处理选区并设置标题格式
+ *
+ * @param editor - 编辑器实例
+ * @param selection - 选区范围
+ * @param level - 标题级别（1-3）
+ */
+function processSelectionForHeading(
+  editor: Editor,
+  selection: Range,
+  level: number,
+) {
+  const [selStart, selEnd] = Range.edges(selection);
+
+  // 找到所有涉及选中文本的段落/标题节点
+  const blockNodes = findBlockNodesInSelection(editor, selection);
+
+  if (blockNodes.length === 0) {
+    return;
+  }
+
+  // 使用 withoutNormalizing 确保原子性操作
+  Editor.withoutNormalizing(editor, () => {
+    // 按路径倒序处理，从后往前，避免路径变化影响
+    const sortedNodes = [...blockNodes].sort((a, b) =>
+      Path.compare(b[1], a[1]),
+    );
+
+    for (const [, path] of sortedNodes) {
+      if (!Editor.hasPath(editor, path)) {
+        continue;
+      }
+
+      const nodeStart = Editor.start(editor, path);
+      const nodeEnd = Editor.end(editor, path);
+
+      // 计算节点内的实际选区范围
+      const actualStart = Point.isBefore(selStart, nodeStart)
+        ? nodeStart
+        : Point.isAfter(selStart, nodeEnd)
+          ? nodeEnd
+          : selStart;
+      const actualEnd = Point.isAfter(selEnd, nodeEnd)
+        ? nodeEnd
+        : Point.isBefore(selEnd, nodeStart)
+          ? nodeStart
+          : selEnd;
+
+      // 检查是否选中了整个节点
+      const isWholeNodeSelected =
+        (Point.isBefore(selStart, nodeStart) || Point.equals(selStart, nodeStart)) &&
+        (Point.isAfter(selEnd, nodeEnd) || Point.equals(selEnd, nodeEnd));
+
+      if (isWholeNodeSelected) {
+        // 直接转换整个节点
+        Transforms.setNodes(editor, { type: 'head', level }, { at: path });
+        continue;
+      }
+
+      // 如果选区不在节点内，跳过
+      if (
+        Point.isAfter(actualStart, actualEnd) ||
+        Point.equals(actualStart, actualEnd) ||
+        Point.isBefore(actualStart, nodeStart) ||
+        Point.isAfter(actualEnd, nodeEnd)
+      ) {
+        continue;
+      }
+
+      // 情况1: 选中了整个节点（从开始到结束）
+      if (Point.equals(actualStart, nodeStart) && Point.equals(actualEnd, nodeEnd)) {
+        Transforms.setNodes(editor, { type: 'head', level }, { at: path });
+        continue;
+      }
+
+      // 情况2: 只选中了节点的一部分，需要拆分
+      const isAtStart = Point.equals(actualStart, nodeStart);
+      const isAtEnd = Point.equals(actualEnd, nodeEnd);
+
+      if (isAtStart && isAtEnd) {
+        // 这种情况已经在情况1处理了，不会到这里
+        continue;
+      }
+
+      // 获取原节点的属性
+      const originalNode = Node.get(editor, path);
+      if (!Element.isElement(originalNode)) {
+        continue;
+      }
+
+      if (isAtStart) {
+        // 选中在开始位置：拆分成两个节点（选中部分 + 剩余部分）
+        // 在 actualEnd 位置拆分节点
+        Transforms.splitNodes(editor, {
+          at: actualEnd,
+        });
+
+        // 拆分后，原节点包含选中部分，新节点包含剩余部分
+        // 将原节点（选中部分）转换为标题
+        Transforms.setNodes(editor, { type: 'head', level }, { at: path });
+      } else if (isAtEnd) {
+        // 选中在结束位置：拆分成两个节点（前面部分 + 选中部分）
+        // 在 actualStart 位置拆分节点
+        Transforms.splitNodes(editor, {
+          at: actualStart,
+        });
+
+        // 拆分后，原节点包含前面部分，新节点包含选中部分
+        // 将新节点（选中部分）转换为标题
+        const nextPath = Path.next(path);
+        if (Editor.hasPath(editor, nextPath)) {
+          Transforms.setNodes(editor, { type: 'head', level }, { at: nextPath });
+        }
+      } else {
+        // 选中在中间位置：拆分成三个节点（前面部分 + 选中部分 + 后面部分）
+        // 计算选中部分的长度（字符偏移量）
+        const selectionOffset = actualEnd.offset - actualStart.offset;
+
+        // 第一步：在 actualStart 位置拆分节点
+        Transforms.splitNodes(editor, {
+          at: actualStart,
+        });
+
+        // 拆分后，原节点包含前面部分，新节点包含选中部分和后面部分
+        // 新节点的路径是 Path.next(path)
+        const middlePath = Path.next(path);
+        if (!Editor.hasPath(editor, middlePath)) {
+          continue;
+        }
+
+        // 第二步：在新节点内计算拆分点
+        // 使用偏移量来计算：在新节点开始位置 + 选中部分的长度
+        // 需要找到对应的文本节点和偏移量
+        let splitPoint: Point | null = null;
+
+        // 遍历新节点内的文本节点，计算正确的拆分点
+        const textNodes = Array.from(
+          Editor.nodes(editor, {
+            at: middlePath,
+            match: (n) => Text.isText(n),
+          }),
+        );
+
+        let currentOffset = 0;
+        for (const [textNode, textPath] of textNodes) {
+          if (!Text.isText(textNode)) {
+            continue;
+          }
+
+          const text = textNode.text;
+          if (typeof text !== 'string') {
+            continue;
+          }
+
+          const textLength = text.length;
+          const nextOffset = currentOffset + textLength;
+
+          // 如果选中结束位置在这个文本节点内
+          if (selectionOffset <= nextOffset) {
+            const offsetInText = selectionOffset - currentOffset;
+            splitPoint = {
+              path: textPath,
+              offset: offsetInText,
+            };
+            break;
+          }
+
+          currentOffset = nextOffset;
+        }
+
+        // 如果找不到拆分点，使用新节点的结束位置
+        if (!splitPoint) {
+          const middleNodeEnd = Editor.end(editor, middlePath);
+          splitPoint = middleNodeEnd;
+        }
+
+        // 在新节点内的 splitPoint 位置拆分
+        Transforms.splitNodes(editor, {
+          at: splitPoint,
+        });
+
+        // 拆分后，middlePath 包含选中部分，下一个节点包含后面部分
+        // 将 middlePath（选中部分）转换为标题
+        Transforms.setNodes(editor, { type: 'head', level }, { at: middlePath });
+      }
+    }
+  });
+}
+
+/**
+ * 设置标题级别
+ *
+ * 将当前段落或标题节点转换为指定级别的标题。
+ * 如果级别为4，则转换为普通段落。
+ * 如果存在选中文本，则只将选中的部分转换为标题，并拆分段落。
+ *
+ * @param editor Slate 编辑器实例
+ * @param level 标题级别（1-3）或4（表示普通段落）
+ */
+export function setHeading(editor: Editor, level: number) {
+  const selection = editor.selection;
+
+  // 如果级别为4，转换为段落
+  if (level === 4) {
+    convertToParagraph(editor);
+    return;
+  }
+
+  // 如果有非折叠的选区，处理选中文本
+  if (selection && !Range.isCollapsed(selection)) {
+    processSelectionForHeading(editor, selection, level);
+    return;
+  }
+
+  // 如果没有选区，保持原有行为：转换整个节点
+  const [node] = getCurrentNodes(editor);
+  if (
+    node &&
+    ['paragraph', 'head'].includes(node?.[0]?.type) &&
+    EditorUtils.isTop(editor, node[1])
+  ) {
+    Transforms.setNodes(editor, { type: 'head', level }, { at: node[1] });
+  }
+}
+
+export { convertToParagraph };
 
 /**
  * 将标题节点转换为段落节点
@@ -548,7 +749,7 @@ export function createList(
 
     // 如果起始和结束在同一路径，说明是单个节点的部分选中
     if (Path.equals(startPath.slice(0, -1), endPath.slice(0, -1))) {
-      const parentPath = Path.parent(startPath);
+      const parentPath: Path = Path.parent(startPath);
       const parentNode = Node.get(editor, parentPath);
       if (
         Element.isElement(parentNode) &&

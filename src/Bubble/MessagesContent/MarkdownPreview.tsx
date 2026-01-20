@@ -93,7 +93,6 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
     htmlRef,
     fncProps,
     docListNode,
-    isFinished,
     beforeContent,
     afterContent,
   } = props;
@@ -106,23 +105,18 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
   const { locale, standalone } = useContext(BubbleConfigContext) || {};
   const { token } = theme.useToken();
 
-  useEffect(() => {
-    if (isFinished) {
-      console.log('content', content);
-      MarkdownEditorRef.current?.store.setContent(parserMdToSchema(content).schema);
-      return;
-    }
-  }, [isFinished]);
+
 
   const isPaddingHidden = useMemo(() => {
     return !!extra;
   }, [extra, typing]);
 
   useEffect(() => {
-    console.log("updatecontent",content)
     const schema = parserMdToSchema(content).schema;
     MarkdownEditorRef.current?.store.updateNodeList(schema);
   }, [content]);
+
+
 
   const markdown = useMemo(() => {
     const minWidth = content?.includes?.('chartType')
