@@ -16,7 +16,9 @@ group:
 import { ActionItemBox } from '@ant-design/agentic-ui';
 
 export default () => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: 300 }}>
+  <div
+    style={{ display: 'flex', flexDirection: 'column', gap: 16, width: 300 }}
+  >
     <ActionItemBox
       title="快捷操作"
       description="点击执行快捷操作"
@@ -44,18 +46,18 @@ export default () => (
 
 ### ActionItemBoxProps
 
-| 参数 | 说明 | 类型 | 默认值 |
-| --- | --- | --- | --- |
-| title | 标题内容 | `React.ReactNode` | - |
-| description | 描述内容 | `React.ReactNode` | - |
-| icon | 图标 | `string` | - |
-| onClick | 点击回调函数 | `() => void` | - |
-| size | 尺寸 | `'small' \| 'large' \| 'default'` | `'default'` |
-| iconSize | 图标尺寸 | `number` | `24` |
-| disabled | 是否禁用 | `boolean` | `false` |
-| compact | 是否紧凑模式 | `boolean` | `false` |
-| standalone | 是否独立显示（影响样式） | `boolean` | `false` |
-| hoverBg | 是否显示悬停背景 | `boolean` | `true` |
-| index | 索引 | `number` | - |
-| style | 自定义样式 | `React.CSSProperties` | - |
-| onInit | 初始化回调函数 | `() => void` | - |
+| 参数        | 说明                     | 类型                              | 默认值      |
+| ----------- | ------------------------ | --------------------------------- | ----------- |
+| title       | 标题内容                 | `React.ReactNode`                 | -           |
+| description | 描述内容                 | `React.ReactNode`                 | -           |
+| icon        | 图标                     | `string`                          | -           |
+| onClick     | 点击回调函数             | `() => void`                      | -           |
+| size        | 尺寸                     | `'small' \| 'large' \| 'default'` | `'default'` |
+| iconSize    | 图标尺寸                 | `number`                          | `24`        |
+| disabled    | 是否禁用                 | `boolean`                         | `false`     |
+| compact     | 是否紧凑模式             | `boolean`                         | `false`     |
+| standalone  | 是否独立显示（影响样式） | `boolean`                         | `false`     |
+| hoverBg     | 是否显示悬停背景         | `boolean`                         | `true`      |
+| index       | 索引                     | `number`                          | -           |
+| style       | 自定义样式               | `React.CSSProperties`             | -           |
+| onInit      | 初始化回调函数           | `() => void`                      | -           |

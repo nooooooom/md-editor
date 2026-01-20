@@ -459,7 +459,9 @@ describe('parserMarkdownToSlateNode', () => {
       const result = parserMarkdownToSlateNode(markdown);
 
       expect(result.schema).toHaveLength(1);
-      expect(['bulleted-list', 'numbered-list']).toContain(result.schema[0].type);
+      expect(['bulleted-list', 'numbered-list']).toContain(
+        result.schema[0].type,
+      );
       expect(result.schema[0].children).toHaveLength(2);
     });
   });
@@ -708,8 +710,9 @@ function hello() {
       expect(result.schema[2].type).toBe('head');
 
       // 查找列表
-      const listIndex = result.schema.findIndex((node) => 
-        node.type === 'bulleted-list' || node.type === 'numbered-list'
+      const listIndex = result.schema.findIndex(
+        (node) =>
+          node.type === 'bulleted-list' || node.type === 'numbered-list',
       );
       expect(listIndex).toBeGreaterThan(-1);
 

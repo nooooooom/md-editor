@@ -84,18 +84,18 @@ export default () => {
 
 ### ToolCall
 
-| 属性           | 类型                                        | 默认值 | 说明                               |
-| -------------- | ------------------------------------------- | ------ | ---------------------------------- |
-| id             | string                                      | -      | 工具唯一标识                       |
-| toolName       | React.ReactNode                             | -      | 工具名称                           |
-| toolTarget     | React.ReactNode                             | -      | 工具目标                           |
-| time           | React.ReactNode                             | -      | 时间信息                           |
-| icon           | React.ReactNode                             | -      | 自定义图标                         |
-| status         | 'idle' \| 'loading' \| 'success' \| 'error' | -      | 工具状态                           |
-| errorMessage   | string                                      | -      | 错误信息，仅在 error 状态下有效    |
-| content        | React.ReactNode                             | -      | 工具详细内容，展开后显示           |
-| type           | 'summary' \| 'normal' \| string             | -      | 工具类型，'summary' 为特殊的总结项 |
-| testId         | string                                      | -      | 测试 ID                            |
+| 属性         | 类型                                        | 默认值 | 说明                               |
+| ------------ | ------------------------------------------- | ------ | ---------------------------------- |
+| id           | string                                      | -      | 工具唯一标识                       |
+| toolName     | React.ReactNode                             | -      | 工具名称                           |
+| toolTarget   | React.ReactNode                             | -      | 工具目标                           |
+| time         | React.ReactNode                             | -      | 时间信息                           |
+| icon         | React.ReactNode                             | -      | 自定义图标                         |
+| status       | 'idle' \| 'loading' \| 'success' \| 'error' | -      | 工具状态                           |
+| errorMessage | string                                      | -      | 错误信息，仅在 error 状态下有效    |
+| content      | React.ReactNode                             | -      | 工具详细内容，展开后显示           |
+| type         | 'summary' \| 'normal' \| string             | -      | 工具类型，'summary' 为特殊的总结项 |
+| testId       | string                                      | -      | 测试 ID                            |
 
 ## 状态样式
 

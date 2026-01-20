@@ -39,7 +39,7 @@ export const ReadonlyList: React.FC<ElementProps<ListNode>> = React.memo(
   ({ element, attributes, children }) => {
     const isOrdered = element.type === 'numbered-list';
     const isBulleted = element.type === 'bulleted-list';
-    
+
     debugInfo('ReadonlyList - 渲染只读列表', {
       type: element.type,
       isOrdered,
@@ -68,11 +68,7 @@ export const ReadonlyList: React.FC<ElementProps<ListNode>> = React.memo(
         {createElement(
           tag,
           {
-            className: classNames(
-              baseCls,
-              hashId,
-              isOrdered ? 'ol' : 'ul',
-            ),
+            className: classNames(baseCls, hashId, isOrdered ? 'ol' : 'ul'),
             start: isOrdered ? element.start : undefined,
             ['data-task']: isBulleted && element.task ? 'true' : undefined,
           },

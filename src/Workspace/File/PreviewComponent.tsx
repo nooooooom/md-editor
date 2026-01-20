@@ -350,9 +350,7 @@ export const PreviewComponent: FC<PreviewComponentProps> = ({
       return (
         <PlaceholderContent prefixCls={prefixCls} hashId={hashId}>
           <Alert
-            message={
-              locale?.['workspace.file.processFailed'] || '文件处理失败'
-            }
+            message={locale?.['workspace.file.processFailed'] || '文件处理失败'}
             description={contentState.error}
             type="error"
             showIcon

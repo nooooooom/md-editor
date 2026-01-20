@@ -1,5 +1,8 @@
 import { Workspace } from '@ant-design/agentic-ui';
-import type { FileNode, FileRenderContext } from '@ant-design/agentic-ui/Workspace/types';
+import type {
+  FileNode,
+  FileRenderContext,
+} from '@ant-design/agentic-ui/Workspace/types';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Space, Tag, Typography } from 'antd';
 import React from 'react';

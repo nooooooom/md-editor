@@ -1384,25 +1384,31 @@ const handleList = (
   plugins?: MarkdownEditorPlugin[],
 ) => {
   // 检查是否在嵌套列表中（父节点是 list-item）
-  const isNested = parent.length > 0 && parent[parent.length - 1]?.type === 'list-item';
-  
+  const isNested =
+    parent.length > 0 && parent[parent.length - 1]?.type === 'list-item';
+
   // 如果是嵌套列表，需要添加缩进
   const indent = isNested ? '  ' : '';
-  
+
   // 递归处理列表项，每个列表项都会添加缩进前缀
   const listItems = node.children
     .map((item: any, index: number) => {
       const isOrdered =
         node.type === 'numbered-list' || (node.type === 'list' && node.order);
       const prefix = isOrdered ? `${index + (node.start || 1)}.` : '-';
-      
+
       // 处理列表项内容，如果是嵌套列表，需要额外缩进
-      const itemContent = parserNode(item, indent + preString, [...parent, node], plugins).trimEnd();
-      
+      const itemContent = parserNode(
+        item,
+        indent + preString,
+        [...parent, node],
+        plugins,
+      ).trimEnd();
+
       return indent + prefix + ' ' + itemContent;
     })
     .join('\n' + indent);
-  
+
   return listItems;
 };
 
@@ -1423,11 +1429,16 @@ const handleListItem = (
   // 列表项的第一个子节点应该是段落或其他块级元素
   // 后续子节点可能是嵌套的列表
   const result: string[] = [];
-  
+
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
-    const childResult = parserNode(child, preString, [...parent, node], plugins);
-    
+    const childResult = parserNode(
+      child,
+      preString,
+      [...parent, node],
+      plugins,
+    );
+
     if (i === 0) {
       // 第一个子节点是主要内容
       result.push(childResult);
@@ -1445,7 +1456,7 @@ const handleListItem = (
       }
     }
   }
-  
+
   return result.join('');
 };
 

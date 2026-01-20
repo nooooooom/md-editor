@@ -149,7 +149,8 @@ export interface BubbleClassNames {
  * @description 包含单一根样式和多个子元素样式的完整配置
  */
 export interface BubbleItemStyleProps
-  extends BubbleStyleProps,
+  extends
+    BubbleStyleProps,
     MultiStyleProps<BubbleStyles>,
     MultiClassNameProps<BubbleClassNames> {}
 
@@ -232,8 +233,9 @@ export interface BubbleRenderConfig<T = Record<string, any>> {
 /**
  * 气泡组件属性
  */
-export interface BubbleProps<T = Record<string, any>>
-  extends BubbleItemStyleProps {
+export interface BubbleProps<
+  T = Record<string, any>,
+> extends BubbleItemStyleProps {
   time?: number;
   /**
    * 头像元数据

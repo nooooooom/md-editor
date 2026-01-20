@@ -316,7 +316,6 @@ export class EnterKey {
     node: NodeEntry<ParagraphNode>,
     sel: Range,
   ) {
-
     const parent = Editor.parent(this.editor, node[1]);
     const end = Editor.end(this.editor, node[1]);
     if (Point.equals(end, sel.focus)) {

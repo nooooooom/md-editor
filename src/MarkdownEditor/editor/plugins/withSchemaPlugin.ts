@@ -11,7 +11,10 @@ import { Editor, Node, Operation, Path, Transforms } from 'slate';
  * 处理以下schema相关操作:
  * - 拆分schema节点 (split_node)，在拆分点之后插入新的段落节点
  */
-const handleSchemaOperation = (editor: Editor, operation: Operation): boolean => {
+const handleSchemaOperation = (
+  editor: Editor,
+  operation: Operation,
+): boolean => {
   if (
     operation.type === 'split_node' &&
     operation.properties?.type === 'schema'

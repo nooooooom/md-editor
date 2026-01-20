@@ -124,14 +124,16 @@ const LayoutHeader: React.FC<LayoutHeaderProps> = ({
       <div className={classNames(`${prefixCls}-left`, hashId)}>
         {leftCollapsible && (
           <>
-          <ActionIconBox
-            onClick={handleLeftCollapse}
-            aria-label={locale?.['chatFlow.collapseLeft'] || '折叠左侧边栏'}
-            title={locale?.['chatFlow.collapseLeft'] || '折叠左侧边栏'}
-          >
-            {leftCollapsed ? <PanelLeftFill /> : <PanelLeftFillFold />}
-          </ActionIconBox>
-          <div  className={classNames(`${prefixCls}-left-separator`, hashId)} />
+            <ActionIconBox
+              onClick={handleLeftCollapse}
+              aria-label={locale?.['chatFlow.collapseLeft'] || '折叠左侧边栏'}
+              title={locale?.['chatFlow.collapseLeft'] || '折叠左侧边栏'}
+            >
+              {leftCollapsed ? <PanelLeftFill /> : <PanelLeftFillFold />}
+            </ActionIconBox>
+            <div
+              className={classNames(`${prefixCls}-left-separator`, hashId)}
+            />
           </>
         )}
         <h1 className={classNames(`${prefixCls}-left-title`, hashId)}>

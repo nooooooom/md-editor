@@ -97,4 +97,3 @@ export const MermaidRendererImpl = (props: { element: CodeNode }) => {
 
   return wrapSSR(dom);
 };
-

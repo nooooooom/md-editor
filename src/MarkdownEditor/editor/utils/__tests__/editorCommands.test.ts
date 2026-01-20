@@ -1,7 +1,7 @@
 import { Editor, Element, Node, Path, Range, Transforms } from 'slate';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { createList } from '../editorCommands';
 import { getListType, isListType } from '../../plugins/withListsPlugin';
+import { createList } from '../editorCommands';
 
 // Mock Slate's Editor, Transforms, and other dependencies
 vi.mock('slate', () => {
@@ -173,8 +173,15 @@ describe('createList', () => {
       } as any;
       editor.selection = selection;
 
-      const headNode = { type: 'head', level: 1, children: [{ text: 'Title' }] };
-      const paragraphNode = { type: 'paragraph', children: [{ text: 'Title' }] };
+      const headNode = {
+        type: 'head',
+        level: 1,
+        children: [{ text: 'Title' }],
+      };
+      const paragraphNode = {
+        type: 'paragraph',
+        children: [{ text: 'Title' }],
+      };
       const path = [0];
 
       // Mock Editor.nodes for getCurrentNodes (called first)
@@ -222,7 +229,9 @@ describe('createList', () => {
       const listNode = { type: 'bulleted-list', children: [listItemNode] };
 
       // Mock Editor.nodes for getCurrentNodes
-      (Editor.nodes as Mock).mockReturnValueOnce([[listItemNode, listItemPath]]);
+      (Editor.nodes as Mock).mockReturnValueOnce([
+        [listItemNode, listItemPath],
+      ]);
       // Mock Editor.parent to return list node
       (Editor.parent as Mock).mockReturnValue([listNode, listPath]);
       (getListType as Mock).mockReturnValue('bulleted-list');
@@ -283,7 +292,9 @@ describe('createList', () => {
       const listNode = { type: 'bulleted-list', children: [listItemNode] };
 
       // Mock Editor.nodes for getCurrentNodes
-      (Editor.nodes as Mock).mockReturnValueOnce([[listItemNode, listItemPath]]);
+      (Editor.nodes as Mock).mockReturnValueOnce([
+        [listItemNode, listItemPath],
+      ]);
       // Mock Editor.parent to return list node
       (Editor.parent as Mock).mockReturnValue([listNode, listPath]);
       (getListType as Mock).mockReturnValue('bulleted-list');
@@ -359,15 +370,23 @@ describe('createList', () => {
       } as any;
       editor.selection = selection;
 
-      const paragraphNode1 = { type: 'paragraph', children: [{ text: 'Item 1' }] };
-      const paragraphNode2 = { type: 'paragraph', children: [{ text: 'Item 2' }] };
+      const paragraphNode1 = {
+        type: 'paragraph',
+        children: [{ text: 'Item 1' }],
+      };
+      const paragraphNode2 = {
+        type: 'paragraph',
+        children: [{ text: 'Item 2' }],
+      };
       const path1 = [0];
       const path2 = [1];
 
-      (Editor.nodes as Mock).mockReturnValueOnce([[paragraphNode1, path1]]).mockReturnValue([
-        [paragraphNode1, path1],
-        [paragraphNode2, path2],
-      ]);
+      (Editor.nodes as Mock)
+        .mockReturnValueOnce([[paragraphNode1, path1]])
+        .mockReturnValue([
+          [paragraphNode1, path1],
+          [paragraphNode2, path2],
+        ]);
       (Range.isCollapsed as Mock).mockReturnValue(false);
       (getListType as Mock).mockReturnValue('bulleted-list');
       (Editor.withoutNormalizing as Mock).mockImplementation((_, fn) => fn());
@@ -476,8 +495,6 @@ describe('createList', () => {
   });
 
   describe('任务列表特殊处理', () => {
- 
-
     it('should set task property on list for task mode', () => {
       const selection = {
         anchor: { offset: 0, path: [0, 0] },

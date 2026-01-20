@@ -18,17 +18,17 @@ group:
 
 ### AgenticLayoutProps
 
-| 参数       | 说明                                                              | 类型                 | 默认值    |
-| ---------- | ----------------------------------------------------------------- | -------------------- | --------- |
-| left       | 左侧内容                                                          | `ReactNode`          | -         |
-| center     | 中间内容                                                          | `ReactNode`          | -         |
-| right      | 右侧内容                                                          | `ReactNode`          | -         |
-| header     | 头部配置，包含折叠控制等（详见 [LayoutHeader](/components/layout-header)） | `LayoutHeaderConfig` | -         |
-| style      | 自定义样式                                                        | `React.CSSProperties`| -         |
-| className  | 自定义类名                                                        | `string`             | -         |
-| leftWidth  | 左侧宽度                                                          | `number`             | `256`     |
-| rightWidth | 右侧宽度                                                          | `number`             | `256`     |
-| minHeight  | 最小高度                                                          | `string \| number`   | `'600px'` |
+| 参数       | 说明                                                                       | 类型                  | 默认值    |
+| ---------- | -------------------------------------------------------------------------- | --------------------- | --------- |
+| left       | 左侧内容                                                                   | `ReactNode`           | -         |
+| center     | 中间内容                                                                   | `ReactNode`           | -         |
+| right      | 右侧内容                                                                   | `ReactNode`           | -         |
+| header     | 头部配置，包含折叠控制等（详见 [LayoutHeader](/components/layout-header)） | `LayoutHeaderConfig`  | -         |
+| style      | 自定义样式                                                                 | `React.CSSProperties` | -         |
+| className  | 自定义类名                                                                 | `string`              | -         |
+| leftWidth  | 左侧宽度                                                                   | `number`              | `256`     |
+| rightWidth | 右侧宽度                                                                   | `number`              | `256`     |
+| minHeight  | 最小高度                                                                   | `string \| number`    | `'600px'` |
 
 ## 受控与非受控
 

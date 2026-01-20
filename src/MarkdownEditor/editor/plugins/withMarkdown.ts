@@ -28,14 +28,8 @@ export const withMarkdown = (editor: Editor) => {
   return withCodeTagPlugin(
     withSchemaPlugin(
       withLinkAndMediaPlugin(
-        withCardPlugin(
-          withListsPlugin(
-            withVoidNodes(
-              withInlineNodes(editor)
-            )
-          )
-        )
-      )
-    )
+        withCardPlugin(withListsPlugin(withVoidNodes(withInlineNodes(editor)))),
+      ),
+    ),
   );
 };

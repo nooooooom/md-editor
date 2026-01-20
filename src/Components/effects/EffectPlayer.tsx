@@ -9,8 +9,10 @@ import React, {
 import { useLatest } from 'react-use';
 import { useRefFunction } from '../../Hooks/useRefFunction';
 
-export interface EffectPlayerProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'ref'> {
+export interface EffectPlayerProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'ref'
+> {
   /**
    * 动画资源
    */

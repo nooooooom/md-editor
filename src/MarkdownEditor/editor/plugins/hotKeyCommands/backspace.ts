@@ -67,14 +67,14 @@ export class BackspaceKey {
     }
 
     if (el.type === 'paragraph') {
-    
       const parent = Editor.parent(this.editor, path);
       if (parent?.[0]?.type === 'list-item') {
         // 先检查 list-item 是否为空：检查第一个段落（子节点）是否为空
         const listItem = parent[0];
-        const firstChild = Element.isElement(listItem) && listItem.children.length > 0
-          ? listItem.children[0]
-          : null;
+        const firstChild =
+          Element.isElement(listItem) && listItem.children.length > 0
+            ? listItem.children[0]
+            : null;
         const isEmptyListItem =
           firstChild &&
           Element.isElement(firstChild) &&
@@ -99,7 +99,10 @@ export class BackspaceKey {
 
             // 如果列表为空，删除列表容器
             const updatedList = Node.get(this.editor, listPath);
-            if (isListType(updatedList) &&Node.string(updatedList).trim() === '') {
+            if (
+              isListType(updatedList) &&
+              Node.string(updatedList).trim() === ''
+            ) {
               Transforms.removeNodes(this.editor, { at: listPath });
               // 在列表位置插入 paragraph
               Transforms.insertNodes(
@@ -131,7 +134,10 @@ export class BackspaceKey {
 
             // 检查列表是否为空，如果为空则删除列表容器
             const updatedList = Node.get(this.editor, listPath);
-            if (isListType(updatedList) &&Node.string(updatedList).trim() === '') {
+            if (
+              isListType(updatedList) &&
+              Node.string(updatedList).trim() === ''
+            ) {
               // 列表为空，删除列表容器
               Transforms.removeNodes(this.editor, { at: listPath });
               // 在列表位置插入 paragraph

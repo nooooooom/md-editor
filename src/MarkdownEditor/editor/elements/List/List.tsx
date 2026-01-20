@@ -37,10 +37,10 @@ export const List = ({
   const isOrdered =
     element.type === 'numbered-list' ||
     ((element as any).type === 'list' && (element as any).order === true);
-  
+
   // 获取 task 属性（支持旧格式和新格式）
   const task = (element as any).task;
-  
+
   debugInfo('List - 渲染列表', {
     type: element.type,
     isOrdered,
@@ -61,14 +61,14 @@ export const List = ({
     const task = (element as any).task;
     const start = isOrdered ? (element as any).start : undefined;
     const tag = isOrdered ? 'ol' : 'ul';
-    
+
     debugInfo('List - useMemo 渲染', {
       tag,
       type: element.type,
       start,
       task,
     });
-    
+
     return wrapSSR(
       <ListContext.Provider
         value={{
@@ -87,11 +87,7 @@ export const List = ({
           {createElement(
             tag,
             {
-              className: classNames(
-                baseCls,
-                hashId,
-                isOrdered ? 'ol' : 'ul',
-              ),
+              className: classNames(baseCls, hashId, isOrdered ? 'ol' : 'ul'),
               ...(start !== undefined && { start }),
               ...(task && { 'data-task': 'true' }),
             },

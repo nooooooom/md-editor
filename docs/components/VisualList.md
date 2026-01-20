@@ -18,24 +18,24 @@ group:
 
 ### VisualList
 
-| 参数          | 说明                   | 类型                                                       | 默认值          |
-| ------------- | ---------------------- | ---------------------------------------------------------- | --------------- |
-| data          | 图片数据数组（必需）   | `VisualListItem[]`                                         | -               |
-| className     | 自定义 CSS 类名        | `string`                                                   | -               |
-| style         | 自定义内联样式         | `React.CSSProperties`                                      | -               |
-| filter        | 数据过滤函数           | `(item: VisualListItem) => boolean`                        | `() => true`    |
-| emptyRender   | 空状态自定义渲染函数   | `() => React.ReactNode`                                    | -               |
-| renderItem    | 自定义列表项渲染函数   | `(item: VisualListItem, index: number) => React.ReactNode` | -               |
-| loading       | **已废弃**，请使用 `isLoading` | `boolean`                                          | `false`         |
-| isLoading     | 是否显示加载状态       | `boolean`                                                  | `false`         |
-| loadingRender | 加载状态自定义渲染函数 | `() => React.ReactNode`                                    | -               |
-| itemStyle     | 列表项自定义样式       | `React.CSSProperties`                                      | -               |
-| imageStyle    | 图片自定义样式         | `React.CSSProperties`                                      | -               |
-| linkStyle     | 链接自定义样式         | `React.CSSProperties`                                      | -               |
-| shape         | 图片形状               | `'default' \| 'circle'`                                    | `'default'`     |
-| prefixCls     | 样式前缀类名           | `string`                                                   | `'visual-list'` |
-| variant       | 组件变体               | `'default' \| 'outline' \| 'borderless'`                   | `'default'`     |
-| description   | 描述文字               | `string`                                                   | -               |
+| 参数          | 说明                           | 类型                                                       | 默认值          |
+| ------------- | ------------------------------ | ---------------------------------------------------------- | --------------- |
+| data          | 图片数据数组（必需）           | `VisualListItem[]`                                         | -               |
+| className     | 自定义 CSS 类名                | `string`                                                   | -               |
+| style         | 自定义内联样式                 | `React.CSSProperties`                                      | -               |
+| filter        | 数据过滤函数                   | `(item: VisualListItem) => boolean`                        | `() => true`    |
+| emptyRender   | 空状态自定义渲染函数           | `() => React.ReactNode`                                    | -               |
+| renderItem    | 自定义列表项渲染函数           | `(item: VisualListItem, index: number) => React.ReactNode` | -               |
+| loading       | **已废弃**，请使用 `isLoading` | `boolean`                                                  | `false`         |
+| isLoading     | 是否显示加载状态               | `boolean`                                                  | `false`         |
+| loadingRender | 加载状态自定义渲染函数         | `() => React.ReactNode`                                    | -               |
+| itemStyle     | 列表项自定义样式               | `React.CSSProperties`                                      | -               |
+| imageStyle    | 图片自定义样式                 | `React.CSSProperties`                                      | -               |
+| linkStyle     | 链接自定义样式                 | `React.CSSProperties`                                      | -               |
+| shape         | 图片形状                       | `'default' \| 'circle'`                                    | `'default'`     |
+| prefixCls     | 样式前缀类名                   | `string`                                                   | `'visual-list'` |
+| variant       | 组件变体                       | `'default' \| 'outline' \| 'borderless'`                   | `'default'`     |
+| description   | 描述文字                       | `string`                                                   | -               |
 
 ### VisualListItem
 
@@ -97,10 +97,7 @@ const imageData: VisualListItem[] = [
 ### 带描述文字
 
 ```tsx | pure
-<VisualList
-  data={imageData}
-  description="这里是列表的描述信息"
-/>
+<VisualList data={imageData} description="这里是列表的描述信息" />
 ```
 
 ### 数据过滤

@@ -1,11 +1,4 @@
-import {
-  Editor,
-  Node,
-  Operation,
-  Path,
-  Range,
-  Transforms,
-} from 'slate';
+import { Editor, Node, Operation, Path, Range, Transforms } from 'slate';
 import { hasRange } from './utils';
 
 /**

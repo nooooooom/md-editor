@@ -18,13 +18,11 @@ import { ChatLayout, BubbleList } from '@ant-design/agentic-ui';
 export default () => (
   <ChatLayout
     header={{
-      title: "智能助手",
-      onShare: () => console.log('share')
+      title: '智能助手',
+      onShare: () => console.log('share'),
     }}
     footer={
-      <div style={{ padding: 16, borderTop: '1px solid #eee' }}>
-        输入框区域
-      </div>
+      <div style={{ padding: 16, borderTop: '1px solid #eee' }}>输入框区域</div>
     }
   >
     <div style={{ padding: 16 }}>
@@ -40,24 +38,24 @@ export default () => (
 
 ### ChatLayoutProps
 
-| 参数           | 说明                                                                       | 类型                  | 默认值     |
-| -------------- | -------------------------------------------------------------------------- | --------------------- | ---------- |
-| header         | 头部配置（详见 [LayoutHeader](/components/layout-header)）                 | `LayoutHeaderConfig`  | -          |
-| footer         | 底部内容（通常放置输入框）                                                 | `ReactNode`           | -          |
-| footerHeight   | 底部区域的最小高度（用于预留空间）                                         | `number`              | `90`       |
-| scrollBehavior | 滚动行为                                                                   | `'auto' \| 'smooth'`  | `'smooth'` |
-| className      | 自定义类名                                                                 | `string`              | -          |
-| style          | 自定义样式                                                                 | `React.CSSProperties` | -          |
-| children       | 聊天内容区域                                                               | `ReactNode`           | -          |
+| 参数           | 说明                                                       | 类型                  | 默认值     |
+| -------------- | ---------------------------------------------------------- | --------------------- | ---------- |
+| header         | 头部配置（详见 [LayoutHeader](/components/layout-header)） | `LayoutHeaderConfig`  | -          |
+| footer         | 底部内容（通常放置输入框）                                 | `ReactNode`           | -          |
+| footerHeight   | 底部区域的最小高度（用于预留空间）                         | `number`              | `90`       |
+| scrollBehavior | 滚动行为                                                   | `'auto' \| 'smooth'`  | `'smooth'` |
+| className      | 自定义类名                                                 | `string`              | -          |
+| style          | 自定义样式                                                 | `React.CSSProperties` | -          |
+| children       | 聊天内容区域                                               | `ReactNode`           | -          |
 
 ### ChatLayoutRef
 
 组件暴露的 Ref 对象，用于控制滚动行为。
 
-| 属性            | 说明                 | 类型               |
-| --------------- | -------------------- | ------------------ |
-| scrollContainer | 滚动容器的 DOM 元素  | `HTMLDivElement`   |
-| scrollToBottom  | 滚动到底部的方法     | `() => void`       |
+| 属性            | 说明                | 类型             |
+| --------------- | ------------------- | ---------------- |
+| scrollContainer | 滚动容器的 DOM 元素 | `HTMLDivElement` |
+| scrollToBottom  | 滚动到底部的方法    | `() => void`     |
 
 ```tsx | pure
 import { useRef } from 'react';

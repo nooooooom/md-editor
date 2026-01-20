@@ -2,8 +2,8 @@ import { BaseEditor, createEditor, Transforms } from 'slate';
 import { HistoryEditor, withHistory } from 'slate-history';
 import { ReactEditor, withReact } from 'slate-react';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { withMarkdown } from '../../withMarkdown';
 import { parserSlateNodeToMarkdown } from '../../../utils';
+import { withMarkdown } from '../../withMarkdown';
 import { BackspaceKey } from '../backspace';
 
 describe('BackspaceKey - Markdown 输出测试', () => {
@@ -66,9 +66,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
           children: [
             {
               type: 'list-item',
-              children: [
-                { type: 'paragraph', children: [{ text: 'Item 1' }] },
-              ],
+              children: [{ type: 'paragraph', children: [{ text: 'Item 1' }] }],
             },
             {
               type: 'list-item',
@@ -76,9 +74,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
             },
             {
               type: 'list-item',
-              children: [
-                { type: 'paragraph', children: [{ text: 'Item 3' }] },
-              ],
+              children: [{ type: 'paragraph', children: [{ text: 'Item 3' }] }],
             },
           ],
         },
@@ -109,9 +105,7 @@ describe('BackspaceKey - Markdown 输出测试', () => {
           children: [
             {
               type: 'list-item',
-              children: [
-                { type: 'paragraph', children: [{ text: 'Item 1' }] },
-              ],
+              children: [{ type: 'paragraph', children: [{ text: 'Item 1' }] }],
             },
           ],
         },
@@ -177,5 +171,4 @@ describe('BackspaceKey - Markdown 输出测试', () => {
       expect(markdown).toContain('Nested item');
     });
   });
-
 });

@@ -41,7 +41,10 @@ export function insertTable(editor: Editor, node?: [any, Path]) {
       at: path,
     });
 
-    if (currentNode?.[0]?.type === 'paragraph' && !Node.string(currentNode[0])) {
+    if (
+      currentNode?.[0]?.type === 'paragraph' &&
+      !Node.string(currentNode[0])
+    ) {
       Transforms.delete(editor, { at: Path.next(path) });
     }
     Transforms.select(editor, Editor.start(editor, path));
@@ -66,9 +69,17 @@ export function insertTable(editor: Editor, node?: [any, Path]) {
  * @param type 可选的代码块类型，'mermaid'表示流程图，'html'表示HTML渲染
  * @param node 可选的节点，如果不提供则从编辑器获取
  */
-export function insertCodeBlock(editor: Editor, type?: 'mermaid' | 'html', node?: [any, Path]) {
+export function insertCodeBlock(
+  editor: Editor,
+  type?: 'mermaid' | 'html',
+  node?: [any, Path],
+) {
   const currentNode = node || Array.from(getCurrentNodes(editor))[0];
-  if (currentNode && currentNode[0] && ['paragraph', 'head'].includes(currentNode[0].type)) {
+  if (
+    currentNode &&
+    currentNode[0] &&
+    ['paragraph', 'head'].includes(currentNode[0].type)
+  ) {
     const path =
       currentNode[0].type === 'paragraph' && !Node.string(currentNode[0])
         ? currentNode[1]
@@ -109,7 +120,8 @@ export function insertCodeBlock(editor: Editor, type?: 'mermaid' | 'html', node?
  */
 export function toggleQuote(editor: Editor, node?: [any, Path]) {
   const currentNode = node || Array.from(getCurrentNodes(editor))[0];
-  if (!currentNode || !['paragraph', 'head'].includes(currentNode?.[0]?.type)) return;
+  if (!currentNode || !['paragraph', 'head'].includes(currentNode?.[0]?.type))
+    return;
   if (Node.parent(editor, currentNode[1]).type === 'blockquote') {
     Transforms.unwrapNodes(editor, { at: Path.parent(currentNode[1]) });
     return;
@@ -481,7 +493,11 @@ export function createList(
       !Path.hasPrevious(curNode[1])
     ) {
       const listParent = Editor.parent(editor, parent[1]);
-      if (listParent && Element.isElement(listParent[0]) && isListType(listParent[0])) {
+      if (
+        listParent &&
+        Element.isElement(listParent[0]) &&
+        isListType(listParent[0])
+      ) {
         // 如果列表类型与目标类型相同，且不是任务列表，执行解包
         const isTaskList =
           listParent[0].type === 'bulleted-list' &&

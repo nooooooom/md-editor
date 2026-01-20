@@ -8,7 +8,7 @@ export const useElementSize = (element: RefObject<Element | null>) => {
 
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0];
-      console.log(entry)
+      console.log(entry);
       setSize({
         width: entry.borderBoxSize[0].inlineSize,
         height: entry.borderBoxSize[0].blockSize,
