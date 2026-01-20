@@ -8,7 +8,12 @@ import {
 import { ChartElement } from '@ant-design/agentic-ui/Plugins/chart';
 import { CodeElement } from '@ant-design/agentic-ui/Plugins/code';
 import { MermaidElement } from '@ant-design/agentic-ui/Plugins/mermaid';
-import { PauseCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import {
+  PauseCircleOutlined,
+  PlayCircleOutlined,
+  ReloadOutlined,
+  ClearOutlined,
+} from '@ant-design/icons';
 import { Button, Input, Radio, Space } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { newEnergyFundContent } from './shared/newEnergyFundContent';
@@ -31,6 +36,8 @@ export const RerenderMdDemo = () => {
   const pauseRef = useRef(false);
   const currentIndexRef = useRef(0);
   const speedRef = useRef<number>(SPEED_CONFIG.medium);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [restartKey, setRestartKey] = useState(0);
 
   useEffect(() => {
     speedRef.current = SPEED_CONFIG[speed];
@@ -40,12 +47,42 @@ export const RerenderMdDemo = () => {
     pauseRef.current = isPaused;
   }, [isPaused]);
 
+  const clearContent = () => {
+    // 清除定时器
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    // 清空内容
+    setValue('');
+    currentIndexRef.current = 0;
+    // 清空编辑器内容
+    instance.current?.store.updateNodeList(
+      parserMarkdownToSlateNode('').schema,
+    );
+  };
+
+  const restart = () => {
+    // 清除定时器
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    // 重置状态
+    setValue('');
+    currentIndexRef.current = 0;
+    setIsPaused(false);
+    pauseRef.current = false;
+    // 触发重新渲染
+    setRestartKey((prev) => prev + 1);
+  };
+
   useEffect(() => {
     let md = '';
     const list = newEnergyFundContent.split('');
     currentIndexRef.current = 0;
 
-    const run = async () => {
+    const run = () => {
       if (process.env.NODE_ENV === 'test') {
         instance.current?.store.updateNodeList(
           parserMarkdownToSlateNode(newEnergyFundContent).schema,
@@ -53,27 +90,45 @@ export const RerenderMdDemo = () => {
         return;
       }
 
-      for (let i = currentIndexRef.current; i < list.length; i++) {
-        while (pauseRef.current) {
-          await new Promise((resolve) => setTimeout(resolve, 100));
+      const processNext = async () => {
+        if (currentIndexRef.current >= list.length) {
+          await instance.current?.store.updateNodeList(
+            parserMarkdownToSlateNode(md).schema,
+          );
+          
+          return;
         }
 
-        md += list[i];
-        currentIndexRef.current = i + 1;
+        if (pauseRef.current) {
+          timeoutRef.current = setTimeout(processNext, 100);
+          return;
+        }
 
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            instance.current?.store.updateNodeList(
-              parserMarkdownToSlateNode(md).schema,
-            );
-            setValue(md);
-            resolve(true);
-          }, speedRef.current);
-        });
-      }
+        md += list[currentIndexRef.current];
+        const index = currentIndexRef.current;
+        currentIndexRef.current = index + 1;
+
+        timeoutRef.current = setTimeout(() => {
+          instance.current?.store.updateNodeList(
+            parserMarkdownToSlateNode(md).schema,
+          );
+          setValue(md);
+          processNext();
+        }, speedRef.current);
+      };
+
+      processNext();
     };
     run();
-  }, []);
+
+    // 清理函数
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [restartKey]);
 
   return (
     <div
@@ -121,6 +176,16 @@ export const RerenderMdDemo = () => {
           >
             {isPaused ? '继续' : '暂停'}
           </Button>
+          <Button icon={<ClearOutlined />} onClick={clearContent}>
+            清空
+          </Button>
+          <Button
+            type="primary"
+            icon={<ReloadOutlined />}
+            onClick={restart}
+          >
+            再来一次
+          </Button>
         </Space>
       </div>
       <div style={{ display: 'flex', flexDirection: 'row', gap: 24 }}>
@@ -129,6 +194,7 @@ export const RerenderMdDemo = () => {
           style={{
             width: 'calc(50vw - 32px)',
             whiteSpace: 'pre-wrap',
+            minHeight: 'calc(100vh - 280px)',
             backgroundColor: '#f0f0f0',
             padding: 16,
             borderRadius: 8,

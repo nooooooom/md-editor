@@ -164,9 +164,9 @@ const splitMarkdownIntoBlocks = (
   const pluginsCount = plugins?.length || 0;
   const configHash = simpleHash(`${configStr}_${pluginsCount}`);
 
-  return mergedBlocks.map((content) => ({
+  return mergedBlocks.map((content, index) => ({
     content,
-    hash: `${simpleHash(content)}_${configHash}`,
+    hash: `${simpleHash(content)}_${configHash}_${index}`,
   }));
 };
 /**

@@ -1675,14 +1675,17 @@ export class EditorStore {
     const editor = this._editor.current;
     if (!editor) return;
 
-    // 使用批处理模式执行所有操作
+    // 使用批处理模式执行所有操作，避免中间状态导致路径变化
     Editor.withoutNormalizing(editor, () => {
       for (const op of operations) {
         try {
           switch (op.type) {
             case 'insert':
               if (op.node && editor.hasPath(Path.parent(op.path))) {
-                Transforms.insertNodes(editor, op.node, { at: op.path });
+                // 检查路径是否仍然有效，避免重复插入
+                if (!editor.hasPath(op.path)) {
+                  Transforms.insertNodes(editor, op.node, { at: op.path });
+                }
               }
               break;
 
