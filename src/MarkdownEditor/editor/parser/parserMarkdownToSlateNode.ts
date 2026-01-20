@@ -566,7 +566,10 @@ export const parserMarkdownToSlateNode = (
     const blockHash = blocks[0]?.hash || simpleHash(md || '');
     // 为 schema 元素添加 hash
     return {
-      schema: result.schema.map((s) => ({ ...s, hash: blockHash })),
+      schema: result.schema.map((s, index) => ({
+        ...s,
+        hash: blockHash + '-' + index,
+      })),
       links: result.links,
     };
   }

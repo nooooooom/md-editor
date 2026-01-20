@@ -1408,7 +1408,7 @@ Second paragraph
       const hashes = result.schema.map((s: any) => s.hash).filter(Boolean);
       if (hashes.length > 0) {
         const uniqueHashes = new Set(hashes);
-        expect(uniqueHashes.size).toBe(1);
+        expect(uniqueHashes.size).toBe(2);
       }
     });
 
@@ -1455,6 +1455,28 @@ Second paragraph
         expect(s.hash).toBeDefined();
         expect(typeof s.hash).toBe('string');
       });
+    });
+
+    it('应该为相同内容但不同位置的块生成不同的 hash（包含 block index）', () => {
+      // 模拟 Verse 1 和 Verse 2 的情况，使用足够长的内容确保不会被合并
+      const markdown = `Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1\n\n\nVerse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Verse 1Versea$`;
+
+      clearParseCache();
+      const result = parserMarkdownToSlateNode(markdown);
+
+      // 验证每个元素都有 hash
+      const hashes = result.schema.map((s: any) => s.hash).filter(Boolean);
+      expect(hashes.length).toBeGreaterThan(0);
+
+      // 提取每个元素的 block hash（去掉元素索引部分）
+      // hash 格式: `${blockHash}-${elementIndex}`
+      // 验证至少有两个不同的 block hash（因为 Verse 1 和 Verse 2 在不同的 block）
+      const uniqueBlockHashes = new Set(hashes);
+      expect(uniqueBlockHashes.size).toBeGreaterThanOrEqual(2);
+
+      // 验证所有 hash 都是唯一的（因为 block index 不同）
+      const uniqueHashes = new Set(hashes);
+      expect(uniqueHashes.size).toBe(hashes.length);
     });
 
     it('应该正确处理包含代码块的切分', () => {

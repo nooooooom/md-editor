@@ -105,8 +105,6 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
   const { locale, standalone } = useContext(BubbleConfigContext) || {};
   const { token } = theme.useToken();
 
-
-
   const isPaddingHidden = useMemo(() => {
     return !!extra;
   }, [extra, typing]);
@@ -115,8 +113,6 @@ export const MarkdownPreview = (props: MarkdownPreviewProps) => {
     const schema = parserMdToSchema(content).schema;
     MarkdownEditorRef.current?.store.updateNodeList(schema);
   }, [content]);
-
-
 
   const markdown = useMemo(() => {
     const minWidth = content?.includes?.('chartType')

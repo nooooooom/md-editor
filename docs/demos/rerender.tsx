@@ -9,10 +9,10 @@ import { ChartElement } from '@ant-design/agentic-ui/Plugins/chart';
 import { CodeElement } from '@ant-design/agentic-ui/Plugins/code';
 import { MermaidElement } from '@ant-design/agentic-ui/Plugins/mermaid';
 import {
+  ClearOutlined,
   PauseCircleOutlined,
   PlayCircleOutlined,
   ReloadOutlined,
-  ClearOutlined,
 } from '@ant-design/icons';
 import { Button, Input, Radio, Space } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
@@ -95,7 +95,7 @@ export const RerenderMdDemo = () => {
           await instance.current?.store.updateNodeList(
             parserMarkdownToSlateNode(md).schema,
           );
-          
+
           return;
         }
 
@@ -179,11 +179,7 @@ export const RerenderMdDemo = () => {
           <Button icon={<ClearOutlined />} onClick={clearContent}>
             清空
           </Button>
-          <Button
-            type="primary"
-            icon={<ReloadOutlined />}
-            onClick={restart}
-          >
+          <Button type="primary" icon={<ReloadOutlined />} onClick={restart}>
             再来一次
           </Button>
         </Space>

@@ -1,4 +1,13 @@
-import { Editor, Element, Node, Path, Point, Range, Text, Transforms } from 'slate';
+import {
+  Editor,
+  Element,
+  Node,
+  Path,
+  Point,
+  Range,
+  Text,
+  Transforms,
+} from 'slate';
 import { ListItemNode } from '../../el';
 import { NativeTableEditor } from '../../utils/native-table';
 import { getListType, isListType } from '../plugins/withListsPlugin';
@@ -272,7 +281,8 @@ function processSelectionForHeading(
 
       // 检查是否选中了整个节点
       const isWholeNodeSelected =
-        (Point.isBefore(selStart, nodeStart) || Point.equals(selStart, nodeStart)) &&
+        (Point.isBefore(selStart, nodeStart) ||
+          Point.equals(selStart, nodeStart)) &&
         (Point.isAfter(selEnd, nodeEnd) || Point.equals(selEnd, nodeEnd));
 
       if (isWholeNodeSelected) {
@@ -292,7 +302,10 @@ function processSelectionForHeading(
       }
 
       // 情况1: 选中了整个节点（从开始到结束）
-      if (Point.equals(actualStart, nodeStart) && Point.equals(actualEnd, nodeEnd)) {
+      if (
+        Point.equals(actualStart, nodeStart) &&
+        Point.equals(actualEnd, nodeEnd)
+      ) {
         Transforms.setNodes(editor, { type: 'head', level }, { at: path });
         continue;
       }
@@ -333,7 +346,11 @@ function processSelectionForHeading(
         // 将新节点（选中部分）转换为标题
         const nextPath = Path.next(path);
         if (Editor.hasPath(editor, nextPath)) {
-          Transforms.setNodes(editor, { type: 'head', level }, { at: nextPath });
+          Transforms.setNodes(
+            editor,
+            { type: 'head', level },
+            { at: nextPath },
+          );
         }
       } else {
         // 选中在中间位置：拆分成三个节点（前面部分 + 选中部分 + 后面部分）
@@ -405,7 +422,11 @@ function processSelectionForHeading(
 
         // 拆分后，middlePath 包含选中部分，下一个节点包含后面部分
         // 将 middlePath（选中部分）转换为标题
-        Transforms.setNodes(editor, { type: 'head', level }, { at: middlePath });
+        Transforms.setNodes(
+          editor,
+          { type: 'head', level },
+          { at: middlePath },
+        );
       }
     }
   });
