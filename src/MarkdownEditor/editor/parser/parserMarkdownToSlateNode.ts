@@ -343,6 +343,14 @@ export class MarkdownToSlateParser {
         // 同时将属性作为 config 传递，以便 applyContextPropsAndConfig 设置 otherProps
         config = { ...config, ...htmlCommentProps };
         // 跳过 HTML 注释本身，避免生成独立的 HTML 代码节点
+        //
+        // 【为何 preNode 里拿不到图表配置】
+        // continue 后不会 push 任何 el，也不会执行 preNode=currentElement、preElement=el。
+        // 下一轮处理表格时，preElement 仍是「注释前」的节点（如 paragraph/heading），
+        // 不可能是 type='code' 且 language='html' 的节点，parseTableOrChart 里
+        // 从 preNode（实为 preElement）取 otherProps 会得到 {}。
+        // 因此图表配置必须通过 contextProps → config，由 table handler 以
+        // contextChartConfig 传入 parseTableOrChart。
         continue;
       }
 
@@ -460,13 +468,16 @@ export class MarkdownToSlateParser {
           handleParagraph(el, config, parseNodesFn),
       },
       table: {
-        handler: (el, _plugins, _config, parent, _htmlTag, preElement) =>
+        // 传入 config：当上一条是图表注释且被 continue 掉时，config 来自 contextProps，
+        // 作为 contextChartConfig 供 parseTableOrChart 在 preNode 无 html 配置时使用
+        handler: (el, _plugins, config, parent, _htmlTag, preElement) =>
           parseTableOrChart(
             el,
             preElement || (parent as any),
             this.plugins,
             parseNodesForTable,
             this.config,
+            config as Record<string, unknown>,
           ),
       },
     };

@@ -136,10 +136,11 @@ export const getColumnAlignment = (
 /**
  * 解析表格或图表
  * @param table - 表格 AST 节点
- * @param preNode - 前一个节点（可能包含配置信息）
+ * @param preNode - 前一个节点（实际传入的是 Slate 的 preElement，即上一轮 push 到 els 的节点）
  * @param plugins - 插件数组
  * @param parseNodes - 解析节点的函数，用于解析单元格内容
  * @param parserConfig - 解析配置
+ * @param contextChartConfig - 由上一条 HTML 注释（<!-- [{"chartType":...}] -->）解析得到的配置；当 preNode 无 html 配置且注释被 skip 时由此传入
  * @returns 返回表格或图表节点
  */
 export const parseTableOrChart = (
@@ -154,17 +155,31 @@ export const parseTableOrChart = (
     parserConfig?: ParserMarkdownToSlateNodeConfig,
   ) => (Elements | any)[],
   parserConfig?: ParserMarkdownToSlateNodeConfig,
+  contextChartConfig?: Record<string, unknown>,
 ): CardNode | Elements => {
   const keyMap = new Map<string, string>();
 
-  // 只在明确有 HTML 注释配置时才使用配置，避免使用全局 parserConfig 导致误识别
-  // 如果前一个节点是 HTML 代码块且有配置，使用它；否则使用空配置
-  const config =
+  // 优先使用前一个 HTML 代码块的 otherProps；若 HTML 注释被 skip（不产出 code 节点），则使用 contextChartConfig
+  //
+  // 【为何 preNode 里常常拿不到图表配置】
+  // preNode 实际是上一轮产出的 Slate 节点（preElement）。当上一条是 <!-- [{"chartType":...}] -->
+  // 时，该注释在 parseNodes 里被 continue 掉，不生成任何 el，preElement 不会更新为 code 节点，
+  // 表格看到的「前一个」仍是再上一轮的 paragraph/heading 等，type 非 'code'，无 otherProps，
+  // 故此处 config 为空。图表配置已放在 contextProps 中，由 table handler 以 contextChartConfig 传入。
+  let config: Record<string, unknown> =
     preNode?.type === 'code' &&
     (preNode as CodeNode)?.language === 'html' &&
     (preNode as CodeNode)?.otherProps
-      ? (preNode as CodeNode)?.otherProps
+      ? ((preNode as CodeNode)?.otherProps as Record<string, unknown>)
       : {};
+  if (
+    Object.keys(config).length === 0 &&
+    contextChartConfig &&
+    (contextChartConfig.config ||
+      (contextChartConfig as ChartTypeConfig)?.chartType)
+  ) {
+    config = contextChartConfig;
+  }
 
   const tableHeader = table?.children?.at(0);
   const columns =
