@@ -1,9 +1,7 @@
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import React, { createElement, useContext } from 'react';
-import { debugInfo } from '../../../../Utils/debugUtils';
 import { ElementProps, ListNode } from '../../../el';
-import { useStyle } from './style';
 
 /**
  * ReadonlyList 组件 - 只读列表预览组件
@@ -40,41 +38,26 @@ export const ReadonlyList: React.FC<ElementProps<ListNode>> = React.memo(
     const isOrdered = element.type === 'numbered-list';
     const isBulleted = element.type === 'bulleted-list';
 
-    debugInfo('ReadonlyList - 渲染只读列表', {
-      type: element.type,
-      isOrdered,
-      task: isBulleted ? element.task : undefined,
-      start: isOrdered ? element.start : undefined,
-      childrenCount: element.children?.length,
-    });
-
     const context = useContext(ConfigProvider.ConfigContext);
     const baseCls = context.getPrefixCls('agentic-md-editor-list');
-    const { wrapSSR, hashId } = useStyle(baseCls);
 
     const tag = isOrdered ? 'ol' : 'ul';
-    debugInfo('ReadonlyList - 渲染', {
-      tag,
-      type: element.type,
-      start: isOrdered ? element.start : undefined,
-      task: isBulleted ? element.task : undefined,
-    });
-    return wrapSSR(
+    return (
       <div
-        className={classNames(`${baseCls}-container`, hashId, 'relative')}
+        className={classNames(`${baseCls}-container`, 'relative')}
         data-be={'list'}
         {...attributes}
       >
         {createElement(
           tag,
           {
-            className: classNames(baseCls, hashId, isOrdered ? 'ol' : 'ul'),
+            className: classNames(baseCls, isOrdered ? 'ol' : 'ul'),
             start: isOrdered ? element.start : undefined,
             ['data-task']: isBulleted && element.task ? 'true' : undefined,
           },
           children,
         )}
-      </div>,
+      </div>
     );
   },
 );

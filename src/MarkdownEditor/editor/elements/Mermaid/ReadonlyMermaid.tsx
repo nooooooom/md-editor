@@ -2,8 +2,6 @@ import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import React, { useContext } from 'react';
 import { RenderElementProps } from 'slate-react';
-import { debugInfo } from '../../../../Utils/debugUtils';
-import { useStyle } from './style';
 
 /**
  * ReadonlyMermaid 组件 - 只读 Mermaid 图表预览组件
@@ -36,24 +34,19 @@ import { useStyle } from './style';
  */
 export const ReadonlyMermaid: React.FC<RenderElementProps> = React.memo(
   ({ attributes, children, element }) => {
-    debugInfo('ReadonlyMermaid - 渲染只读 Mermaid 图表', {
-      hasError: element?.otherProps?.error === true,
-      valueLength: element?.value?.length,
-    });
     const context = useContext(ConfigProvider.ConfigContext);
     const baseCls = context?.getPrefixCls('agentic-md-editor-mermaid');
-    const { wrapSSR, hashId } = useStyle(baseCls);
     const hasError = element?.otherProps?.error === true;
 
-    return wrapSSR(
+    return (
       <pre
         {...attributes}
-        className={classNames(baseCls, hashId, {
+        className={classNames(baseCls, {
           [`${baseCls}-error`]: hasError,
         })}
       >
         <code>{children}</code>
-      </pre>,
+      </pre>
     );
   },
 );

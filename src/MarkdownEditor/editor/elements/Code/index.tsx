@@ -31,11 +31,6 @@ export const Code = ({ attributes, children, element }: RenderElementProps) => {
 
   // 检查代码块是否未闭合
   const isUnclosed = element?.otherProps?.finished === false;
-  debugInfo('Code - 普通代码块', {
-    language: element?.language,
-    isUnclosed,
-    valueLength: element?.value?.length,
-  });
 
   return (
     <div

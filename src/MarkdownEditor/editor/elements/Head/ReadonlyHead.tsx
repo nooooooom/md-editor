@@ -47,10 +47,6 @@ export const ReadonlyHead: React.FC<ElementProps<HeadNode>> = React.memo(
 
     const str = Node.string(element);
 
-    debugInfo('ReadonlyHead - 渲染', {
-      level: element.level,
-      str: str?.substring(0, 50),
-    });
     return createElement(
       `h${element.level}`,
       {

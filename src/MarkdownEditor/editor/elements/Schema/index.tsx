@@ -56,7 +56,6 @@ export const Schema: React.FC<RenderElementProps> = (props) => {
 
   return useMemo(() => {
     if (apaasify?.enable && apaasify.render) {
-      debugInfo('Schema - 使用自定义 apaasify 渲染');
       const renderedContent = apaasify.render(props, bubble?.originData);
       return (
         <div
@@ -88,7 +87,6 @@ export const Schema: React.FC<RenderElementProps> = (props) => {
     }
 
     if (node.language === 'agentar-card') {
-      debugInfo('Schema - 使用 AgentAR 卡片渲染');
       return (
         <div
           data-testid="agentar-card-container"
@@ -108,7 +106,6 @@ export const Schema: React.FC<RenderElementProps> = (props) => {
       );
     }
 
-    debugInfo('Schema - 使用默认 JSON 渲染');
     return (
       <div
         {...node.attributes}

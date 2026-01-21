@@ -63,7 +63,6 @@ export const Paragraph = (props: ElementProps<ParagraphNode>) => {
             : undefined
         }
         onDragStart={(e) => {
-          debugInfo('Paragraph - 拖拽开始');
           store.dragStart(e, markdownContainerRef.current!);
         }}
         data-empty={isEmpty}

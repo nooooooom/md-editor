@@ -9,7 +9,6 @@ import { CommentView } from '../Comment';
 interface CommentLeafProps {
   children: React.ReactNode;
   leaf: RenderLeafProps['leaf'];
-  hashId: string;
   comment: MarkdownEditorProps['comment'];
 }
 
@@ -24,7 +23,6 @@ const areCommentLeafPropsEqual = (
   if (
     prevProps.leaf === nextProps.leaf &&
     prevProps.children === nextProps.children &&
-    prevProps.hashId === nextProps.hashId &&
     prevProps.comment === nextProps.comment
   ) {
     return true;
@@ -32,7 +30,6 @@ const areCommentLeafPropsEqual = (
 
   // 比较基本 props
   if (
-    prevProps.hashId !== nextProps.hashId ||
     prevProps.children !== nextProps.children ||
     prevProps.comment !== nextProps.comment
   ) {
@@ -65,7 +62,6 @@ const areCommentLeafPropsEqual = (
 const CommentLeafComponent = ({
   children,
   leaf,
-  hashId,
   comment,
 }: CommentLeafProps) => {
   const { setShowComment } = useEditorStore();
@@ -77,14 +73,8 @@ const CommentLeafComponent = ({
     [leaf?.comment, leaf?.data],
   );
 
-  debugInfo('CommentLeaf - 渲染评论节点', {
-    hasComment: !!leaf.comment,
-    commentId: leaf?.id,
-  });
-
   // 如果没有评论，直接返回子元素
   if (!leaf.comment) {
-    debugInfo('CommentLeaf - 无评论，直接返回子元素');
     return <>{children}</>;
   }
 
@@ -98,7 +88,6 @@ const CommentLeafComponent = ({
     <CommentView
       id={commentId}
       comment={comment}
-      hashId={hashId}
       selection={leaf?.selection}
       commentItem={commentItem}
       setShowComment={setShowComment}

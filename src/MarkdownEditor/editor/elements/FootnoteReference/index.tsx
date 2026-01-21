@@ -29,7 +29,6 @@ export const FootnoteReference = (
         data-drag-el
         className={!str ? 'empty' : undefined}
         onDragStart={(e) => {
-          debugInfo('FootnoteReference - 拖拽开始');
           store.dragStart(e, markdownContainerRef.current!);
         }}
         data-empty={!str && selected ? 'true' : undefined}

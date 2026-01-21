@@ -13,6 +13,11 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       userSelect: 'none',
       padding: '0.75rem 0',
       borderRadius: '1em',
+      maxWidth: '800px',
+      border: '1px solid #e8e8e8',
+      backgroundColor: '#fff',
+      minWidth: '240px',
+      minHeight: '200px',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
@@ -25,9 +30,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
 
       // 渲染容器样式
       '& [data-mermaid-container="true"]': {
-        width: '100%',
-        maxWidth: '100%',
-        minHeight: '200px', // 保持最小高度，避免尺寸抖动
+        width: '100%',      
         display: 'flex',
         justifyContent: 'center',
         // 增加隔离样式

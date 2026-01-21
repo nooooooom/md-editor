@@ -37,10 +37,6 @@ import { ElementProps, FootnoteDefinitionNode } from '../../../el';
 export const ReadonlyFootnoteReference: React.FC<
   ElementProps<FootnoteDefinitionNode>
 > = React.memo((props) => {
-  debugInfo('ReadonlyFootnoteReference - 渲染只读脚注引用', {
-    identifier: props.element.identifier,
-  });
-
   const str = Node.string(props.element);
   debugInfo('ReadonlyFootnoteReference - 渲染', {
     identifier: props.element.identifier,

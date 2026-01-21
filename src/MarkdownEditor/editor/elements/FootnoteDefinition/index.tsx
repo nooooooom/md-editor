@@ -44,7 +44,6 @@ export const FootnoteDefinition = (
         data-drag-el
         className={!str ? 'empty' : undefined}
         onDragStart={(e) => {
-          debugInfo('FootnoteDefinition - 拖拽开始');
           store.dragStart(e, markdownContainerRef.current!);
         }}
       >
