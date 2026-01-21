@@ -100,19 +100,19 @@ export const BorderBeamAnimation: React.FC<BorderBeamAnimationProps> = ({
   const outerRadiusY = radius + offsetY;
 
   // Ensure we have valid dimensions before generating path
-  // Coordinates start at -offsetX/-offsetY to place the path outside the container
+  // Path starts from bottom-right corner to guide attention to top-left
   const pathData =
     w > 0 && h > 0
       ? `
-    M ${-offsetX + outerRadiusX} ${-offsetY} 
-    H ${w + offsetX - outerRadiusX} 
-    A ${outerRadiusX} ${outerRadiusY} 0 0 1 ${w + offsetX} ${-offsetY + outerRadiusY}
-    V ${h + offsetY - outerRadiusY} 
-    A ${outerRadiusX} ${outerRadiusY} 0 0 1 ${w + offsetX - outerRadiusX} ${h + offsetY}
-    H ${-offsetX + outerRadiusX} 
+    M ${w + offsetX - outerRadiusX} ${h + offsetY}
+    H ${-offsetX + outerRadiusX}
     A ${outerRadiusX} ${outerRadiusY} 0 0 1 ${-offsetX} ${h + offsetY - outerRadiusY}
-    V ${-offsetY + outerRadiusY} 
+    V ${-offsetY + outerRadiusY}
     A ${outerRadiusX} ${outerRadiusY} 0 0 1 ${-offsetX + outerRadiusX} ${-offsetY}
+    H ${w + offsetX - outerRadiusX}
+    A ${outerRadiusX} ${outerRadiusY} 0 0 1 ${w + offsetX} ${-offsetY + outerRadiusY}
+    V ${h + offsetY - outerRadiusY}
+    A ${outerRadiusX} ${outerRadiusY} 0 0 1 ${w + offsetX - outerRadiusX} ${h + offsetY}
     Z
   `
           .replace(/\s+/g, ' ')
@@ -161,11 +161,12 @@ export const BorderBeamAnimation: React.FC<BorderBeamAnimationProps> = ({
                   x2="100%"
                   y2="0%"
                 >
-                  <stop offset="0%" stopColor="#9EE0FF" stopOpacity="1" />
-                  <stop offset="25%" stopColor="#BA85FF" stopOpacity="1" />
-                  <stop offset="50%" stopColor="#7A81FF" stopOpacity="1" />
-                  <stop offset="75%" stopColor="#BA85FF" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#33CCFF" stopOpacity="1" />
+                  <stop offset="0%" stopColor="#5760FF" stopOpacity="1" />
+                  <stop offset="15%" stopColor="#33CCFF" stopOpacity="1" />
+                  <stop offset="30%" stopColor="#33CCFF" stopOpacity="1" />
+                  <stop offset="50%" stopColor="#E2CCFF" stopOpacity="1" />
+                  <stop offset="65%" stopColor="#33CCFF" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#5760FF" stopOpacity="1" />
                 </linearGradient>
               </defs>
               {/* Tail Path (Longer, Blurry, Faint) */}
@@ -175,21 +176,21 @@ export const BorderBeamAnimation: React.FC<BorderBeamAnimationProps> = ({
                 stroke={`url(#${gradientId})`}
                 strokeWidth="4"
                 strokeLinecap="round"
-                filter="blur(6px)"
+                filter="blur(8px)"
                 initial={{
                   pathLength: 0,
-                  pathOffset: 0.85, // Start at bottom-left
+                  pathOffset: 0,
                   opacity: 0,
                 }}
                 animate={{
-                  pathLength: 0.5, // Long tail
-                  pathOffset: 1.91,
+                  pathLength: [0, 0.45, 0],
+                  pathOffset: [0, 0.4],
                   opacity: [0, 0.4, 0],
                 }}
                 transition={{
                   duration: 1,
-                  ease: 'easeOut',
-                  opacity: { duration: 1 },
+                  ease: 'easeInOut',
+                  times: [0, 0.5, 1],
                 }}
               />
               {/* Core Path (Shorter, Sharp, Bright) */}
@@ -202,18 +203,18 @@ export const BorderBeamAnimation: React.FC<BorderBeamAnimationProps> = ({
                 filter="blur(4px)"
                 initial={{
                   pathLength: 0,
-                  pathOffset: 0.95,
+                  pathOffset: 0,
                   opacity: 0,
                 }}
                 animate={{
-                  pathLength: 0.4, // Short core
-                  pathOffset: 1.85,
+                  pathLength: [0, 0.25, 0],
+                  pathOffset: [0, 0.65],
                   opacity: [0, 1, 0],
                 }}
                 transition={{
-                  duration: 1,
-                  ease: 'easeOut',
-                  opacity: { duration: 1 },
+                  duration: 0.8,
+                  ease: 'easeInOut',
+                  times: [0, 0.6, 1],
                 }}
                 onAnimationComplete={onAnimationComplete}
               />
