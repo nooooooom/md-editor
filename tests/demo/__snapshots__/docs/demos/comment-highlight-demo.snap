@@ -1255,7 +1255,7 @@
                           style="width: 80px; min-width: 80px; max-width: 80px;"
                         />
                         <col
-                          style="width: 80px; min-width: 80px; max-width: 80px;"
+                          style="min-width: 60px;"
                         />
                       </colgroup>
                       <tbody>

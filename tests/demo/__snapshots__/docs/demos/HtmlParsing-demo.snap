@@ -2047,7 +2047,7 @@ console.log('嵌套的代码');
                           style="width: 240px; min-width: 240px; max-width: 240px;"
                         />
                         <col
-                          style="width: 276px; min-width: 276px; max-width: 276px;"
+                          style="min-width: 60px;"
                         />
                       </colgroup>
                       <tbody>
@@ -3660,7 +3660,7 @@ console.log('嵌套的代码');
                   data-slate-node="text"
                 >
                   <span
-                    class="ant-agentic-md-editor-content ant-agentic-md-editor-content-m-html"
+                    class="ant-agentic-md-editor-content"
                     data-be="text"
                     data-slate-leaf="true"
                     draggable="false"
@@ -4182,7 +4182,7 @@ console.log('嵌套的代码');
                   data-slate-node="text"
                 >
                   <span
-                    class="ant-agentic-md-editor-content ant-agentic-md-editor-content-m-html"
+                    class="ant-agentic-md-editor-content"
                     data-be="text"
                     data-slate-leaf="true"
                     draggable="false"
@@ -5470,7 +5470,7 @@ console.log('嵌套的代码');
                           style="width: 80px; min-width: 80px; max-width: 80px;"
                         />
                         <col
-                          style="width: 80px; min-width: 80px; max-width: 80px;"
+                          style="min-width: 60px;"
                         />
                       </colgroup>
                       <tbody>

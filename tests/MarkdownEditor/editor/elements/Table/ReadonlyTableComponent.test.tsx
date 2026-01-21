@@ -533,9 +533,15 @@ describe('ReadonlyTableComponent', () => {
     it('应该为每列应用默认宽度 120', () => {
       renderComponent();
       const cols = document.querySelectorAll('col');
-      cols.forEach((col) => {
+      cols.forEach((col, i) => {
         const htmlCol = col as HTMLElement;
-        expect(htmlCol.style.width).toBe('80px');
+        const isLastCol = i === cols.length - 1;
+        if (isLastCol) {
+          // 最后一列仅设置 minWidth 以保持弹性
+          expect(htmlCol.style.minWidth).toBe('60px');
+        } else {
+          expect(htmlCol.style.width).toBe('80px');
+        }
       });
     });
   });

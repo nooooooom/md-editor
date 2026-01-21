@@ -118,6 +118,10 @@ const MElementComponent = (
     hasChildren: !!props.children,
   });
 
+  // 只读时 omit deps，减少 props 变更面，利于 Readonly* 的 memo
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- 仅用于从 spread 中排除
+  const { deps, ...readonlyElementProps } = props;
+
   // 表格元素特殊处理（tableRenderElement 内部已处理 readonly）
   const tableDom = tableRenderElement(props, { readonly: props.readonly });
   if (tableDom) {
@@ -128,91 +132,107 @@ const MElementComponent = (
   switch (props.element.type) {
     case 'link-card':
       return props.readonly ? (
-        <ReadonlyLinkCard {...props} />
+        <ReadonlyLinkCard {...readonlyElementProps} />
       ) : (
         <LinkCard {...props} />
       );
     case 'blockquote':
       return props.readonly ? (
-        <ReadonlyBlockquote {...props} />
+        <ReadonlyBlockquote {...readonlyElementProps} />
       ) : (
         <Blockquote {...props} />
       );
     case 'head':
-      return props.readonly ? <ReadonlyHead {...props} /> : <Head {...props} />;
+      return props.readonly ? (
+        <ReadonlyHead {...readonlyElementProps} />
+      ) : (
+        <Head {...props} />
+      );
     case 'hr':
-      return props.readonly ? <ReadonlyHr {...props} /> : <Hr {...props} />;
+      return props.readonly ? (
+        <ReadonlyHr {...readonlyElementProps} />
+      ) : (
+        <Hr {...props} />
+      );
     case 'break':
       return props.readonly ? (
-        <ReadonlyBreak {...props} />
+        <ReadonlyBreak {...readonlyElementProps} />
       ) : (
         <Break {...props} />
       );
     case 'katex':
       return props.readonly ? (
-        <ReadonlyKatex {...props} />
+        <ReadonlyKatex {...readonlyElementProps} />
       ) : (
         <Katex {...props} />
       );
     case 'inline-katex':
       return props.readonly ? (
-        <ReadonlyInlineKatex {...props} />
+        <ReadonlyInlineKatex {...readonlyElementProps} />
       ) : (
         <InlineKatex {...props} />
       );
     case 'mermaid':
       return props.readonly ? (
-        <ReadonlyMermaid {...props} />
+        <ReadonlyMermaid {...readonlyElementProps} />
       ) : (
         <Mermaid {...props} />
       );
     case 'code':
-      return props.readonly ? <ReadonlyCode {...props} /> : <Code {...props} />;
+      return props.readonly ? (
+        <ReadonlyCode {...readonlyElementProps} />
+      ) : (
+        <Code {...props} />
+      );
     case 'list-item':
       return props.readonly ? (
-        <ReadonlyListItem {...props} />
+        <ReadonlyListItem {...readonlyElementProps} />
       ) : (
         <ListItem {...props} />
       );
     case 'bulleted-list':
     case 'numbered-list':
     case 'list': // 向后兼容
-      return props.readonly ? <ReadonlyList {...props} /> : <List {...props} />;
+      return props.readonly ? (
+        <ReadonlyList {...readonlyElementProps} />
+      ) : (
+        <List {...props} />
+      );
     case 'schema':
     case 'apassify':
     case 'apaasify':
       return props.readonly ? (
-        <ReadonlySchema {...props} />
+        <ReadonlySchema {...readonlyElementProps} />
       ) : (
         <Schema {...props} />
       );
     case 'image':
       return props.readonly ? (
-        <ReadonlyEditorImage {...props} />
+        <ReadonlyEditorImage {...readonlyElementProps} />
       ) : (
         <EditorImage {...props} />
       );
     case 'media':
       return props.readonly ? (
-        <ReadonlyMedia {...props} />
+        <ReadonlyMedia {...readonlyElementProps} />
       ) : (
         <Media {...props} />
       );
     case 'footnoteDefinition':
       return props.readonly ? (
-        <ReadonlyFootnoteDefinition {...props} />
+        <ReadonlyFootnoteDefinition {...readonlyElementProps} />
       ) : (
         <FootnoteDefinition {...props} />
       );
     case 'footnoteReference':
       return props.readonly ? (
-        <ReadonlyFootnoteReference {...props} />
+        <ReadonlyFootnoteReference {...readonlyElementProps} />
       ) : (
         <FootnoteReference {...props} />
       );
     case 'card':
       return props.readonly ? (
-        <ReadonlyCard {...props} />
+        <ReadonlyCard {...readonlyElementProps} />
       ) : (
         <WarpCard {...props} />
       );
@@ -257,7 +277,7 @@ const MElementComponent = (
 
     default:
       return props.readonly ? (
-        <ReadonlyParagraph {...props} />
+        <ReadonlyParagraph {...readonlyElementProps} />
       ) : (
         <Paragraph {...props} />
       );
@@ -267,8 +287,40 @@ const MElementComponent = (
 // 使用 React.memo 优化 MElement 组件的性能
 export const MElement = React.memo(MElementComponent, areElementPropsEqual);
 
+/**
+ * 比较函数，用于优化 MLeaf 组件的渲染性能。
+ * 只读模式下可忽略 tagInputProps。
+ */
+const areLeafPropsEqual = (
+  prev: RenderLeafProps & {
+    readonly?: boolean;
+    comment?: MarkdownEditorProps['comment'];
+    fncProps?: MarkdownEditorProps['fncProps'];
+    tagInputProps?: MarkdownEditorProps['tagInputProps'];
+    linkConfig?: MarkdownEditorProps['linkConfig'];
+  },
+  next: RenderLeafProps & {
+    readonly?: boolean;
+    comment?: MarkdownEditorProps['comment'];
+    fncProps?: MarkdownEditorProps['fncProps'];
+    tagInputProps?: MarkdownEditorProps['tagInputProps'];
+    linkConfig?: MarkdownEditorProps['linkConfig'];
+  },
+): boolean => {
+  if (prev.leaf !== next.leaf) return false;
+  if (prev.children !== next.children) return false;
+  if (prev.attributes !== next.attributes) return false;
+  if (prev.readonly !== next.readonly) return false;
+  if (!next.readonly && prev.tagInputProps !== next.tagInputProps) return false;
+  if (prev.fncProps !== next.fncProps) return false;
+  if (prev.comment !== next.comment) return false;
+  if (prev.linkConfig !== next.linkConfig) return false;
+  return true;
+};
+
 const MLeafComponent = (
   props: RenderLeafProps & {
+    readonly?: boolean;
     comment: MarkdownEditorProps['comment'];
     fncProps: MarkdownEditorProps['fncProps'];
     tagInputProps: MarkdownEditorProps['tagInputProps'];
@@ -300,7 +352,8 @@ const MLeafComponent = (
     const { text, tag, placeholder, autoOpen, triggerText } = (props?.leaf ||
       {}) as any;
     const { enable, tagTextRender } = props.tagInputProps || {};
-    if (enable && tag) {
+    // 只读模式下不渲染 TagPopup 及 Transforms，仅展示 code 样式，提升性能
+    if (enable && tag && !props.readonly) {
       children = (
         <>
           <TagPopup
@@ -485,7 +538,7 @@ const MLeafComponent = (
       draggable={false}
       onDragStart={dragStart}
       onClick={(e) => {
-        if (e.detail === 2) {
+        if (e.detail === 2 && !props.readonly) {
           selectFormat();
         }
         if (props.linkConfig?.onClick) {
@@ -522,7 +575,7 @@ const MLeafComponent = (
 };
 
 // 使用 React.memo 优化 MLeaf 组件的性能
-export const MLeaf = React.memo(MLeafComponent);
+export const MLeaf = React.memo(MLeafComponent, areLeafPropsEqual);
 
 export {
   Blockquote,

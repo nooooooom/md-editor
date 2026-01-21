@@ -254,6 +254,15 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
 
   const handleSelectionChange = useDebounceFn(
     async (e: React.ReactEventHandler<HTMLDivElement>) => {
+      // 只读且不需要选区（无 onSelectionChange、无 FloatBar）时，跳过选区同步与 DOM 测量，提升性能
+      if (
+        readonly &&
+        !props.onSelectionChange &&
+        (!props.reportMode || props.floatBar?.enable === false)
+      ) {
+        setDomRect?.(null);
+        return;
+      }
       const currentSelection = markdownEditorRef.current.selection;
 
       // 获取选中内容的 markdown 和节点
@@ -939,6 +948,7 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
           children={leafComponentProps.children}
           tagInputProps={props.tagInputProps}
           linkConfig={props.linkConfig}
+          readonly={readonly}
         />
       );
 
@@ -958,6 +968,10 @@ export const SlateMarkdownEditor = (props: MEditorProps) => {
   );
 
   const decorateFn = (e: any) => {
+    // 只读且无评论时，跳过 decorate（useHighlight + comment）以提升性能
+    if (readonly && !props?.comment?.commentList?.length) {
+      return [];
+    }
     const decorateList: any[] | undefined = high(e) || [];
     if (!props?.comment) return decorateList;
     if (props?.comment?.enable === false) return decorateList;

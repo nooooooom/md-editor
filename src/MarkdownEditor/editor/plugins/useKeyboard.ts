@@ -80,6 +80,9 @@ export const useKeyboard = (
     const enter = new EnterKey(store, backspace);
     const match = new MatchKey(markdownEditorRef.current);
     return (e: React.KeyboardEvent) => {
+      // 只读模式下跳过所有键盘处理，提升性能
+      if (props.readonly) return;
+
       // 处理表格键盘事件
       if (NativeTableKeyboard.shouldHandle(markdownEditorRef.current)) {
         if (
@@ -246,5 +249,5 @@ export const useKeyboard = (
         }
       }
     };
-  }, [markdownEditorRef.current]);
+  }, [markdownEditorRef.current, props?.readonly]);
 };

@@ -45,6 +45,8 @@ export const renderSvgToContainer = (
   container.innerHTML = '';
 
   const wrapper = document.createElement('div');
+  wrapper.setAttribute('data-mermaid-wrapper', 'true');
+  wrapper.style.display = 'flex';
   const parser = new DOMParser();
   const svgDoc = parser.parseFromString(svg, 'image/svg+xml');
   const svgElement = svgDoc.querySelector('svg');
