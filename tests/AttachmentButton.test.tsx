@@ -506,7 +506,50 @@ describe('AttachmentButton', () => {
       expect(mockRender).toHaveBeenCalledWith({
         children: expect.anything(),
         supportedFormat: customFormat,
+        locale: undefined,
       });
+    });
+
+    it('should pass locale to custom render function when locale prop is provided', () => {
+      const mockRender = vi.fn(({ children }) => (
+        <div data-testid="custom-render">{children}</div>
+      ));
+
+      const customLocale = {
+        'input.openGallery': 'Open Gallery',
+        'input.openFile': 'Open File',
+      };
+
+      render(
+        <AttachmentButton
+          uploadImage={mockUploadImage}
+          render={mockRender}
+          locale={customLocale}
+        />,
+      );
+
+      expect(mockRender).toHaveBeenCalledWith({
+        children: expect.anything(),
+        supportedFormat: expect.anything(),
+        locale: customLocale,
+      });
+    });
+
+    it('should render without error when locale is provided and render is not used', () => {
+      const { container } = render(
+        <AttachmentButton
+          uploadImage={mockUploadImage}
+          locale={{
+            'input.openGallery': 'Open Gallery',
+            'input.openFile': 'Open File',
+          }}
+        />,
+      );
+
+      expect(container.firstChild).toBeInTheDocument();
+      expect(
+        document.querySelector('.ant-agentic-md-editor-attachment-button'),
+      ).toBeInTheDocument();
     });
 
     it('should render Paperclip icon in custom render function', () => {

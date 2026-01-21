@@ -338,6 +338,8 @@ export const cnLabels = {
   'input.selectFile': '选择文件',
   'input.openGallery': '打开相册',
   'input.openFile': '打开文件',
+  'input.supportedFormatMessage':
+    '支持上传文件，每个文件不超过 ${maxSize}，支持 ${extensions}等格式。',
   'input.sendButtonTooltip.send': '按 Enter 键发送',
   'input.sendButtonTooltip.newline': '按 Shift+Enter 键换行',
   // Other translations
@@ -721,6 +723,8 @@ export const enLabels: typeof cnLabels = {
   'input.selectFile': 'Select File',
   'input.openGallery': 'Open Gallery',
   'input.openFile': 'Open File',
+  'input.supportedFormatMessage':
+    'Supports file upload, each file not exceeding ${maxSize}, formats such as ${extensions}.',
   'input.sendButtonTooltip.send': 'Press Enter to send',
   'input.sendButtonTooltip.newline': 'Press Shift+Enter for new line',
   // Other translations

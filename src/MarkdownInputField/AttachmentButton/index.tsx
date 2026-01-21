@@ -3,6 +3,7 @@ import { ConfigProvider, message } from 'antd';
 import classNames from 'classnames';
 import React, { useContext } from 'react';
 import { compileTemplate } from '../../I18n';
+import type { LocalKeys } from '../../I18n';
 import AttachmentButtonPopover, {
   AttachmentButtonPopoverProps,
   SupportedFileFormats,
@@ -33,10 +34,13 @@ export type AttachmentButtonProps = {
   supportedFormat?: AttachmentButtonPopoverProps['supportedFormat'];
   /** 是否禁用按钮 */
   disabled?: boolean;
+  /** 国际化文案，会传递给 AttachmentButtonPopover。支持 `input.openGallery`、`input.openFile`、`input.supportedFormatMessage` 等 */
+  locale?: Partial<LocalKeys>;
   /** 自定义渲染函数，用于替换默认的 Popover */
   render?: (props: {
     children: React.ReactNode;
     supportedFormat?: AttachmentButtonPopoverProps['supportedFormat'];
+    locale?: Partial<LocalKeys>;
   }) => React.ReactElement;
   /** 删除文件回调 */
   onDelete?: (file: AttachmentFile) => Promise<void>;
@@ -367,7 +371,7 @@ export const AttachmentButton: React.FC<
     /** 按钮标题文本 */
     title?: React.ReactNode;
   }
-> = ({ disabled, uploadImage, title, supportedFormat, render }) => {
+> = ({ disabled, uploadImage, title, supportedFormat, locale, render }) => {
   const context = useContext(ConfigProvider.ConfigContext);
   const prefix = context?.getPrefixCls('agentic-md-editor-attachment-button');
   const { wrapSSR, hashId } = useStyle(prefix);
@@ -389,9 +393,14 @@ export const AttachmentButton: React.FC<
     render({
       children: buttonWithStyle,
       supportedFormat: format,
+      locale,
     })
   ) : (
-    <AttachmentButtonPopover supportedFormat={format} uploadImage={uploadImage}>
+    <AttachmentButtonPopover
+      supportedFormat={format}
+      uploadImage={uploadImage}
+      locale={locale}
+    >
       {buttonWithStyle}
     </AttachmentButtonPopover>
   );

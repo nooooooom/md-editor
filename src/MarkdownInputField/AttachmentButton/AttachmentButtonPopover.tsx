@@ -9,7 +9,8 @@ import {
 import { Button, Modal, Tooltip } from 'antd';
 import React, { useContext, useMemo, useState } from 'react';
 import { useRefFunction } from '../../Hooks/useRefFunction';
-import { I18nContext } from '../../I18n';
+import { compileTemplate, I18nContext } from '../../I18n';
+import type { LocalKeys } from '../../I18n';
 import { isMobileDevice, isVivoOrOppoDevice, kbToSize } from './utils';
 
 export type SupportedFormat = {
@@ -25,6 +26,8 @@ export type AttachmentButtonPopoverProps = {
   supportedFormat?: SupportedFormat;
   /** 上传图片的处理函数 */
   uploadImage?: (forGallery?: boolean) => Promise<void>;
+  /** 国际化文案，可覆盖 I18n 上下文中的配置。支持 `input.openGallery`、`input.openFile`、`input.supportedFormatMessage`（模板变量：${maxSize}、${extensions}）等 */
+  locale?: Partial<LocalKeys>;
 };
 
 const FILE_SIZE_UNITS = {
@@ -78,30 +81,47 @@ export const SupportedFileFormats = {
   },
 };
 
-const buildFormatMessage = (format: SupportedFormat) => {
+const DEFAULT_FORMAT_MESSAGE =
+  '支持上传文件，每个文件不超过 ${maxSize}，支持 ${extensions}等格式。';
+
+const buildFormatMessage = (
+  format: SupportedFormat,
+  locale?: Partial<LocalKeys>,
+) => {
   const maxSize = kbToSize(format.maxSize || DEFAULT_MAX_SIZE);
   const extensions = format.extensions?.join(', ') || '';
-  return `支持上传文件，每个文件不超过 ${maxSize}，支持 ${extensions}等格式。`;
+  const template =
+    locale?.['input.supportedFormatMessage'] ?? DEFAULT_FORMAT_MESSAGE;
+  return compileTemplate(template, { maxSize, extensions });
 };
 
-const FormatContent: React.FC<{ format: SupportedFormat }> = ({ format }) => {
+const FormatContent: React.FC<{
+  format: SupportedFormat;
+  locale?: Partial<LocalKeys>;
+}> = ({ format, locale }) => {
   if (format.content) return <>{format.content}</>;
 
-  return <div style={CONTENT_STYLE}>{buildFormatMessage(format)}</div>;
+  return (
+    <div style={CONTENT_STYLE}>{buildFormatMessage(format, locale)}</div>
+  );
 };
 
 export const AttachmentSupportedFormatsContent: React.FC<
   AttachmentButtonPopoverProps
-> = ({ supportedFormat }) => {
+> = ({ supportedFormat, locale }) => {
   const format = supportedFormat || SupportedFileFormats.image;
-  return <FormatContent format={format} />;
+  return <FormatContent format={format} locale={locale} />;
 };
 
 export const AttachmentButtonPopover: React.FC<
   AttachmentButtonPopoverProps
-> = ({ children, supportedFormat, uploadImage }) => {
+> = ({ children, supportedFormat, uploadImage, locale: localeProp }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { locale } = useContext(I18nContext);
+  const { locale: contextLocale } = useContext(I18nContext);
+  const locale =
+    localeProp !== undefined
+      ? { ...contextLocale, ...localeProp }
+      : contextLocale;
   const isVivoOrOppo = useMemo(() => isVivoOrOppoDevice(), []);
   const isMobile = useMemo(() => isMobileDevice(), []);
   const trigger = useMemo(
@@ -203,7 +223,10 @@ export const AttachmentButtonPopover: React.FC<
       mouseEnterDelay={1}
       trigger={trigger}
       title={
-        <AttachmentSupportedFormatsContent supportedFormat={supportedFormat} />
+        <AttachmentSupportedFormatsContent
+          supportedFormat={supportedFormat}
+          locale={locale}
+        />
       }
     >
       <span
