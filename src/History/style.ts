@@ -248,7 +248,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
           // 支持直接在元素上的属性
           '&[aria-describedby]': {
             animationName: 'scrollText',
-            animationDuration: '2s',
+            animationDuration: 'var(--scroll-duration, 6s)',
             animationTimingFunction: 'linear',
             animationDelay: '0.5s',
             animationFillMode: 'forwards',
@@ -257,7 +257,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
           // 支持子元素上的属性
           '& > div[aria-describedby]': {
             animationName: 'scrollText',
-            animationDuration: '2s',
+            animationDuration: 'var(--scroll-duration, 6s)',
             animationTimingFunction: 'linear',
             animationDelay: '0.5s',
             animationFillMode: 'forwards',
