@@ -1,123 +1,58 @@
-import { MarkdownInputField, MarkdownEditorInstance } from '@ant-design/agentic-ui';
+import {
+  BubbleList,
+  ChatLayout,
+  MarkdownEditorInstance,
+  MarkdownInputField,
+} from '@ant-design/agentic-ui';
 import { Alert, Card, Progress, Space, Typography } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 
 const { Title, Paragraph, Text } = Typography;
 
-/**
- * 简化版本示例 - 模拟 WebLLM 行为
- * 用于演示集成方式，不依赖真实的 WebLLM 库
- */
-function SimplifiedExample() {
-  const inputRef = useRef<MarkdownEditorInstance>();
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  /**
-   * 模拟 AI 回复生成
-   */
-  const mockGenerateResponse = async (userMessage: string): Promise<string> => {
-    // 模拟网络延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // 简单的回复逻辑（实际使用时替换为真实的 WebLLM 调用）
-    const responses = [
-      `我理解您的问题："${userMessage}"。这是一个很好的问题！`,
-      `关于"${userMessage}"，我可以为您提供以下信息...`,
-      `让我思考一下"${userMessage}"这个问题。根据我的理解...`,
-    ];
-
-    return responses[Math.floor(Math.random() * responses.length)];
+type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant' | 'system' | 'agent' | 'bot';
+  content: string;
+  createAt: number;
+  updateAt: number;
+  meta?: {
+    avatar?: string;
+    title?: string;
+    description?: string;
+    backgroundColor?: string;
+    [key: string]: any;
   };
-
-  /**
-   * 处理发送消息
-   */
-  const handleSend = async (value: string) => {
-    if (!value.trim()) {
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // 添加用户消息
-      const userMessage = { role: 'user' as const, content: value };
-      setMessages(prev => [...prev, userMessage]);
-
-      // 生成 AI 回复
-      const assistantResponse = await mockGenerateResponse(value);
-      const assistantMessage = { role: 'assistant' as const, content: assistantResponse };
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (err) {
-      console.error('发送消息错误:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* 对话历史 */}
-      <Card size="small" title="对话历史">
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          {messages.length === 0 ? (
-            <Text type="secondary">暂无对话记录</Text>
-          ) : (
-            messages.map((msg, index) => (
-              <div
-                key={index}
-                style={{
-                  padding: '8px 12px',
-                  backgroundColor: msg.role === 'user' ? '#f0f0f0' : '#e6f7ff',
-                  borderRadius: '4px',
-                  marginLeft: msg.role === 'assistant' ? '20px' : '0',
-                  marginRight: msg.role === 'user' ? '20px' : '0',
-                }}
-              >
-                <Text strong>{msg.role === 'user' ? '👤 用户' : '🤖 AI'}: </Text>
-                <Text>{msg.content}</Text>
-              </div>
-            ))
-          )}
-        </Space>
-      </Card>
-
-      {/* 输入框 */}
-      <MarkdownInputField
-        inputRef={inputRef}
-        placeholder="输入消息进行测试..."
-        onSend={handleSend}
-        disabled={isLoading}
-        typing={isLoading}
-        style={{
-          minHeight: '100px',
-        }}
-      />
-    </div>
-  );
-}
+  extra?: Record<string, any>;
+  fileMap?: Map<string, File>;
+  error?: any;
+  model?: string;
+  isFinished?: boolean;
+};
 
 /**
  * WebLLM 与 MarkdownInputField 结合示例
- * 
+ *
  * 本示例展示如何使用 WebLLM 在浏览器中运行大语言模型，
  * 并与 MarkdownInputField 组件结合，实现本地 AI 对话功能。
- * 
+ *
  * 使用前需要安装 @mlc-ai/web-llm:
  * npm install @mlc-ai/web-llm
- * 
+ *
  * 注意：WebLLM 需要下载模型文件，首次使用可能需要一些时间。
  */
 export default () => {
   const inputRef = useRef<MarkdownEditorInstance>();
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [modelStatus, setModelStatus] = useState<'unloaded' | 'loading' | 'ready'>('unloaded');
+  const [modelStatus, setModelStatus] = useState<
+    'unloaded' | 'loading' | 'ready'
+  >('unloaded');
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadProgressText, setLoadProgressText] = useState('');
-  
+
+  console.log('当前消息数:', messages);
+
   // WebLLM 引擎实例
   const engineRef = useRef<any>(null);
 
@@ -137,11 +72,11 @@ export default () => {
       // 动态导入 @mlc-ai/web-llm
       // 注意：实际使用时需要先安装 npm install @mlc-ai/web-llm
       // @ts-ignore - 可选依赖，可能未安装
-      const { CreateWebLLMEngine } = await import('@mlc-ai/web-llm');
-      
+      const all = await import('@mlc-ai/web-llm');
+
       // 创建引擎实例
       // 使用 Qwen3-0.6B-q0f16-MLC 模型（轻量级模型，适合快速响应）
-      const engine = await CreateWebLLMEngine('Qwen3-0.6B-q0f16-MLC', {
+      const engine = await all.CreateMLCEngine('Qwen3-0.6B-q0f16-MLC', {
         initProgressCallback: (report: { progress: number; text: string }) => {
           // 更新加载进度
           const progressPercent = Math.round(report.progress * 100);
@@ -166,16 +101,22 @@ export default () => {
   /**
    * 使用 WebLLM 生成回复
    * @param userMessage 用户输入的消息
-   * @returns AI 生成的回复内容
+   * @param conversationHistory 对话历史（传入最新的消息列表）
+   * @param onChunk 流式输出回调函数，接收每个内容片段
+   * @returns AI 生成的完整回复内容
    */
-  const generateResponse = async (userMessage: string): Promise<string> => {
+  const generateResponse = async (
+    userMessage: string,
+    conversationHistory: ChatMessage[],
+    onChunk?: (content: string) => void,
+  ): Promise<string> => {
     try {
       // 确保引擎已初始化
       const engine = await initWebLLM();
 
       // 构建对话历史
       const conversation = [
-        ...messages.map(msg => ({
+        ...conversationHistory.map((msg) => ({
           role: msg.role,
           content: msg.content,
         })),
@@ -197,8 +138,8 @@ export default () => {
         const content = chunk.choices[0]?.delta?.content || '';
         if (content) {
           fullResponse += content;
-          // 可以在这里实时更新 UI（如果需要流式显示）
-          // updateStreamingResponse(fullResponse);
+          // 调用流式回调
+          onChunk?.(fullResponse);
         }
       }
 
@@ -210,7 +151,7 @@ export default () => {
   };
 
   /**
-   * 处理发送消息
+   * 处理发送消息（流式更新）
    */
   const handleSend = async (value: string) => {
     if (!value.trim()) {
@@ -222,15 +163,55 @@ export default () => {
 
     try {
       // 添加用户消息
-      const userMessage = { role: 'user' as const, content: value };
-      setMessages(prev => [...prev, userMessage]);
+      const now = Date.now();
+      const userMessage: ChatMessage = {
+        id: `user-${now}`,
+        role: 'user',
+        content: value,
+        createAt: now,
+        updateAt: now,
+      };
+      setMessages((prev) => [...prev, userMessage]);
 
-      // 生成 AI 回复
-      const assistantResponse = await generateResponse(value);
+      // 创建空的 AI 消息用于流式更新
+      const assistantId = `assistant-${Date.now()}`;
+      const assistantMessage: ChatMessage = {
+        id: assistantId,
+        role: 'assistant',
+        content: '',
+        createAt: Date.now(),
+        updateAt: Date.now(),
+        model: 'Qwen3-0.6B-q0f16-MLC',
+        isFinished: false,
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
 
-      // 添加 AI 回复
-      const assistantMessage = { role: 'assistant' as const, content: assistantResponse };
-      setMessages(prev => [...prev, assistantMessage]);
+      // 生成 AI 回复（流式更新）- 传入当前的消息历史
+      await generateResponse(value, messages, (streamingContent) => {
+        // 实时更新 AI 消息内容
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantId
+              ? {
+                  ...msg,
+                  content: streamingContent
+                    .replace('<think>', '```think')
+                    .replace('</think>', '```'),
+                  updateAt: Date.now(),
+                }
+              : msg,
+          ),
+        );
+      });
+
+      // 标记消息生成完成
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantId
+            ? { ...msg, isFinished: true, updateAt: Date.now() }
+            : msg,
+        ),
+      );
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : '发送消息失败';
       setError(errorMsg);
@@ -250,14 +231,6 @@ export default () => {
   };
 
   /**
-   * 清空对话历史
-   */
-  const clearMessages = () => {
-    setMessages([]);
-    setError(null);
-  };
-
-  /**
    * 组件挂载时自动加载模型
    */
   useEffect(() => {
@@ -268,16 +241,84 @@ export default () => {
   }, []);
 
   return (
-    <div
-      style={{
-        padding: '24px',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px',
-      }}
-    >
+    <>
+      {/* 模型状态和进度 */}
+      <Card size="small">
+        <Space direction="vertical" style={{ width: '100%' }} size="small">
+          <Space>
+            <Text>模型状态：</Text>
+            {modelStatus === 'unloaded' && <Text type="secondary">未加载</Text>}
+            {modelStatus === 'loading' && <Text type="warning">加载中...</Text>}
+            {modelStatus === 'ready' && <Text type="success">已就绪</Text>}
+          </Space>
+          {modelStatus === 'loading' && (
+            <div style={{ width: '100%' }}>
+              <Progress
+                percent={loadProgress}
+                status="active"
+                strokeColor={{
+                  '0%': '#108ee9',
+                  '100%': '#87d068',
+                }}
+                format={(percent) => `${percent}%`}
+              />
+              {loadProgressText && (
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: '12px',
+                    display: 'block',
+                    marginTop: '8px',
+                  }}
+                >
+                  {loadProgressText}
+                </Text>
+              )}
+            </div>
+          )}
+        </Space>
+      </Card>
+
+      {/* 错误提示 */}
+      {error && (
+        <Alert
+          message="错误"
+          description={error}
+          type="error"
+          closable
+          onClose={() => setError(null)}
+        />
+      )}
+
+      <ChatLayout
+        header={{ title: 'AI 对话' }}
+        scrollBehavior="auto"
+        style={{ minHeight: 'calc(100vh - 120px)' }}
+        footer={
+          <MarkdownInputField
+            inputRef={inputRef}
+            placeholder="输入你的问题，按 Enter 发送，Shift+Enter 换行..."
+            onSend={handleSend}
+            onStop={handleStop}
+            disabled={isLoading}
+            typing={isLoading}
+            style={{ minHeight: 120 }}
+          />
+        }
+      >
+        {messages.length === 0 ? (
+          <Space
+            direction="vertical"
+            style={{ width: '100%', padding: 16 }}
+            size="large"
+          >
+            <Text type="secondary">暂无对话记录，开始对话吧！</Text>
+          </Space>
+        ) : (
+          <BubbleList bubbleList={messages} pure />
+        )}
+      </ChatLayout>
+
       <Card>
         <Title level={4}>WebLLM + MarkdownInputField 示例</Title>
         <Paragraph>
@@ -303,98 +344,6 @@ export default () => {
           </Text>
         </Paragraph>
       </Card>
-
-      {/* 模型状态和进度 */}
-      <Card size="small">
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
-          <Space>
-            <Text>模型状态：</Text>
-            {modelStatus === 'unloaded' && <Text type="secondary">未加载</Text>}
-            {modelStatus === 'loading' && <Text type="warning">加载中...</Text>}
-            {modelStatus === 'ready' && <Text type="success">已就绪</Text>}
-          </Space>
-          {modelStatus === 'loading' && (
-            <div style={{ width: '100%' }}>
-              <Progress
-                percent={loadProgress}
-                status="active"
-                strokeColor={{
-                  '0%': '#108ee9',
-                  '100%': '#87d068',
-                }}
-                format={(percent) => `${percent}%`}
-              />
-              {loadProgressText && (
-                <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginTop: '8px' }}>
-                  {loadProgressText}
-                </Text>
-              )}
-            </div>
-          )}
-        </Space>
-      </Card>
-
-      {/* 错误提示 */}
-      {error && (
-        <Alert
-          message="错误"
-          description={error}
-          type="error"
-          closable
-          onClose={() => setError(null)}
-        />
-      )}
-
-      {/* 对话历史 */}
-      <Card title={`对话历史 (${messages.length} 条)`} extra={<a onClick={clearMessages}>清空</a>}>
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
-          {messages.length === 0 ? (
-            <Text type="secondary">暂无对话记录，开始对话吧！</Text>
-          ) : (
-            messages.map((msg, index) => (
-              <Card
-                key={index}
-                size="small"
-                style={{
-                  backgroundColor: msg.role === 'user' ? '#f0f0f0' : '#e6f7ff',
-                  marginLeft: msg.role === 'assistant' ? '40px' : '0',
-                  marginRight: msg.role === 'user' ? '40px' : '0',
-                }}
-              >
-                <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                  <Text strong>{msg.role === 'user' ? '👤 用户' : '🤖 AI'}</Text>
-                  <Paragraph style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
-                    {msg.content}
-                  </Paragraph>
-                </Space>
-              </Card>
-            ))
-          )}
-        </Space>
-      </Card>
-
-      {/* 输入框 */}
-      <Card>
-        <MarkdownInputField
-          inputRef={inputRef}
-          placeholder="输入你的问题，按 Enter 发送，Shift+Enter 换行..."
-          onSend={handleSend}
-          onStop={handleStop}
-          disabled={isLoading}
-          typing={isLoading}
-          style={{
-            minHeight: '120px',
-          }}
-        />
-      </Card>
-
-      {/* 简化版本示例（不使用真实 WebLLM，仅展示集成方式） */}
-      <Card title="简化版本（模拟 WebLLM）">
-        <Paragraph>
-          如果不想安装 WebLLM，可以使用以下简化版本进行测试：
-        </Paragraph>
-        <SimplifiedExample />
-      </Card>
-    </div>
+    </>
   );
 };
