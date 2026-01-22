@@ -126,6 +126,7 @@
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
+    "@mlc-ai/web-llm": "^0.2.80",
     "@playwright/test": "^1.57.0",
     "@swc/core": "^1.15.8",
     "@testing-library/jest-dom": "^6.9.1",
