@@ -106,6 +106,7 @@
                   data-slate-node="text"
                 >
                   <span
+                    class="ant-agentic-md-editor-content-inline-code"
                     data-be="text"
                     data-slate-leaf="true"
                     draggable="false"
@@ -938,6 +939,7 @@ console.log('Hello World');
                         data-slate-node="text"
                       >
                         <span
+                          class="ant-agentic-md-editor-content-inline-code"
                           data-be="text"
                           data-slate-leaf="true"
                           draggable="false"
@@ -1000,6 +1002,7 @@ console.log('Hello World');
                         data-slate-node="text"
                       >
                         <span
+                          class="ant-agentic-md-editor-content-inline-code"
                           data-be="text"
                           data-slate-leaf="true"
                           draggable="false"

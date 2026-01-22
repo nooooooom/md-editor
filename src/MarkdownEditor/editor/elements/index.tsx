@@ -548,7 +548,7 @@ const MLeafComponent = (
       data-comment={leaf.comment ? 'comment' : undefined}
       data-url={leaf.url ? 'url' : undefined}
       style={style}
-      className={prefixClassName}
+      className={prefixClassName?.trim() ? prefixClassName?.trim() : undefined}
     >
       {children}
     </span>

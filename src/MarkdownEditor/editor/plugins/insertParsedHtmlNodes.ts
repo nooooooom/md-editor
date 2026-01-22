@@ -5,6 +5,7 @@ import { Editor, Element, Node, Path, Range, Transforms } from 'slate';
 import { jsx } from 'slate-hyperscript';
 import { debugInfo } from '../../../Utils/debugUtils';
 import { debugLog, EditorUtils } from '../utils';
+import { getMediaType } from '../utils/dom';
 import { docxDeserializer } from '../utils/docx/docxDeserializer';
 
 import { BackspaceKey } from './hotKeyCommands/backspace';
@@ -338,9 +339,34 @@ const blobToFile = async (blobUrl: string, fileName: string) => {
 };
 
 /**
+ * 从片段列表中递归移除图片类型的媒体片段
+ */
+const removeImageFragments = (fragments: any[]): void => {
+  for (let i = fragments.length - 1; i >= 0; i--) {
+    const fragment = fragments[i];
+    if (fragment.type === 'media') {
+      const mediaType = fragment.mediaType || getMediaType(fragment.url, fragment.alt);
+      if (mediaType === 'image') {
+        fragments.splice(i, 1);
+        continue;
+      }
+    }
+    if (fragment?.children) {
+      removeImageFragments(fragment.children);
+    }
+  }
+};
+
+/**
  * 分段处理文件上传，避免阻塞主线程
  */
 const upLoadFileBatch = async (fragmentList: any[], editorProps: any) => {
+  // 如果没有配置 upload，过滤掉图片类型的媒体片段
+  if (!editorProps.image?.upload) {
+    removeImageFragments(fragmentList);
+    return;
+  }
+
   const mediaFragments: any[] = [];
 
   // 收集所有需要上传的媒体文件
