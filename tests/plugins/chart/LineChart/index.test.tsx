@@ -28,9 +28,9 @@ beforeAll(async () => {
       );
       LineChart = LineChartModule.default;
     } catch (secondError) {
-      // 如果都失败了，尝试从 plugins 目录导入（小写）
+      // 如果都失败了，尝试从 Plugins 目录导入
       const LineChartModule = await import(
-        '../../../../src/plugins/chart/LineChart/index'
+        '../../../../src/Plugins/chart/LineChart/index'
       );
       LineChart = LineChartModule.default;
     }

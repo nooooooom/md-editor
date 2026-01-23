@@ -86,6 +86,7 @@ export class MarkdownEditorPage {
 
   /**
    * 使用键盘快捷键
+   * 在 Mac 上，Home/End 键需要使用 Meta+Left/Right 组合
    */
   async pressKey(key: string) {
     const isMac = process.platform === 'darwin';
@@ -96,6 +97,8 @@ export class MarkdownEditorPage {
     } else {
       await this.page.keyboard.press(key);
     }
+    // 等待光标移动完成
+    await this.page.waitForTimeout(100);
   }
 
   /**
