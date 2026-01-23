@@ -99,25 +99,6 @@ export const useKeyboard = (
         e.preventDefault();
         return;
       }
-
-      // 处理 Home 键：移动到文档开头
-      if (e.key === 'Home' && !(e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        e.stopPropagation();
-        const start = Editor.start(markdownEditorRef.current, []);
-        Transforms.select(markdownEditorRef.current, start);
-        return;
-      }
-
-      // 处理 End 键：移动到文档末尾
-      if (e.key === 'End' && !(e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        e.stopPropagation();
-        const end = Editor.end(markdownEditorRef.current, []);
-        Transforms.select(markdownEditorRef.current, end);
-        return;
-      }
-
       if (isHotkey('mod+ArrowDown', e)) {
         e.preventDefault();
         Transforms.select(
