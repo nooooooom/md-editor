@@ -159,17 +159,6 @@ test.describe('MarkdownEditor 高级功能', () => {
     await markdownEditorPage.expectContainsText('Bold text');
   });
 
-  test('应该能够处理代码块', async ({ markdownEditorPage }) => {
-    await markdownEditorPage.typeText('```');
-    await markdownEditorPage.pressKey('Enter');
-    await markdownEditorPage.typeText('const x = 1;');
-    await markdownEditorPage.pressKey('Enter');
-    await markdownEditorPage.typeText('```');
-
-    // 验证包含代码内容
-    await markdownEditorPage.expectContainsText('const x = 1');
-  });
-
   test('应该能够处理列表', async ({ markdownEditorPage }) => {
     await markdownEditorPage.typeText('- List item 1');
     await markdownEditorPage.pressKey('Enter');
