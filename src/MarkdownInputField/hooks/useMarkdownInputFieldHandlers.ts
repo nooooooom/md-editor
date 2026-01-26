@@ -18,6 +18,7 @@ interface UseMarkdownInputFieldHandlersParams {
     | 'allowEmptySubmit'
     | 'markdownProps'
     | 'attachment'
+    | 'triggerSendKey'
   >;
   markdownEditorRef: React.MutableRefObject<MarkdownEditorInstance | undefined>;
   inputRef: React.RefObject<HTMLDivElement>;
@@ -134,7 +135,11 @@ export const useMarkdownInputFieldHandlers = ({
   // 键盘事件：早返回减少嵌套
   const handleKeyDown = useRefFunction(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (markdownEditorRef?.current?.store.inputComposition) return;
+      if (
+        markdownEditorRef?.current?.store.inputComposition ||
+        e.nativeEvent.isComposing
+      )
+        return;
 
       const editor = markdownEditorRef?.current?.markdownEditorRef?.current;
       const isEnter = e.key === 'Enter';
@@ -170,17 +175,33 @@ export const useMarkdownInputFieldHandlers = ({
         return;
       }
 
-      // 手机端禁用 Enter 键发送
-      if (isEnter && !isMod && !isShift && isMobileDevice()) {
-        return; // 让编辑器正常处理换行
+      // 移动端强制使用 Mod+Enter 模式，避免 Enter 误触
+      const effectiveTriggerKey = isMobileDevice()
+        ? 'Mod+Enter'
+        : props.triggerSendKey || 'Enter';
+
+      if (effectiveTriggerKey === 'Enter') {
+        // 模式1: Enter 发送，Shift+Enter 换行
+        // 只有纯 Enter 键才触发发送
+        if (isEnter && !isMod && !isShift) {
+          e.stopPropagation();
+          e.preventDefault();
+          if (props.onSend) sendMessage();
+          return;
+        }
+      } else if (effectiveTriggerKey === 'Mod+Enter') {
+        // 模式2: Mod+Enter (Cmd/Ctrl+Enter) 发送，Enter 换行
+        if (isEnter && isMod && !isShift) {
+          e.stopPropagation();
+          e.preventDefault();
+          if (props.onSend) sendMessage();
+          return;
+        }
       }
 
-      // Enter 发送，Shift+Enter 换行
-      if (!isEnter || isMod) return;
-      if (isShift) return; // Shift+Enter 时让编辑器处理换行
-      e.stopPropagation();
-      e.preventDefault();
-      if (props.onSend) sendMessage();
+      // 其他情况（如 Shift+Enter，或非触发键的 Enter 组合）让编辑器正常处理换行
+      // 这里不需要显式 return，函数结束自然会继续执行（但这里是 void，所以 return 也无妨）
+      // 注意：上面的 return 是阻止了默认行为并发送，这里的 implicit return 是允许默认行为（换行）
     },
   );
 
