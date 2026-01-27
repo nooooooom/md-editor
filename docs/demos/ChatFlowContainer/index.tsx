@@ -260,7 +260,16 @@ const ChatLayoutDemo: React.FC = () => {
               onShare: handleShare,
             }}
             footer={
-              <Flex vertical align="center" justify="center" gap={24}>
+              <Flex
+                vertical
+                align="center"
+                justify="center"
+                gap={24}
+                style={{
+                  background:
+                    'linear-gradient(rgba(255, 255, 255, 0) 5%, rgba(255, 255, 255, 0.5) 40%)',
+                }}
+              >
                 <Flex gap={8} align="center" justify="center">
                   <BackTo.Top
                     tooltip="去顶部"

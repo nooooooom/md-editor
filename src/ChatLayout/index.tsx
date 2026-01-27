@@ -153,15 +153,15 @@ const ChatLayoutComponent = forwardRef<ChatLayoutRef, ChatLayoutProps>(
             )}
           </div>
         </div>
+        {showFooterBackground && (
+          <FooterBackgroundLottie className={footerBackgroundClassName} />
+        )}
         {footer && (
           <div
             ref={footerRef}
             className={footerClassName}
             style={{ minHeight: footerHeight, ...styles?.footer }}
           >
-            {showFooterBackground && (
-              <FooterBackgroundLottie className={footerBackgroundClassName} />
-            )}
             {footer}
           </div>
         )}
