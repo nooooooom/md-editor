@@ -181,20 +181,13 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
       },
       '&-footer-background': {
         position: 'absolute',
-        left: '50%',
+        left: 0,
         right: 0,
         bottom: 0,
-        width: '110%',
-        maxHeight: 130,
-        aspectRatio: '2880 / 600',
-        transform: 'translateX(-50%)',
+        width: '100%',
+        height: 146,
         pointerEvents: 'none',
         overflow: 'hidden',
-
-        ['svg']: {
-          position: 'absolute',
-          bottom: -5,
-        }
       },
       [`@media (max-width: ${MOBILE_BREAKPOINT})`]: {
         '&-header': {
