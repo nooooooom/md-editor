@@ -185,6 +185,7 @@ const genStyle: GenerateStyle<ChatTokenType> = (token) => {
         right: 0,
         bottom: 0,
         width: '110%',
+        maxHeight: 130,
         aspectRatio: '2880 / 600',
         transform: 'translateX(-50%)',
         pointerEvents: 'none',
